@@ -1437,53 +1437,90 @@
             setupEventListeners();
             loadSavedPlans();
             // Restore previously selected folder
-            getStoredFolderHandle().then(function(handle) {
-                if (handle) {
-                    _folderHandle = handle;
-                    updateFolderDisplay();
-                    loadPlansFromFolder();
-                    loadSettingsFile();
-                    getCalibTransform('Air Nav Chart');
-                    getCalibTransform('AZM Chart');
-                } else {
-                    // Check if we have a stored handle that needs permission re-grant
-                    idbGet('flightPlannerFolder').then(function(stored) {
-                        if (!stored) return;
-                        // Show a banner asking user to click to restore folder access
-                        var banner = document.createElement('div');
-                        banner.id = 'folderRestoreBanner';
-                        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;' +
-                            'background:#0066cc;color:white;padding:10px 20px;' +
-                            'display:flex;align-items:center;justify-content:space-between;' +
-                            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
-                            'font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
-                        banner.innerHTML =
-                            '<span>📁 Click to restore access to your working folder</span>' +
-                            '<button id="folderRestoreBtn" style="padding:6px 16px;background:white;color:#0066cc;' +
-                            'border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:13px;">Restore Folder</button>' +
-                            '<button id="folderRestoreDismiss" style="padding:6px 10px;background:transparent;color:white;' +
-                            'border:1px solid rgba(255,255,255,0.5);border-radius:5px;cursor:pointer;font-size:13px;">✕</button>';
-                        document.body.appendChild(banner);
-
-                        document.getElementById('folderRestoreBtn').onclick = async function() {
-                            try {
-                                var perm = await stored.requestPermission({ mode: 'readwrite' });
-                                if (perm === 'granted') {
-                                    _folderHandle = stored;
-                                    if (banner.parentNode) banner.parentNode.removeChild(banner);
-                                    confirmAndReload();
-                                    return;
-                                }
-                            } catch(e) {}
-                            if (banner.parentNode) banner.parentNode.removeChild(banner);
-                        };
-                        document.getElementById('folderRestoreDismiss').onclick = function() {
-                            banner.parentNode.removeChild(banner);
-                        };
-                    }).catch(function() {});
+            idbGet('flightPlannerFolder').then(function(stored) {
+                if (!stored) {
+                    // No folder ever selected
+                    showNoFolderWarning();
+                    return;
                 }
-            });
+                // Try to get permission silently first
+                stored.queryPermission({ mode: 'readwrite' }).then(function(perm) {
+                    if (perm === 'granted') {
+                        // Permission already granted — restore immediately
+                        _folderHandle = stored;
+                        updateFolderDisplay();
+                        loadPlansFromFolder();
+                        loadSettingsFile();
+                        getCalibTransform('Air Nav Chart');
+                        getCalibTransform('AZM Chart');
+                    } else {
+                        // Need user gesture — show banner
+                        showFolderRestoreBanner(stored);
+                    }
+                }).catch(function() {
+                    showFolderRestoreBanner(stored);
+                });
+            }).catch(function() {});
         });
+
+        function showFolderRestoreBanner(stored) {
+            if (document.getElementById('folderRestoreBanner')) return;
+            var banner = document.createElement('div');
+            banner.id = 'folderRestoreBanner';
+            banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;' +
+                'background:#0066cc;color:white;padding:10px 20px;' +
+                'display:flex;align-items:center;justify-content:space-between;gap:10px;' +
+                'font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+            banner.innerHTML =
+                '<span>📁 Click to restore access to your working folder</span>' +
+                '<button id="folderRestoreBtn" style="padding:6px 16px;background:white;color:#0066cc;' +
+                'border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:13px;">Restore Folder</button>' +
+                '<button id="folderRestoreDismiss" style="padding:6px 10px;background:transparent;color:white;' +
+                'border:1px solid rgba(255,255,255,0.5);border-radius:5px;cursor:pointer;font-size:13px;">✕</button>';
+            document.body.appendChild(banner);
+
+            document.getElementById('folderRestoreBtn').onclick = async function() {
+                try {
+                    var perm = await stored.requestPermission({ mode: 'readwrite' });
+                    if (perm === 'granted') {
+                        _folderHandle = stored;
+                        if (banner.parentNode) banner.parentNode.removeChild(banner);
+                        confirmAndReload();
+                        return;
+                    }
+                } catch(e) {}
+                if (banner.parentNode) banner.parentNode.removeChild(banner);
+                showNoFolderWarning();
+            };
+            document.getElementById('folderRestoreDismiss').onclick = function() {
+                if (banner.parentNode) banner.parentNode.removeChild(banner);
+            };
+        }
+
+        function showNoFolderWarning() {
+            if (document.getElementById('noFolderWarning')) return;
+            var banner = document.createElement('div');
+            banner.id = 'noFolderWarning';
+            banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;' +
+                'background:#cc3300;color:white;padding:10px 20px;' +
+                'display:flex;align-items:center;justify-content:space-between;gap:10px;' +
+                'font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+            banner.innerHTML =
+                '<span>⚠️ No working folder selected — saving plans, settings and calibration is disabled</span>' +
+                '<button id="noFolderSelectBtn" style="padding:6px 16px;background:white;color:#cc3300;' +
+                'border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:13px;">Select Folder</button>' +
+                '<button id="noFolderDismiss" style="padding:6px 10px;background:transparent;color:white;' +
+                'border:1px solid rgba(255,255,255,0.5);border-radius:5px;cursor:pointer;font-size:13px;">✕</button>';
+            document.body.appendChild(banner);
+
+            document.getElementById('noFolderSelectBtn').onclick = function() {
+                if (banner.parentNode) banner.parentNode.removeChild(banner);
+                window.selectWorkingFolder();
+            };
+            document.getElementById('noFolderDismiss').onclick = function() {
+                if (banner.parentNode) banner.parentNode.removeChild(banner);
+            };
+        }
         
         function toDDMMSS(decimal, isLat) {
             var absolute = Math.abs(decimal);
