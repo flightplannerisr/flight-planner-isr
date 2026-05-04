@@ -114,9 +114,6 @@
         .sidebar { z-index: 1000 !important; position: relative; }
         #sidebar { z-index: 1000 !important; }
         </style>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y00XWHR1MD"></script>
     <script>
@@ -1446,9 +1443,44 @@
                     updateFolderDisplay();
                     loadPlansFromFolder();
                     loadSettingsFile();
-                    // Pre-load any existing calibration files
                     getCalibTransform('Air Nav Chart');
                     getCalibTransform('AZM Chart');
+                } else {
+                    // Check if we have a stored handle that needs permission re-grant
+                    idbGet('flightPlannerFolder').then(function(stored) {
+                        if (!stored) return;
+                        // Show a banner asking user to click to restore folder access
+                        var banner = document.createElement('div');
+                        banner.id = 'folderRestoreBanner';
+                        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;' +
+                            'background:#0066cc;color:white;padding:10px 20px;' +
+                            'display:flex;align-items:center;justify-content:space-between;' +
+                            'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+                            'font-size:14px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+                        banner.innerHTML =
+                            '<span>📁 Click to restore access to your working folder</span>' +
+                            '<button id="folderRestoreBtn" style="padding:6px 16px;background:white;color:#0066cc;' +
+                            'border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:13px;">Restore Folder</button>' +
+                            '<button id="folderRestoreDismiss" style="padding:6px 10px;background:transparent;color:white;' +
+                            'border:1px solid rgba(255,255,255,0.5);border-radius:5px;cursor:pointer;font-size:13px;">✕</button>';
+                        document.body.appendChild(banner);
+
+                        document.getElementById('folderRestoreBtn').onclick = async function() {
+                            try {
+                                var perm = await stored.requestPermission({ mode: 'readwrite' });
+                                if (perm === 'granted') {
+                                    _folderHandle = stored;
+                                    if (banner.parentNode) banner.parentNode.removeChild(banner);
+                                    confirmAndReload();
+                                    return;
+                                }
+                            } catch(e) {}
+                            if (banner.parentNode) banner.parentNode.removeChild(banner);
+                        };
+                        document.getElementById('folderRestoreDismiss').onclick = function() {
+                            banner.parentNode.removeChild(banner);
+                        };
+                    }).catch(function() {});
                 }
             });
         });
@@ -7995,13 +8027,34 @@
                 var handle = await window.showDirectoryPicker({ mode: 'readwrite' });
                 _folderHandle = handle;
                 await idbSet('flightPlannerFolder', handle);
-                updateFolderDisplay();
-                await loadPlansFromFolder();
-                await loadSettingsFile();
+                confirmAndReload();
             } catch(e) {
                 if (e.name !== 'AbortError') alert('Could not access folder: ' + e.message);
             }
         };
+
+        function confirmAndReload() {
+            if (appState.waypoints && appState.waypoints.length > 0) {
+                var modal = document.createElement('div');
+                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;';
+                var dialog = document.createElement('div');
+                dialog.style.cssText = 'background:white;border-radius:12px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:sans-serif;';
+                dialog.innerHTML =
+                    '<h3 style="margin:0 0 12px;color:#cc3300;font-size:1.1rem;">&#9888; Unsaved Work</h3>' +
+                    '<p style="margin:0 0 10px;font-size:0.875rem;color:#444;">You have an active route drawn on the map that has not been saved.</p>' +
+                    '<p style="margin:0 0 20px;font-size:0.8rem;color:#666;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:8px 12px;">Not reloading may cause compatibility issues with your working folder settings.</p>' +
+                    '<div style="display:flex;gap:10px;">' +
+                    '<button id="cfmReloadYes" style="flex:1;padding:10px;background:#0066cc;color:white;border:none;border-radius:7px;font-size:0.9rem;font-weight:600;cursor:pointer;">Reload Now</button>' +
+                    '<button id="cfmReloadNo" style="flex:1;padding:10px;background:#f0f0f0;color:#333;border:none;border-radius:7px;font-size:0.9rem;font-weight:600;cursor:pointer;">Stay (not recommended)</button>' +
+                    '</div>';
+                modal.appendChild(dialog);
+                document.body.appendChild(modal);
+                document.getElementById('cfmReloadYes').onclick = function() { location.reload(); };
+                document.getElementById('cfmReloadNo').onclick  = function() { document.body.removeChild(modal); };
+            } else {
+                location.reload();
+            }
+        }
 
         function updateFolderDisplay() {
             var display = document.getElementById('folderPathDisplay');
