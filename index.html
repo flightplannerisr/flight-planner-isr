@@ -2670,10 +2670,54 @@
             var CURRENT_VERSION = 'v3.6.8';
 
             // Full changelog — each entry has version, icon, title, and items
-            var CHANGELOG = [
+                            var CHANGELOG = [
                 {
                     version: 'v3.6.8',
                     icon: '🔧',
+                    title: 'Bug Fixes',
+                    items: [
+                        'LSA/CVFR icons now correctly reposition when switching between maps',
+                        'Text boxes now correctly reposition when switching between maps',
+                        'The AirNav/AZM projection warning banner is shown only once per session',
+                        'Select Area capture now works correctly on both OSM and AirNav maps'
+                    ]
+                },
+                {
+                    version: 'v3.6.8',
+                    icon: '&#9888;',
+                    title: 'AZM Map',
+                    items: [
+                        'Added a notice banner when switching to the AZM map, warning that route distances and headings are currently inaccurate due to projection differences'
+                    ]
+                },
+                {
+                    version: 'v3.6.8',
+                    icon: '&#128465;',
+                    title: 'Display',
+                    items: [
+                        'Removed the Hide Leg Time button — use the per-waypoint label settings instead'
+                    ]
+                },
+                {
+                    version: 'v3.6.7',
+                    icon: '&#127968;',
+                    title: 'Infrastructure',
+                    items: [
+                        'The app is now hosted on GitHub Pages for improved reliability and faster load times'
+                    ]
+                },
+                {
+                    version: 'v3.6.7',
+                    icon: '&#128196;',
+                    title: 'Print & Export',
+                    items: [
+                        'A3 paper size is now supported alongside A4',
+                        'Multi-page print significantly improved: pages can be freely dragged to cover any map area, each page can be set to portrait or landscape independently'
+                    ]
+                },
+                {
+                    version: 'v3.6.3',
+                    icon: '&#128296;',
                     title: 'Bug Fixes',
                     items: [
                         'Info boxes now stay in place when adding or removing mini waypoints',
@@ -2683,7 +2727,7 @@
                 },
                 {
                     version: 'v3.6.2',
-                    icon: '🔧',
+                    icon: '&#128296;',
                     title: 'Bug Fixes',
                     items: [
                         'LSA points now correctly positioned on Air Nav map without requiring a working folder'
@@ -2691,7 +2735,7 @@
                 },
                 {
                     version: 'v3.6.1',
-                    icon: '🔧',
+                    icon: '&#128296;',
                     title: 'Bug Fixes',
                     items: [
                         'LSA points now correctly positioned on Air Nav map without requiring a working folder'
@@ -2699,7 +2743,7 @@
                 },
                 {
                     version: 'v3.6',
-                    icon: '🗺️',
+                    icon: '&#128507;',
                     title: 'Map',
                     items: [
                         'The Air Nav chart is now calibrated — it can be used for accurate route planning',
@@ -2708,7 +2752,7 @@
                 },
                 {
                     version: 'v3.6',
-                    icon: '✈️',
+                    icon: '&#9992;',
                     title: 'Mini Legs',
                     items: [
                         'Group consecutive legs to accumulate their distance and time — click an existing waypoint and choose Mini to get started'
@@ -2716,13 +2760,13 @@
                 },
                 {
                     version: 'v3.6',
-                    icon: '👁️',
+                    icon: '&#128065;',
                     title: 'Display',
                     items: [
                         'LSA reporting points can now be automatically hidden when they overlap waypoint circles, info boxes, or text boxes — enable in Display Settings'
                     ]
                 }
-            ];
+                ];
 
             var seen = localStorage.getItem('flightPlannerLastSeenVersion');
             if (!force && seen === CURRENT_VERSION) return;
