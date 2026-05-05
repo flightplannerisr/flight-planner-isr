@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Israel Flight Path Planner v3.6.8</title>
+    <title>Israel Flight Path Planner v3.6.9</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -140,7 +140,7 @@
         
         <div class="sidebar">
             <div class="panel" style="background: linear-gradient(135deg, #0066cc 0%, #004999 100%); color: white; text-align: center; padding: 1.5rem; position: relative;">
-                <h1 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: white;">🛩️ Israel Flight Planner <span style="font-size: 0.9rem; opacity: 0.8;">v3.6.8</span></h1>
+                <h1 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: white;">🛩️ Israel Flight Planner <span style="font-size: 0.9rem; opacity: 0.8;">v3.6.9</span></h1>
                 <p style="margin: 0; font-size: 0.875rem; opacity: 0.95;">Click on map to add waypoints</p>
             </div>
             
@@ -2667,12 +2667,12 @@
         
 
         function showWhatsNewIfNeeded(force) {
-            var CURRENT_VERSION = 'v3.6.8';
+            var CURRENT_VERSION = 'v3.6.9';
 
             // Full changelog — each entry has version, icon, title, and items
                             var CHANGELOG = [
                 {
-                    version: 'v3.6.8',
+                    version: 'v3.6.9',
                     icon: '🔧',
                     title: 'Bug Fixes',
                     items: [
@@ -2683,7 +2683,7 @@
                     ]
                 },
                 {
-                    version: 'v3.6.8',
+                    version: 'v3.6.9',
                     icon: '&#9888;',
                     title: 'AZM Map',
                     items: [
@@ -2691,7 +2691,7 @@
                     ]
                 },
                 {
-                    version: 'v3.6.8',
+                    version: 'v3.6.9',
                     icon: '&#128465;',
                     title: 'Display',
                     items: [
@@ -2773,7 +2773,7 @@
 
             // Determine which entries to show
             // force = show all; otherwise show only entries newer than last seen
-            var versionOrder = ['v3.6', 'v3.6.1', 'v3.6.2', 'v3.6.3', 'v3.6.4', 'v3.6.5', 'v3.6.6', 'v3.6.7', 'v3.6.8'];
+            var versionOrder = ['v3.6', 'v3.6.1', 'v3.6.2', 'v3.6.3', 'v3.6.4', 'v3.6.5', 'v3.6.6', 'v3.6.7', 'v3.6.8', 'v3.6.9'];
             var seenIdx = versionOrder.indexOf(seen);
             var entriesToShow = force
                 ? CHANGELOG
@@ -8327,26 +8327,42 @@
             var folder = await getStoredFolderHandle();
 
             if (folder) {
-                // Save to folder as JSON file
+                var fileName = planName.replace(/[^a-z0-9_\-\s]/gi, '_') + '.json';
+                // Check if file exists and prompt override if it matches current plan
+                var fileExists = false;
                 try {
-                    var fileName = planName.replace(/[^a-z0-9_\-\s]/gi, '_') + '.json';
+                    await folder.getFileHandle(fileName, { create: false });
+                    fileExists = true;
+                } catch(e) {}
+
+                if (fileExists) {
+                    if (!confirm('Override "' + planName + '"?\n\nThis will replace the existing saved plan.')) return;
+                }
+
+                try {
                     var fh = await folder.getFileHandle(fileName, { create: true });
                     var writable = await fh.createWritable();
                     await writable.write(JSON.stringify(plan, null, 2));
                     await writable.close();
                     await saveWaypointsFile();
-                    document.getElementById('plan-name').value = '';
+                    appState.currentPlanName = planName;
                     await loadPlansFromFolder();
-                    alert('Flight plan saved to folder!');
+                    alert('Flight plan saved!');
                 } catch(e) {
                     alert('Save failed: ' + e.message);
                 }
             } else {
                 // Fallback: localStorage
                 var plans = JSON.parse(localStorage.getItem('flightPlans') || '[]');
-                plans.push(plan);
+                var existingIdx = plans.findIndex(function(p) { return p.name === planName; });
+                if (existingIdx >= 0) {
+                    if (!confirm('Override "' + planName + '"?')) return;
+                    plans[existingIdx] = plan;
+                } else {
+                    plans.push(plan);
+                }
                 localStorage.setItem('flightPlans', JSON.stringify(plans));
-                document.getElementById('plan-name').value = '';
+                appState.currentPlanName = planName;
                 loadSavedPlans();
                 alert('Saved to browser storage. Set a folder to save as files.');
             }
@@ -8393,7 +8409,13 @@
 
         window.loadPlanFromFolder = async function(idx) {
             if (!window._folderPlans || !window._folderPlans[idx]) return;
-            applyPlan(window._folderPlans[idx].plan);
+            var plan = window._folderPlans[idx].plan;
+            applyPlan(plan);
+            // Set after applyPlan (which calls clearRoute which clears the field)
+            setTimeout(function() {
+                appState.currentPlanName = plan.name;
+                document.getElementById('plan-name').value = plan.name;
+            }, 100);
         };
 
         window.deletePlanFromFolder = async function(idx) {
@@ -8408,6 +8430,7 @@
 
         function applyPlan(plan) {
             clearRoute();
+            appState.currentPlanName = null;
 
             // Switch to the map the plan was drawn on
             var targetMap = plan.mapName;
@@ -8707,7 +8730,7 @@
                              'width:360px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,0.3);font-family:inherit;">' +
 
                     '<h2 style="margin:0 0 4px;font-size:16px;color:#0066cc;">✉️ Contact Developer</h2>' +
-                    '<p style="margin:0 0 18px;font-size:12px;color:#888;">Israel Flight Planner · v3.6.8</p>' +
+                    '<p style="margin:0 0 18px;font-size:12px;color:#888;">Israel Flight Planner · v3.6.9</p>' +
 
                     '<label style="font-size:12px;color:#555;font-weight:600;">' +
                         'Name <span style="color:#dc3545;">*</span></label>' +
