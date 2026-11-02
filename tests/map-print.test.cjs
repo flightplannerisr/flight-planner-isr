@@ -48,9 +48,9 @@ const preview = source.slice(
     source.indexOf('            function resizePrimaryRect(')
 );
 
-function previewContext(paperSize, fixedScale, zoom) {
+function previewContext(paperSize, fixedScale, zoom, chartPrint = null) {
     const state = vm.createContext({
-        paperSize, fixedScale, mapW: 1200, mapH: 800,
+        paperSize, fixedScale, chartPrint, mapW: 1200, mapH: 800,
         appState: { map: { getZoom: () => zoom } }
     });
     vm.runInContext(helpers + preview, state);
@@ -80,3 +80,91 @@ test('legacy fit selection stays viewport-sized when zoom changes', () => {
     near(a.h, b.h);
     near(a.h, 800 * 0.8);
 });
+
+function mercatorY(latitude) {
+    return Math.log(Math.tan(Math.PI / 4 + latitude * Math.PI / 360));
+}
+
+const sourceMeasurements = {
+    'Air Nav Chart': { width: 5712, height: 14575, nm20Pixels: 1166.5, latitude10Pixels: 584.5 },
+    'AZM Chart': { width: 8523, height: 22370, nm20Pixels: 1744, latitude10Pixels: 873 }
+};
+
+test('active chart geometry uses the visible image layer and its actual bounds', () => {
+    const reference = context.CHART_PRINT_REFERENCES['Air Nav Chart'];
+    const layer = {
+        options: { chartPrintReference: reference },
+        getBounds: () => ({
+            getNorthWest: () => ({ x: 10, y: 20 }),
+            getSouthEast: () => ({ x: 12, y: 25 })
+        })
+    };
+    const map = {
+        eachLayer: fn => [{ options: {} }, layer].forEach(fn),
+        project: (point, zoom) => {
+            assert.equal(zoom, 0);
+            return point;
+        }
+    };
+    const actual = context.getActiveChartPrintView(map);
+    const expected = context.getChartPrintGeometry(reference, 2, 5);
+    assert.equal(actual.layer, layer);
+    assert.equal(actual.reference, reference);
+    near(actual.zoom, expected.zoom);
+    near(actual.verticalStretch, expected.verticalStretch);
+});
+
+test('street layers do not enable chart correction', () => {
+    const map = { eachLayer: fn => [{ options: {} }, {}].forEach(fn) };
+    assert.equal(context.getActiveChartPrintView(map), null);
+});
+
+for (const [mapName, measured] of Object.entries(sourceMeasurements)) {
+    const reference = context.CHART_PRINT_REFERENCES[mapName];
+    for (const margins of [false, true]) {
+        const latSpan = 33.333333 - 29.5;
+        const west = 34.166667 - (margins ? 1.666666 * 0.0145 : 0);
+        const east = 35.833333 + (margins ? 1.666666 * 0.0145 : 0);
+        const south = 29.5 - (margins ? latSpan * 0.021 : 0);
+        const north = 33.333333 + (margins ? latSpan * 0.030 : 0);
+        const projectedWidth = (east - west) / 360 * 256;
+        const projectedHeight = (mercatorY(north) - mercatorY(south)) / (2 * Math.PI) * 256;
+        const geometry = context.getChartPrintGeometry(reference, projectedWidth, projectedHeight);
+        const worldScale = 2 ** geometry.zoom;
+        const sourcePixelWidth = projectedWidth * worldScale / measured.width;
+        const sourcePixelHeight = projectedHeight * worldScale * geometry.verticalStretch / measured.height;
+
+        test(`${mapName} ${margins ? 'expanded' : 'standard'} bounds: original 20 NM bar is 148.16 mm`, () => {
+            const barWidth = sourcePixelWidth * measured.nm20Pixels;
+            near(barWidth / 96 * 25.4, 148.16);
+            const gridHeight = sourcePixelHeight * measured.latitude10Pixels;
+            near(gridHeight / 96 * 25.4, 74.08);
+        });
+
+        for (const paper of ['A4', 'A3']) {
+            for (const landscape of [false, true]) {
+                test(`${mapName} ${paper} ${landscape ? 'landscape' : 'portrait'} preview matches both printed axes`, () => {
+                    const zoom = 11;
+                    const size = previewContext(paper, true, zoom, geometry)
+                        .previewSize({ lat: 32 }, landscape);
+                    const page = context.getPrintPageSize(paper, landscape);
+                    // Project the selected region through the print-only CRS.
+                    near(size.w * 2 ** (geometry.zoom - zoom), page.widthPx);
+                    near(size.h * 2 ** (geometry.zoom - zoom) * geometry.verticalStretch, page.heightPx);
+                    const moved = previewContext(paper, true, zoom, geometry)
+                        .previewSize({ lat: 33.2 }, landscape);
+                    near(moved.w, size.w);
+                    near(moved.h, size.h);
+                });
+            }
+        }
+    }
+
+    test(`${mapName} fit selection does not apply chart correction`, () => {
+        const geometry = { zoom: 11.5, verticalStretch: 0.85 };
+        const chart = previewContext('A4', false, 11, geometry).previewSize({ lat: 32 }, false);
+        const street = previewContext('A4', false, 11).previewSize({ lat: 32 }, false);
+        near(chart.w, street.w);
+        near(chart.h, street.h);
+    });
+}
