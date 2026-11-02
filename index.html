@@ -1717,7 +1717,7 @@
                 appState.airNavMapOverlay = L.imageOverlay(
                     './air_nav_combined_aligned.jpg',
                     mapBounds,
-                    { opacity: 1.0, interactive: false }
+                    { opacity: 1.0, interactive: false, chartPrintReference: CHART_PRINT_REFERENCES['Air Nav Chart'] }
                 ).addTo(appState.map);
                 
                 btn.textContent = t.exitAirNavMode;
@@ -1798,7 +1798,7 @@
                 appState.azmMapOverlay = L.imageOverlay(
                     './air_nav_combined_aligned_AZM.jpg',
                     mapBounds,
-                    { opacity: 1.0, interactive: false }
+                    { opacity: 1.0, interactive: false, chartPrintReference: CHART_PRINT_REFERENCES['AZM Chart'] }
                 ).addTo(appState.map);
 
                 if (btn) {
@@ -1886,7 +1886,8 @@
             });
             var airNavOverlay = L.imageOverlay('./air_nav_combined_aligned.jpg', chartBounds, {
                 opacity: 1.0,
-                interactive: false
+                interactive: false,
+                chartPrintReference: CHART_PRINT_REFERENCES['Air Nav Chart']
             });
             airNavChart.addLayer(blankTilesAirNav);
             airNavChart.addLayer(airNavOverlay);
@@ -1898,7 +1899,8 @@
             });
             var azmOverlay = L.imageOverlay('./air_nav_combined_aligned_AZM.jpg', chartBounds, {
                 opacity: 1.0,
-                interactive: false
+                interactive: false,
+                chartPrintReference: CHART_PRINT_REFERENCES['AZM Chart']
             });
             azmChart.addLayer(blankTilesAzm);
             azmChart.addLayer(azmOverlay);
@@ -2676,7 +2678,8 @@
                     icon: '&#128506;',
                     title: 'Air Nav Chart',
                     items: [
-                        'Updated the Air Nav Chart to the 2026 edition'
+                        'Updated the Air Nav Chart to the 2026 edition',
+                        'Fixed-scale A4/A3 exports now match each chart image\'s own scale bar and latitude grid. At 1:250,000, the original 0-20 NM bar measures 148.16 mm; use the plotter\'s Terminal Nautical scale.'
                     ]
                 },
                 {
@@ -6454,13 +6457,85 @@
             }, 500);
         };
         
+        function getPrintPageSize(paperSize, landscape) {
+            var shortSide = paperSize === 'A3' ? 297 : 210;
+            var longSide = paperSize === 'A3' ? 420 : 297;
+            return {
+                widthMm: landscape ? longSide : shortSide,
+                heightMm: landscape ? shortSide : longSide,
+                widthPx: (landscape ? longSide : shortSide) * 96 / 25.4,
+                heightPx: (landscape ? shortSide : longSide) * 96 / 25.4
+            };
+        }
+
+        function getFixedScalePrintZoom(latitude) {
+            // Leaflet's spherical Earth distance, calibrated at the page center.
+            var metersPerPixel = 250000 * 0.0254 / 96;
+            return Math.log2(2 * Math.PI * 6371000 * Math.cos(latitude * Math.PI / 180) /
+                (256 * metersPerPixel));
+        }
+
+        // Source-image pixels: top 0-20 NM bar and west-edge 33deg10'-33deg00' ticks.
+        // These references, not the JPEG DPI or approximate Leaflet bounds, set chart scale.
+        var CHART_PRINT_REFERENCES = {
+            'Air Nav Chart': {
+                width: 5712, height: 14575,
+                scaleBar: [1642.5, 2809],
+                latitudeTicks: [925, 1509.5]
+            },
+            'AZM Chart': {
+                width: 8523, height: 22370,
+                scaleBar: [2471.5, 4215.5],
+                latitudeTicks: [1384.5, 2257.5]
+            }
+        };
+
+        function getChartPrintGeometry(reference, projectedWidth, projectedHeight) {
+            var pixelsPerMeter = 96 / 0.0254 / 250000;
+            var sourceScaleX = 20 * 1852 * pixelsPerMeter /
+                (reference.scaleBar[1] - reference.scaleBar[0]);
+            var sourceScaleY = 10 * 1852 * pixelsPerMeter /
+                (reference.latitudeTicks[1] - reference.latitudeTicks[0]);
+            var zoom = Math.log2(reference.width * sourceScaleX / projectedWidth);
+            return {
+                zoom: zoom,
+                verticalStretch: reference.height * sourceScaleY /
+                    (projectedHeight * Math.pow(2, zoom))
+            };
+        }
+
+        function getActiveChartPrintView(map) {
+            var view = null;
+            map.eachLayer(function(layer) {
+                if (!layer.options || !layer.options.chartPrintReference) return;
+                var reference = layer.options.chartPrintReference;
+                var bounds = layer.getBounds();
+                var nw = map.project(bounds.getNorthWest(), 0);
+                var se = map.project(bounds.getSouthEast(), 0);
+                view = getChartPrintGeometry(reference, se.x - nw.x, se.y - nw.y);
+                view.layer = layer;
+                view.reference = reference;
+            });
+            return view;
+        }
+
+        function getChartPrintCRS(crs, verticalStretch) {
+            var mercatorScale = 1 / (2 * Math.PI * crs.projection.R);
+            return L.extend({}, crs, {
+                transformation: new L.Transformation(mercatorScale, 0.5,
+                    -mercatorScale * verticalStretch, 0.5)
+            });
+        }
+
         window.captureA3Area = function() { window.captureA4Area('A3'); };
 
         window.captureA4Area = function(paperSize) {
             paperSize = paperSize || 'A4';
-            var paperRatio = (paperSize === 'A3') ? (420 / 297) : (297 / 210); // long/short side ratio
-            // A4: 297/210=1.4142, A3: 420/297=1.4141 (same ratio! A3 is just 2x A4)
-            // Print dimensions at 96dpi: A4 portrait=794x1123, A3 portrait=1123x1587
+            var fixedScale = true;
+            var chartPrint = getActiveChartPrintView(appState.map);
+            var fixedScaleHelp = chartPrint ?
+                '1:250,000 chart scale: original 0-20 NM bar = 148.16 mm. Use the Terminal Nautical ruler. Print at 100% / Actual size, no fit-to-page, no margins or headers.' :
+                '1:250,000 at each page center (projection scale varies across page). Print at 100% / Actual size, no fit-to-page, no margins or headers.';
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
 
@@ -6470,16 +6545,24 @@
             var mapW = mapContainer.offsetWidth;
             var mapH = mapContainer.offsetHeight;
 
-            // Paper ratio is always ~1.4142 (both A4 and A3 share the same ratio)
-            var ratio = paperRatio;
             var rectW, rectH;
-            if (isLandscape) {
-                rectH = Math.round(Math.min(mapH, mapW / ratio) * 0.80);
-                rectW = Math.round(rectH * ratio);
-            } else {
-                rectW = Math.round(Math.min(mapW, mapH / ratio) * 0.80);
-                rectH = Math.round(rectW * ratio);
+            function previewSize(center, landscape) {
+                var page = getPrintPageSize(paperSize, landscape);
+                var factor = fixedScale ?
+                    Math.pow(2, appState.map.getZoom() -
+                        (chartPrint ? chartPrint.zoom : getFixedScalePrintZoom(center.lat))) :
+                    Math.min(mapW / page.widthPx, mapH / page.heightPx) * 0.80;
+                return {
+                    w: page.widthPx * factor,
+                    h: page.heightPx * factor / (fixedScale && chartPrint ? chartPrint.verticalStretch : 1)
+                };
             }
+            function resizePrimaryRect() {
+                var size = previewSize(rectGeoCenter || appState.map.getCenter(), isLandscape);
+                rectW = size.w;
+                rectH = size.h;
+            }
+            resizePrimaryRect();
 
             // Start centred on the map
             var startX = Math.round((mapW - rectW) / 2);
@@ -6528,35 +6611,41 @@
             var rectGeoCenter = null;
 
             function positionRect(x, y) {
-                // Clamp inside map
-                x = Math.max(0, Math.min(mapW - rectW, x));
-                y = Math.max(0, Math.min(mapH - rectH, y));
-                rect.style.left   = x + 'px';
-                rect.style.top    = y + 'px';
-                rect.style.width  = rectW + 'px';
-                rect.style.height = rectH + 'px';
-                updatePanels(x, y, rectW, rectH);
-                window._a4Pos = { x: x, y: y, w: rectW, h: rectH };
-                // Save geographic center
+                // Large fixed-scale pages may extend beyond the viewport.
+                if (!fixedScale) {
+                    x = Math.max(0, Math.min(mapW - rectW, x));
+                    y = Math.max(0, Math.min(mapH - rectH, y));
+                }
                 rectGeoCenter = appState.map.containerPointToLatLng(
                     L.point(x + rectW / 2, y + rectH / 2)
                 );
+                refreshRectPositions();
                 if (typeof updateExtraRects === 'function') updateExtraRects();
             }
 
             function updatePanels(x, y, w, h) {
+                var right = Math.max(0, Math.min(mapW, x + w));
+                var bottom = Math.max(0, Math.min(mapH, y + h));
+                x = Math.max(0, Math.min(mapW, x));
+                y = Math.max(0, Math.min(mapH, y));
+                h = bottom - y;
                 panels.top.style.cssText    = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:0;width:100%;height:' + y + 'px;';
-                panels.bottom.style.cssText = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + (y + h) + 'px;width:100%;height:' + (mapH - y - h) + 'px;';
+                panels.bottom.style.cssText = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + bottom + 'px;width:100%;height:' + (mapH - bottom) + 'px;';
                 panels.left.style.cssText   = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + y + 'px;width:' + x + 'px;height:' + h + 'px;';
-                panels.right.style.cssText  = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:' + (x + w) + 'px;top:' + y + 'px;width:' + (mapW - x - w) + 'px;height:' + h + 'px;';
+                panels.right.style.cssText  = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:' + right + 'px;top:' + y + 'px;width:' + (mapW - right) + 'px;height:' + h + 'px;';
             }
 
             // Re-anchor rects to geo position when map moves/zooms
             function refreshRectPositions() {
                 if (!rectGeoCenter) return;
+                mapW = mapContainer.offsetWidth;
+                mapH = mapContainer.offsetHeight;
+                resizePrimaryRect();
                 var center = appState.map.latLngToContainerPoint(rectGeoCenter);
-                var x = Math.round(center.x - rectW / 2);
-                var y = Math.round(center.y - rectH / 2);
+                var x = center.x - rectW / 2;
+                var y = center.y - rectH / 2;
+                label.textContent = paperSize + (isLandscape ? ' Landscape' : ' Portrait') +
+                    (fixedScale ? ' - 1:250,000' : ' - Fit selection');
                 rect.style.left   = x + 'px';
                 rect.style.top    = y + 'px';
                 rect.style.width  = rectW + 'px';
@@ -6569,16 +6658,16 @@
                     var gc = extraGeocenters[p];
                     if (!gc) return;
                     var pageLandscape = pageOrientations[p] !== undefined ? pageOrientations[p] : isLandscape;
-                    var pw = pageLandscape ? Math.max(rectW, rectH) : Math.min(rectW, rectH);
-                    var ph = pageLandscape ? Math.min(rectW, rectH) : Math.max(rectW, rectH);
+                    var size = previewSize(gc, pageLandscape);
+                    var pw = size.w, ph = size.h;
                     var ep = appState.map.latLngToContainerPoint(gc);
-                    er.style.left   = Math.round(ep.x - pw/2) + 'px';
-                    er.style.top    = Math.round(ep.y - ph/2) + 'px';
+                    er.style.left   = (ep.x - pw/2) + 'px';
+                    er.style.top    = (ep.y - ph/2) + 'px';
                     er.style.width  = pw + 'px';
                     er.style.height = ph + 'px';
                 });
             }
-            appState.map.on('move zoom', refreshRectPositions);
+            appState.map.on('move zoom resize', refreshRectPositions);
 
             // NOTE: positionRect(startX, startY) is called after toolbar is appended
 
@@ -6608,11 +6697,13 @@
             toolbar.style.cssText = [
                 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%)',
                 'background:rgba(0,0,0,0.82);color:#fff;border-radius:10px',
-                'padding:10px 18px;display:flex;align-items:center;gap:12px',
+                'padding:10px 18px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;width:max-content;max-width:95vw;box-sizing:border-box',
                 'z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,0.4);font-size:13px;font-weight:600'
             ].join(';');
             toolbar.innerHTML =
                 '<span style="opacity:.7;">Drag rect · scroll to zoom</span>' +
+                '<select id="a4PaperSize" aria-label="Paper size" style="padding:5px;border-radius:5px;"><option value="A4">A4</option><option value="A3">A3</option></select>' +
+                '<select id="a4ScaleMode" aria-label="Map print scale" style="padding:5px;border-radius:5px;"><option value="fixed">1:250,000</option><option value="fit">Fit selection (variable scale)</option></select>' +
                 '<button id="a4Portrait"  style="padding:5px 12px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;">📱 Portrait</button>' +
                 '<button id="a4Landscape" style="padding:5px 12px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;">📐 Landscape</button>' +
                 '<button id="a4ZoomIn"   style="padding:5px 12px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:15px;">+</button>' +
@@ -6624,8 +6715,11 @@
                 '<span style="opacity:.7;font-size:12px;">Overlap: <span id="a4OverlapLabel">0</span>%</span>' +
                 '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:80px;cursor:pointer;accent-color:#0066cc;">' +
                 '<button id="a4Print"    style="padding:7px 18px;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">🖨️ Print / Save</button>' +
-                '<button id="a4Cancel"   style="padding:7px 14px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>';
+                '<button id="a4Cancel"   style="padding:7px 14px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>' +
+                '<span id="a4ScaleHelp" style="flex-basis:100%;text-align:center;font-size:12px;"></span>';
             document.body.appendChild(toolbar);
+            document.getElementById('a4ScaleHelp').textContent = fixedScaleHelp;
+            document.getElementById('a4PaperSize').value = paperSize;
             positionRect(startX, startY); // Now safe — toolbar is in DOM so a4PageCount exists
 
             // Page layout direction: portrait defaults to side-by-side, landscape to stacked
@@ -6670,8 +6764,8 @@
                 var stepH = pagesHorizontal ? 0 : pos.h * (1 - overlap);
                 for (var p = 1; p < pageCount; p++) {
                     var pageLandscape = pageOrientations[p] !== undefined ? pageOrientations[p] : isLandscape;
-                    var pw = pageLandscape ? Math.max(pos.w, pos.h) : Math.min(pos.w, pos.h);
-                    var ph = pageLandscape ? Math.min(pos.w, pos.h) : Math.max(pos.w, pos.h);
+                    var size = previewSize(rectGeoCenter, pageLandscape);
+                    var pw = size.w, ph = size.h;
                     var er = document.createElement('div');
                     er.style.cssText = 'position:absolute;border:2px dashed rgba(255,255,255,0.5);box-shadow:0 0 0 1px rgba(0,102,204,0.5);z-index:2001;box-sizing:border-box;';
                     var ex = pos.x + p * stepW;
@@ -6725,17 +6819,19 @@
                             var ny = e.clientY - m.top  - erOffY;
                             erEl.style.left = nx + 'px';
                             erEl.style.top  = ny + 'px';
-                            var pw = parseInt(erEl.style.width);
-                            var ph = parseInt(erEl.style.height);
+                            var pw = parseFloat(erEl.style.width);
+                            var ph = parseFloat(erEl.style.height);
                             extraGeocenters[pageIdx] = appState.map.containerPointToLatLng(
                                 L.point(nx + pw/2, ny + ph/2)
                             );
+                            refreshRectPositions();
                         });
                         document.addEventListener('mouseup', function() {
                             if (erDragging) { erDragging = false; appState.map.dragging.enable(); }
                         });
                     })(er, p);
                 }
+                refreshRectPositions();
             }
 
             document.getElementById('a4PageCount').addEventListener('change', updateExtraRects);
@@ -6751,26 +6847,27 @@
                 document.getElementById('a4Portrait').style.borderColor  = landscape ? 'rgba(255,255,255,0.3)' : '#fff';
                 document.getElementById('a4Landscape').style.background = landscape ? '#0066cc' : 'transparent';
                 document.getElementById('a4Landscape').style.borderColor = landscape ? '#fff' : 'rgba(255,255,255,0.3)';
-                // Rebuild rect dimensions
-                if (landscape) {
-                    rectH = Math.round(Math.min(mapH, mapW / 1.4142) * 0.80);
-                    rectW = Math.round(rectH * 1.4142);
-                } else {
-                    rectW = Math.round(Math.min(mapW, mapH / 1.4142) * 0.80);
-                    rectH = Math.round(rectW * 1.4142);
-                }
-                // Re-centre rect and update label
-                var curPos = window._a4Pos || { x: Math.round((mapW - rectW) / 2), y: Math.round((mapH - rectH) / 2) };
-                positionRect(curPos.x, curPos.y);
-                label.textContent = (paperSize||'A4') + (landscape ? ' Landscape' : ' Portrait');
+                refreshRectPositions();
                 // Default layout: portrait → side by side, landscape → stacked
-                setPagesLayout(!landscape);
-                // Update page layout default: portrait=side-by-side, landscape=stacked
                 setPagesLayout(!landscape);
             }
 
             document.getElementById('a4Portrait').onclick  = function() { setA4Orientation(false); };
             document.getElementById('a4Landscape').onclick = function() { setA4Orientation(true);  };
+            document.getElementById('a4PaperSize').onchange = function() {
+                paperSize = this.value;
+                refreshRectPositions();
+                updateExtraRects();
+            };
+            document.getElementById('a4ScaleMode').onchange = function() {
+                fixedScale = this.value === 'fixed';
+                document.getElementById('a4ScaleHelp').textContent = fixedScale ?
+                    fixedScaleHelp :
+                    'Fits the selected area to the page. Not a fixed navigation scale.';
+                refreshRectPositions();
+                updateExtraRects();
+            };
+            setA4Orientation(isLandscape);
 
             document.getElementById('a4Cancel').onclick = function() {
                 cleanupA4();
@@ -6784,7 +6881,19 @@
             };
 
             document.getElementById('a4Print').onclick = function() {
-            
+                if (fixedScale && chartPrint) {
+                    var image = chartPrint.layer.getElement();
+                    if (!image || !image.complete || !image.naturalWidth) {
+                        alert('The chart image is still loading. Wait for it to finish before printing.');
+                        return;
+                    }
+                    if (image.naturalWidth !== chartPrint.reference.width ||
+                        image.naturalHeight !== chartPrint.reference.height) {
+                        alert('The chart image dimensions have changed. Update its print calibration before printing at 1:250,000.');
+                        return;
+                    }
+                }
+
                 var pos = window._a4Pos;
 
                 // Get the map container's actual position on screen
@@ -6798,16 +6907,8 @@
                     L.point(pos.x + pos.w / 2, pos.y + pos.h / 2)
                 );
 
-                // Page size at 96dpi (1mm = 3.7795px)
-                // A4 portrait: 794×1123, A3 portrait: 1123×1587
-                var a4W, a4H;
-                if (paperSize === 'A3') {
-                    a4W = isLandscape ? 1587 : 1123;
-                    a4H = isLandscape ? 1123 : 1587;
-                } else {
-                    a4W = isLandscape ? 1123 : 794;
-                    a4H = isLandscape ? 794  : 1123;
-                }
+                var pageSize = getPrintPageSize(paperSize, isLandscape);
+                var a4W = pageSize.widthPx, a4H = pageSize.heightPx;
 
                 // Compute zoom so the rect's geographic span fits exactly into A4
                 var lngSpan  = Math.abs(se.lng - nw.lng);
@@ -6832,6 +6933,8 @@
                 // Save original map state
                 var origCenter = appState.map.getCenter();
                 var origZoom   = appState.map.getZoom();
+                var origZoomSnap = appState.map.options.zoomSnap;
+                var origCRS = appState.map.options.crs;
                 var mapDiv     = document.getElementById('map');
                 var origW      = mapDiv.style.width;
                 var origH      = mapDiv.style.height;
@@ -6846,8 +6949,21 @@
                 if (sidebar) sidebar.style.display = 'none';
                 if (zoomInd) zoomInd.style.display = 'none';
 
+                // Fractional zoom must not snap to the map's usual 0.25 steps.
+                appState.map.options.zoomSnap = 0;
+                if (fixedScale && chartPrint) {
+                    // Correct both image axes without changing chart/route registration or stretching labels.
+                    appState.map.options.crs = getChartPrintCRS(origCRS, chartPrint.verticalStretch);
+                }
                 appState.map.invalidateSize({ animate: false });
-                appState.map.setView(pageCenters[0], printZoom, { animate: false });
+                function pagePrintZoom(center) {
+                    return fixedScale ?
+                        (chartPrint ? chartPrint.zoom : getFixedScalePrintZoom(center.lat)) :
+                        printZoom;
+                }
+                appState.map.setView(pageCenters[0],
+                    pagePrintZoom(pageCenters[0]),
+                    { animate: false, reset: true });
 
                 // Wait for tiles to load then print automatically
                 setTimeout(function() {
@@ -6861,6 +6977,18 @@
                         'font-size:8px;font-weight:600;color:#0066cc;letter-spacing:0.2px;opacity:0.8;">' +
                         'ISR Flight Planner - by Yossi Hadad</span>';
                     document.body.appendChild(watermark);
+
+                    if (fixedScale) {
+                        var scaleCheck = document.createElement('div');
+                        scaleCheck.id = 'a4ScaleCheck';
+                        scaleCheck.style.cssText = 'position:fixed;bottom:4mm;left:4mm;z-index:10000;background:white;color:black;padding:2mm;font:9px sans-serif;';
+                        scaleCheck.innerHTML = (chartPrint ? '1:250,000 chart scale<br>' : '1:250,000 at page center<br>') +
+                            '<div style="width:20mm;height:2mm;border:solid black;border-width:0 1px 1px;box-sizing:border-box;margin:1mm 0;"></div>' +
+                            '0 &mdash; 5 km (20 mm)<br>' +
+                            (chartPrint ? 'Chart 0-20 NM = 148.16 mm<br>' : '') +
+                            'Print: 100% / Actual size';
+                        document.body.appendChild(scaleCheck);
+                    }
 
                     // Find corner with fewest overlapping drawn elements
                     (function positionWatermark() {
@@ -6889,7 +7017,7 @@
                         var drawn = [];
                         var selectors = [
                             '.leg-info-label', '.time-label', '.leaflet-marker-icon',
-                            '.wl-div', '.tb-div', '.al-div'
+                            '.wl-div', '.tb-div', '.al-div', '#a4ScaleCheck'
                         ];
                         selectors.forEach(function(sel) {
                             document.querySelectorAll(sel).forEach(function(el) {
@@ -6933,12 +7061,12 @@
                         '    width:' + a4W + 'px !important; height:' + a4H + 'px !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
-                        '  @page { size:' + (isLandscape ? a4W + 'px ' + a4H + 'px' : a4W + 'px ' + a4H + 'px') + '; margin:0; }' +
+                        '  @page { size:' + pageSize.widthMm + 'mm ' + pageSize.heightMm + 'mm; margin:0; }' +
                         '}';
                     document.head.appendChild(printStyle);
 
                     function restore() {
-                        ['a4PrintStyle', 'a4Watermark'].forEach(function(id) {
+                        ['a4PrintStyle', 'a4Watermark', 'a4ScaleCheck'].forEach(function(id) {
                             var el = document.getElementById(id);
                             if (el) el.parentNode.removeChild(el);
                         });
@@ -6947,8 +7075,10 @@
                         mapDiv.style.height = origH;
                         if (sidebar) sidebar.style.display = '';
                         if (zoomInd) zoomInd.style.display = '';
+                        appState.map.options.crs = origCRS;
+                        appState.map.options.zoomSnap = origZoomSnap;
                         appState.map.invalidateSize({ animate: false });
-                        appState.map.setView(origCenter, origZoom, { animate: false });
+                        appState.map.setView(origCenter, origZoom, { animate: false, reset: true });
                         if (window.sidebarWasVisible) {
                             if (sidebar) sidebar.style.display = 'flex';
                             var showBtn = document.getElementById('showSidebarBtn');
@@ -6959,8 +7089,8 @@
                     var pageCount = pageCountForPrint;
 
                     if (pageCount === 1) {
+                        window.addEventListener('afterprint', restore, { once: true });
                         window.print();
-                        setTimeout(restore, 1500);
                     } else {
                         // Print each page one at a time; onafterprint triggers the next
                         var currentPage = 0;
@@ -6971,14 +7101,8 @@
                             }
                             var pageLand = currentPage === 0 ? isLandscape :
                                 (pageOrientations[currentPage] !== undefined ? pageOrientations[currentPage] : isLandscape);
-                            var pgW, pgH;
-                            if (paperSize === 'A3') {
-                                pgW = pageLand ? 1587 : 1123;
-                                pgH = pageLand ? 1123 : 1587;
-                            } else {
-                                pgW = pageLand ? 1123 : 794;
-                                pgH = pageLand ? 794  : 1123;
-                            }
+                            var page = getPrintPageSize(paperSize, pageLand);
+                            var pgW = page.widthPx, pgH = page.heightPx;
                             mapDiv.style.width  = pgW + 'px';
                             mapDiv.style.height = pgH + 'px';
                             // Recreate print style with correct dimensions for this page
@@ -7000,17 +7124,18 @@
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +
-                                '  @page { size:' + pgW + 'px ' + pgH + 'px; margin:0; }' +
+                                '  @page { size:' + page.widthMm + 'mm ' + page.heightMm + 'mm; margin:0; }' +
                                 '}';
                             document.head.appendChild(ps);
                             appState.map.invalidateSize({ animate: false });
-                            appState.map.setView(pageCenters[currentPage], printZoom, { animate: false });
+                            appState.map.setView(pageCenters[currentPage],
+                                pagePrintZoom(pageCenters[currentPage]),
+                                { animate: false, reset: true });
                             setTimeout(function() {
-                                window.onafterprint = function() {
-                                    window.onafterprint = null;
+                                window.addEventListener('afterprint', function() {
                                     currentPage++;
                                     setTimeout(printNextPage, 300);
-                                };
+                                }, { once: true });
                                 window.print();
                             }, 1000);
                         }
@@ -7021,7 +7146,7 @@
             };
 
             function cleanupA4() {
-                appState.map.off('move zoom', refreshRectPositions);
+                appState.map.off('move zoom resize', refreshRectPositions);
                 if (overlay.parentNode)  overlay.parentNode.removeChild(overlay);
                 if (rect.parentNode)     rect.parentNode.removeChild(rect);
                 if (toolbar.parentNode)  toolbar.parentNode.removeChild(toolbar);
