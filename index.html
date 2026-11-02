@@ -1717,7 +1717,7 @@
                 appState.airNavMapOverlay = L.imageOverlay(
                     './air_nav_combined_aligned.jpg',
                     mapBounds,
-                    { opacity: 1.0, interactive: false }
+                    { opacity: 1.0, interactive: false, chartPrintReference: CHART_PRINT_REFERENCES['Air Nav Chart'] }
                 ).addTo(appState.map);
                 
                 btn.textContent = t.exitAirNavMode;
@@ -1798,7 +1798,7 @@
                 appState.azmMapOverlay = L.imageOverlay(
                     './air_nav_combined_aligned_AZM.jpg',
                     mapBounds,
-                    { opacity: 1.0, interactive: false }
+                    { opacity: 1.0, interactive: false, chartPrintReference: CHART_PRINT_REFERENCES['AZM Chart'] }
                 ).addTo(appState.map);
 
                 if (btn) {
@@ -1886,7 +1886,8 @@
             });
             var airNavOverlay = L.imageOverlay('./air_nav_combined_aligned.jpg', chartBounds, {
                 opacity: 1.0,
-                interactive: false
+                interactive: false,
+                chartPrintReference: CHART_PRINT_REFERENCES['Air Nav Chart']
             });
             airNavChart.addLayer(blankTilesAirNav);
             airNavChart.addLayer(airNavOverlay);
@@ -1898,7 +1899,8 @@
             });
             var azmOverlay = L.imageOverlay('./air_nav_combined_aligned_AZM.jpg', chartBounds, {
                 opacity: 1.0,
-                interactive: false
+                interactive: false,
+                chartPrintReference: CHART_PRINT_REFERENCES['AZM Chart']
             });
             azmChart.addLayer(blankTilesAzm);
             azmChart.addLayer(azmOverlay);
@@ -2676,7 +2678,8 @@
                     icon: '&#128506;',
                     title: 'Air Nav Chart',
                     items: [
-                        'Updated the Air Nav Chart to the 2026 edition'
+                        'Updated the Air Nav Chart to the 2026 edition',
+                        'Fixed-scale A4/A3 exports now match each chart image\'s own scale bar and latitude grid. At 1:250,000, the original 0-20 NM bar measures 148.16 mm; use the plotter\'s Terminal Nautical scale.'
                     ]
                 },
                 {
@@ -6472,11 +6475,67 @@
                 (256 * metersPerPixel));
         }
 
+        // Source-image pixels: top 0-20 NM bar and west-edge 33deg10'-33deg00' ticks.
+        // These references, not the JPEG DPI or approximate Leaflet bounds, set chart scale.
+        var CHART_PRINT_REFERENCES = {
+            'Air Nav Chart': {
+                width: 5712, height: 14575,
+                scaleBar: [1642.5, 2809],
+                latitudeTicks: [925, 1509.5]
+            },
+            'AZM Chart': {
+                width: 8523, height: 22370,
+                scaleBar: [2471.5, 4215.5],
+                latitudeTicks: [1384.5, 2257.5]
+            }
+        };
+
+        function getChartPrintGeometry(reference, projectedWidth, projectedHeight) {
+            var pixelsPerMeter = 96 / 0.0254 / 250000;
+            var sourceScaleX = 20 * 1852 * pixelsPerMeter /
+                (reference.scaleBar[1] - reference.scaleBar[0]);
+            var sourceScaleY = 10 * 1852 * pixelsPerMeter /
+                (reference.latitudeTicks[1] - reference.latitudeTicks[0]);
+            var zoom = Math.log2(reference.width * sourceScaleX / projectedWidth);
+            return {
+                zoom: zoom,
+                verticalStretch: reference.height * sourceScaleY /
+                    (projectedHeight * Math.pow(2, zoom))
+            };
+        }
+
+        function getActiveChartPrintView(map) {
+            var view = null;
+            map.eachLayer(function(layer) {
+                if (!layer.options || !layer.options.chartPrintReference) return;
+                var reference = layer.options.chartPrintReference;
+                var bounds = layer.getBounds();
+                var nw = map.project(bounds.getNorthWest(), 0);
+                var se = map.project(bounds.getSouthEast(), 0);
+                view = getChartPrintGeometry(reference, se.x - nw.x, se.y - nw.y);
+                view.layer = layer;
+                view.reference = reference;
+            });
+            return view;
+        }
+
+        function getChartPrintCRS(crs, verticalStretch) {
+            var mercatorScale = 1 / (2 * Math.PI * crs.projection.R);
+            return L.extend({}, crs, {
+                transformation: new L.Transformation(mercatorScale, 0.5,
+                    -mercatorScale * verticalStretch, 0.5)
+            });
+        }
+
         window.captureA3Area = function() { window.captureA4Area('A3'); };
 
         window.captureA4Area = function(paperSize) {
             paperSize = paperSize || 'A4';
             var fixedScale = true;
+            var chartPrint = getActiveChartPrintView(appState.map);
+            var fixedScaleHelp = chartPrint ?
+                '1:250,000 chart scale: original 0-20 NM bar = 148.16 mm. Use the Terminal Nautical ruler. Print at 100% / Actual size, no fit-to-page, no margins or headers.' :
+                '1:250,000 at each page center (projection scale varies across page). Print at 100% / Actual size, no fit-to-page, no margins or headers.';
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
 
@@ -6490,9 +6549,13 @@
             function previewSize(center, landscape) {
                 var page = getPrintPageSize(paperSize, landscape);
                 var factor = fixedScale ?
-                    Math.pow(2, appState.map.getZoom() - getFixedScalePrintZoom(center.lat)) :
+                    Math.pow(2, appState.map.getZoom() -
+                        (chartPrint ? chartPrint.zoom : getFixedScalePrintZoom(center.lat))) :
                     Math.min(mapW / page.widthPx, mapH / page.heightPx) * 0.80;
-                return { w: page.widthPx * factor, h: page.heightPx * factor };
+                return {
+                    w: page.widthPx * factor,
+                    h: page.heightPx * factor / (fixedScale && chartPrint ? chartPrint.verticalStretch : 1)
+                };
             }
             function resizePrimaryRect() {
                 var size = previewSize(rectGeoCenter || appState.map.getCenter(), isLandscape);
@@ -6653,8 +6716,9 @@
                 '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:80px;cursor:pointer;accent-color:#0066cc;">' +
                 '<button id="a4Print"    style="padding:7px 18px;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">🖨️ Print / Save</button>' +
                 '<button id="a4Cancel"   style="padding:7px 14px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>' +
-                '<span id="a4ScaleHelp" style="flex-basis:100%;text-align:center;font-size:12px;">1:250,000 at each page center (projection scale varies across page). Print at 100% / Actual size, no fit-to-page, no margins or headers.</span>';
+                '<span id="a4ScaleHelp" style="flex-basis:100%;text-align:center;font-size:12px;"></span>';
             document.body.appendChild(toolbar);
+            document.getElementById('a4ScaleHelp').textContent = fixedScaleHelp;
             document.getElementById('a4PaperSize').value = paperSize;
             positionRect(startX, startY); // Now safe — toolbar is in DOM so a4PageCount exists
 
@@ -6798,7 +6862,7 @@
             document.getElementById('a4ScaleMode').onchange = function() {
                 fixedScale = this.value === 'fixed';
                 document.getElementById('a4ScaleHelp').textContent = fixedScale ?
-                    '1:250,000 at each page center (projection scale varies across page). Print at 100% / Actual size, no fit-to-page, no margins or headers.' :
+                    fixedScaleHelp :
                     'Fits the selected area to the page. Not a fixed navigation scale.';
                 refreshRectPositions();
                 updateExtraRects();
@@ -6817,7 +6881,19 @@
             };
 
             document.getElementById('a4Print').onclick = function() {
-            
+                if (fixedScale && chartPrint) {
+                    var image = chartPrint.layer.getElement();
+                    if (!image || !image.complete || !image.naturalWidth) {
+                        alert('The chart image is still loading. Wait for it to finish before printing.');
+                        return;
+                    }
+                    if (image.naturalWidth !== chartPrint.reference.width ||
+                        image.naturalHeight !== chartPrint.reference.height) {
+                        alert('The chart image dimensions have changed. Update its print calibration before printing at 1:250,000.');
+                        return;
+                    }
+                }
+
                 var pos = window._a4Pos;
 
                 // Get the map container's actual position on screen
@@ -6858,6 +6934,7 @@
                 var origCenter = appState.map.getCenter();
                 var origZoom   = appState.map.getZoom();
                 var origZoomSnap = appState.map.options.zoomSnap;
+                var origCRS = appState.map.options.crs;
                 var mapDiv     = document.getElementById('map');
                 var origW      = mapDiv.style.width;
                 var origH      = mapDiv.style.height;
@@ -6872,12 +6949,21 @@
                 if (sidebar) sidebar.style.display = 'none';
                 if (zoomInd) zoomInd.style.display = 'none';
 
-                appState.map.invalidateSize({ animate: false });
                 // Fractional zoom must not snap to the map's usual 0.25 steps.
                 appState.map.options.zoomSnap = 0;
+                if (fixedScale && chartPrint) {
+                    // Correct both image axes without changing chart/route registration or stretching labels.
+                    appState.map.options.crs = getChartPrintCRS(origCRS, chartPrint.verticalStretch);
+                }
+                appState.map.invalidateSize({ animate: false });
+                function pagePrintZoom(center) {
+                    return fixedScale ?
+                        (chartPrint ? chartPrint.zoom : getFixedScalePrintZoom(center.lat)) :
+                        printZoom;
+                }
                 appState.map.setView(pageCenters[0],
-                    fixedScale ? getFixedScalePrintZoom(pageCenters[0].lat) : printZoom,
-                    { animate: false });
+                    pagePrintZoom(pageCenters[0]),
+                    { animate: false, reset: true });
 
                 // Wait for tiles to load then print automatically
                 setTimeout(function() {
@@ -6896,9 +6982,11 @@
                         var scaleCheck = document.createElement('div');
                         scaleCheck.id = 'a4ScaleCheck';
                         scaleCheck.style.cssText = 'position:fixed;bottom:4mm;left:4mm;z-index:10000;background:white;color:black;padding:2mm;font:9px sans-serif;';
-                        scaleCheck.innerHTML = '1:250,000 at page center<br>' +
+                        scaleCheck.innerHTML = (chartPrint ? '1:250,000 chart scale<br>' : '1:250,000 at page center<br>') +
                             '<div style="width:20mm;height:2mm;border:solid black;border-width:0 1px 1px;box-sizing:border-box;margin:1mm 0;"></div>' +
-                            '0 &mdash; 5 km (20 mm)<br>Print: 100% / Actual size';
+                            '0 &mdash; 5 km (20 mm)<br>' +
+                            (chartPrint ? 'Chart 0-20 NM = 148.16 mm<br>' : '') +
+                            'Print: 100% / Actual size';
                         document.body.appendChild(scaleCheck);
                     }
 
@@ -6987,9 +7075,10 @@
                         mapDiv.style.height = origH;
                         if (sidebar) sidebar.style.display = '';
                         if (zoomInd) zoomInd.style.display = '';
-                        appState.map.invalidateSize({ animate: false });
+                        appState.map.options.crs = origCRS;
                         appState.map.options.zoomSnap = origZoomSnap;
-                        appState.map.setView(origCenter, origZoom, { animate: false });
+                        appState.map.invalidateSize({ animate: false });
+                        appState.map.setView(origCenter, origZoom, { animate: false, reset: true });
                         if (window.sidebarWasVisible) {
                             if (sidebar) sidebar.style.display = 'flex';
                             var showBtn = document.getElementById('showSidebarBtn');
@@ -7040,8 +7129,8 @@
                             document.head.appendChild(ps);
                             appState.map.invalidateSize({ animate: false });
                             appState.map.setView(pageCenters[currentPage],
-                                fixedScale ? getFixedScalePrintZoom(pageCenters[currentPage].lat) : printZoom,
-                                { animate: false });
+                                pagePrintZoom(pageCenters[currentPage]),
+                                { animate: false, reset: true });
                             setTimeout(function() {
                                 window.addEventListener('afterprint', function() {
                                     currentPage++;
