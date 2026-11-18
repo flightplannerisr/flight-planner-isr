@@ -213,42 +213,37 @@
                         return;
                     }
 
-                    // Check if click landed inside a waypoint circle — if so open its popup
                     var mapEl = appState.map.getContainer();
                     var rect  = mapEl.getBoundingClientRect();
                     var clickPt = L.point(e.clientX - rect.left, e.clientY - rect.top);
                     var clickLL = appState.map.containerPointToLatLng(clickPt);
+
+                    e.stopPropagation();
+                    e.preventDefault();
+                    appState._drawClickHandled = true;
+
+                    // 1. Check if clicked on or near a predefined navigation point first!
+                    var navPoint = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(clickPt, e) : null;
+                    if (navPoint) {
+                        addWaypoint(navPoint.lat, navPoint.lng, navPoint.name);
+                        return;
+                    }
+
+                    // 2. Only if NOT clicking a navigation point, check if clicking right on an existing waypoint center (tight 10px target)
                     var hitCircle = null;
                     for (var i = 0; i < appState.circles.length; i++) {
                         var c = appState.circles[i];
                         if (!c) continue;
                         var cPt = appState.map.latLngToContainerPoint(c.getLatLng());
-                        var radiusPx = appState.map.latLngToContainerPoint(
-                            L.latLng(c.getLatLng().lat, c.getLatLng().lng)
-                        ).distanceTo(appState.map.latLngToContainerPoint(
-                            L.latLng(c.getLatLng().lat + (c.getRadius() / 111320), c.getLatLng().lng)
-                        ));
-                        if (clickPt.distanceTo(cPt) <= Math.max(radiusPx, 12)) {
+                        if (clickPt.distanceTo(cPt) <= 10) {
                             hitCircle = i;
                             break;
                         }
                     }
 
-                    e.stopPropagation();
-                    e.preventDefault();
-
                     if (hitCircle !== null) {
                         // Fire the circle's popup without adding a waypoint
                         appState.circles[hitCircle].fire('click', { latlng: clickLL });
-                        return;
-                    }
-
-                    appState._drawClickHandled = true;
-
-                    // Check if clicked on or near a predefined navigation point
-                    var navPoint = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(clickPt, e) : null;
-                    if (navPoint) {
-                        addWaypoint(navPoint.lat, navPoint.lng, navPoint.name);
                         return;
                     }
 

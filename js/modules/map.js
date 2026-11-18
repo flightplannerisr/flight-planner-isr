@@ -1231,6 +1231,16 @@
 
             maxDistancePx = maxDistancePx !== undefined ? maxDistancePx : 25; // 25px snap radius
 
+            // Identify the last waypoint added to the route (origin of the current leg)
+            var lastWP = (appState.isDrawing && appState.waypoints && appState.waypoints.length > 0)
+                ? appState.waypoints[appState.waypoints.length - 1]
+                : null;
+
+            function isLastWaypoint(lat, lng) {
+                if (!lastWP) return false;
+                return (Math.abs(lat - lastWP.lat) < 0.0005 && Math.abs(lng - lastWP.lng) < 0.0005);
+            }
+
             // 1. Direct hit check on a visible marker DOM element
             if (e && e.target) {
                 var markerEl = e.target.closest('.cvfr-triangle-marker, .lsa-triangle-marker, .airstrip-marker, .reporting-point-marker');
@@ -1247,6 +1257,7 @@
                         var el = (typeof vm.getElement === 'function') ? vm.getElement() : vm._icon;
                         if (el && (el === markerEl || el.contains(e.target))) {
                             var pData = vm._navPoint;
+                            if (isLastWaypoint(pData.lat, pData.lng)) continue; // Don't snap to origin of current leg
                             var pName = (appState.language === 'en') ? (pData.name || pData.name_he) : (pData.name_he || pData.name);
                             var realLL = vm._realLatLng || L.latLng(pData.lat, pData.lng);
                             var dispLL = vm.getLatLng ? vm.getLatLng() : ((typeof toDisplayLatLng === 'function') ? toDisplayLatLng(realLL) : realLL);
@@ -1269,6 +1280,7 @@
 
             function checkCandidate(ptData, customName, markerDispLL) {
                 if (!ptData || typeof ptData.lat !== 'number' || typeof ptData.lng !== 'number') return;
+                if (isLastWaypoint(ptData.lat, ptData.lng)) return; // Skip immediate previous waypoint
                 var realLL = L.latLng(ptData.lat, ptData.lng);
                 var dispLL = markerDispLL || ((typeof toDisplayLatLng === 'function') ? toDisplayLatLng(realLL) : realLL);
                 var screenPt = appState.map.latLngToContainerPoint(dispLL);
