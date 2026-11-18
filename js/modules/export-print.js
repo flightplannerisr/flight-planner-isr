@@ -760,14 +760,14 @@
                         'ISR Flight Planner - by Yossi Hadad</span>';
                     document.body.appendChild(watermark);
 
-                    // Scale Bar — placed at bottom-center
+                    // Scale Bar — placed at bottom-right
                     var scaleBar = document.createElement('div');
                     scaleBar.id = 'a4ScaleBar';
                     var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
                         Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
                     scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
                     scaleBar.style.cssText =
-                        'position:fixed;z-index:99999;bottom:8px;left:50%;transform:translateX(-50%);' +
+                        'position:fixed;z-index:99999;bottom:8px;right:8px;' +
                         'background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.5);' +
                         'border-radius:4px;padding:3px 10px 4px 10px;pointer-events:none;' +
                         'box-shadow:0 1px 4px rgba(0,0,0,0.15);';
