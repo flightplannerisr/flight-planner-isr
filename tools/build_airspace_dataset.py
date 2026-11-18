@@ -1,4 +1,4 @@
-import re, json, urllib.request
+import re, json, urllib.request, os
 
 def extract_coord(prefix, s):
     # Pattern 1: E" 13.44' 35 35° or N" 41.00 '46 31° or E" 56.666' 1 35°
@@ -52,8 +52,6 @@ def parse_altitudes(text):
     ceil = 'UNL'
     if 'MSL' in text and 'GND' not in text:
         floor = 'MSL'
-    if 'GND' in text:
-        floor = 'GND'
     if 'UNL' in text:
         ceil = 'UNL'
     
@@ -63,7 +61,10 @@ def parse_altitudes(text):
             ceil = nums[0] + ' ft'
         elif len(nums) >= 2:
             ceil = nums[0] + ' ft'
-            floor = nums[1] + ' ft'
+            if 'GND' not in text and 'MSL' not in text:
+                floor = nums[1] + ' ft'
+    if 'GND' in text:
+        floor = 'GND'
     return floor, ceil
 
 # 1. Fetch eAIP ENR 5.1
@@ -88,8 +89,9 @@ eaip_zones = {}
 for m in pattern.finditer(eaip_html):
     code = m.group(1)
     coord_text = m.group(2).strip()
+    coord_text_filtered = re.sub(r'centered\s+on\s+\d{6}[NS]\s*\d{6,7}[EW]', '', coord_text, flags=re.I)
     alt_text = re.sub(r'<[^>]+>', ' ', m.group(3)).strip()
-    pts = parse_eaip_coords(coord_text)
+    pts = parse_eaip_coords(coord_text_filtered)
     
     # Check if circle
     rad_m = None
@@ -108,7 +110,10 @@ for m in pattern.finditer(eaip_html):
 print(f'Parsed {len(eaip_zones)} zones from eAIP.')
 
 # 2. Parse domestic AIP text
-with open('/home/ubuntu/flight-planner-isr/raw_aip_data.txt', encoding='utf-8') as f:
+raw_path = os.path.join(os.path.dirname(__file__), 'raw_aip_data.txt')
+if not os.path.exists(raw_path):
+    raw_path = '/home/ubuntu/flight-planner-isr/tools/raw_aip_data.txt'
+with open(raw_path, encoding='utf-8') as f:
     raw = f.read()
 
 lines = raw.split('\n')
@@ -240,15 +245,23 @@ for r in records:
     full_text = header_text + ' ' + ' '.join([item[0] for item in r['body_lines']])
     coord_pts = [item[1] for item in r['body_lines'] if item[1] is not None]
     
-    # Check if eAIP has coords for this code if domestic has none or refers to AIP
-    if len(coord_pts) < 3 and code in eaip_zones and len(eaip_zones[code]['points']) >= 3:
+    # Prefer official eAIP polygon coordinates if available
+    if code in eaip_zones and len(eaip_zones[code]['points']) >= 3:
         coord_pts = eaip_zones[code]['points']
+        
+    # Fix LLP16 multi-column PDF extraction artifact where point 14 belongs between point 5 and 6
+    if code == 'LLP16' and len(coord_pts) == 14:
+        p14 = coord_pts.pop()
+        coord_pts.insert(5, p14)
         
     rad_m = parse_radius_meters(full_text)
     if code == 'LLP44':
         rad_m = 100
         ceil = '1500 ft'
         floor = 'GND'
+    elif code == 'LLP12':
+        floor = 'GND'
+        ceil = '3000 ft'
     elif code.startswith('LLP300'):
         rad_m = 1000 # 0.54 NM
         # extract altitude e.g. 2,800 -> 2800 ft
@@ -378,6 +391,35 @@ kind_counts = {}
 for z in final_zones:
     kind_counts[z['type']] = kind_counts.get(z['type'], 0) + 1
 print('Breakdown:', kind_counts)
+
+# Geometric validation: check for self-intersecting polygons
+def ccw(A,B,C):
+    return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
+
+def intersect(A,B,C,D):
+    if A == C or A == D or B == C or B == D: return False
+    return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+
+def is_self_intersecting(pts):
+    n = len(pts)
+    edges = [(pts[i], pts[(i+1)%n]) for i in range(n)]
+    for i in range(len(edges)):
+        for j in range(i+1, len(edges)):
+            if abs(i - j) <= 1 or abs(i - j) == n - 1: continue
+            if intersect(edges[i][0], edges[i][1], edges[j][0], edges[j][1]):
+                return True
+    return False
+
+self_intersecting = []
+for z in final_zones:
+    if z['geom']['type'] == 'Polygon':
+        if is_self_intersecting(z['geom']['coordinates']):
+            self_intersecting.append(z['code'])
+
+if self_intersecting:
+    print('WARNING: Self-intersecting polygons found:', self_intersecting)
+else:
+    print('All polygons successfully validated: 0 self-intersections!')
 
 # Save as JavaScript file: js/data/special-airspace.js
 js_content = 'var specialAirspaceData = ' + json.dumps(final_zones, ensure_ascii=False, indent=2) + ';\n'
