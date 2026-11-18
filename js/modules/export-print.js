@@ -219,6 +219,44 @@
         window.captureA3Area = function() { window.captureA4Area('A3'); };
         window.captureA5Area = function() { window.captureA4Area('A5'); };
 
+        // Helper to construct a graphic scale bar for printed maps
+        function buildScaleBarHtml(scaleNum, lat) {
+            // Standard CSS print resolution is 96 DPI: 1 inch = 25.4mm = 96px => 1px = 0.0254 / 96 meters
+            var pxPerM = 96.0 / (0.0254 * scaleNum);
+            var candidates = [0.5, 1, 2, 3, 4, 5, 10, 20, 50];
+            var bestNm = candidates[0];
+            var minDiff = Infinity;
+            for (var i = 0; i < candidates.length; i++) {
+                var w = candidates[i] * 1852 * pxPerM;
+                var diff = Math.abs(w - 130);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    bestNm = candidates[i];
+                }
+            }
+            var barW = Math.round(bestNm * 1852 * pxPerM);
+            var km = +(bestNm * 1.852).toFixed(1);
+            var scaleStr = '1:' + scaleNum.toLocaleString();
+            var cmKm = +(scaleNum / 100000.0).toFixed(2);
+            var halfNm = (bestNm % 2 === 0) ? (bestNm / 2) : +(bestNm / 2).toFixed(1);
+            var halfKm = +(km / 2.0).toFixed(1);
+
+            return '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;font-size:8.5px;line-height:1.2;color:#111;text-align:center;">' +
+                '<div style="font-weight:700;letter-spacing:0.4px;font-size:9.5px;margin-bottom:1px;">SCALE ' + scaleStr + '</div>' +
+                '<div style="font-size:7.5px;color:#333;margin-bottom:2px;">1 cm = ' + cmKm + ' km</div>' +
+                '<div style="display:flex;justify-content:space-between;width:' + barW + 'px;font-size:7.5px;font-weight:600;margin:0 auto 1px;padding:0 1px;box-sizing:border-box;">' +
+                '<span>0</span><span>' + halfNm + '</span><span>' + bestNm + ' NM</span>' +
+                '</div>' +
+                '<div style="width:' + barW + 'px;height:5px;border:1px solid #111;display:flex;margin:0 auto;box-sizing:border-box;background:#fff;">' +
+                '<div style="flex:1;background:#111;border-right:1px solid #111;"></div>' +
+                '<div style="flex:1;background:#fff;"></div>' +
+                '</div>' +
+                '<div style="display:flex;justify-content:space-between;width:' + barW + 'px;font-size:7px;color:#444;margin:1px auto 0;padding:0 1px;box-sizing:border-box;">' +
+                '<span>0</span><span>' + halfKm + '</span><span>' + km + ' km</span>' +
+                '</div>' +
+                '</div>';
+        }
+
         window.captureA4Area = function(paperSize) {
             paperSize = paperSize || 'A4';
             var paperSpec = PAPER_SPECS[paperSize] || PAPER_SPECS['A4'];
@@ -722,6 +760,19 @@
                         'ISR Flight Planner - by Yossi Hadad</span>';
                     document.body.appendChild(watermark);
 
+                    // Scale Bar — placed at bottom-center
+                    var scaleBar = document.createElement('div');
+                    scaleBar.id = 'a4ScaleBar';
+                    var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
+                        Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
+                    scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
+                    scaleBar.style.cssText =
+                        'position:fixed;z-index:99999;bottom:8px;left:50%;transform:translateX(-50%);' +
+                        'background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.5);' +
+                        'border-radius:4px;padding:3px 10px 4px 10px;pointer-events:none;' +
+                        'box-shadow:0 1px 4px rgba(0,0,0,0.15);';
+                    document.body.appendChild(scaleBar);
+
                     // Find corner with fewest overlapping drawn elements
                     (function positionWatermark() {
                         var mr = document.getElementById('map').getBoundingClientRect();
@@ -747,6 +798,12 @@
 
                         // Collect rects of all visible drawn elements inside the map
                         var drawn = [];
+                        if (scaleBar) {
+                            var sbr = scaleBar.getBoundingClientRect();
+                            if (sbr.width > 0 && sbr.height > 0) {
+                                drawn.push(sbr);
+                            }
+                        }
                         var selectors = [
                             '.leg-info-label', '.time-label', '.leaflet-marker-icon',
                             '.wl-div', '.tb-div', '.al-div'
@@ -793,12 +850,13 @@
                         '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
+                        '  #a4ScaleBar { display:block !important; }' +
                         '  @page { size:' + singleCssPageSize + '; margin:0; }' +
                         '}';
                     document.head.appendChild(printStyle);
 
                     function restore() {
-                        ['a4PrintStyle', 'a4Watermark'].forEach(function(id) {
+                        ['a4PrintStyle', 'a4Watermark', 'a4ScaleBar'].forEach(function(id) {
                             var el = document.getElementById(id);
                             if (el) el.parentNode.removeChild(el);
                         });
@@ -860,9 +918,18 @@
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +
+                                '  #a4ScaleBar { display:block !important; }' +
                                 '  @page { size:' + pgCssSize + '; margin:0; }' +
                                 '}';
                             document.head.appendChild(ps);
+
+                            var oldSb = document.getElementById('a4ScaleBar');
+                            if (oldSb) {
+                                var pgEffectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
+                                    Math.round(((40075016.686 * Math.cos((pageCenters[currentPage].lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, pageZoom))) / (0.0254 / 96.0));
+                                oldSb.innerHTML = buildScaleBarHtml(pgEffectiveScale, pageCenters[currentPage].lat);
+                            }
+
                             appState.map.invalidateSize({ animate: false });
                             appState.map.setView(pageCenters[currentPage], pageZoom, { animate: false });
                             setTimeout(function() {
