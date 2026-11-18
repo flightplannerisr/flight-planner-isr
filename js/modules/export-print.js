@@ -358,15 +358,66 @@
             label.style.cssText = 'position:absolute;top:4px;left:4px;background:rgba(0,102,204,0.85);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;';
             rect.appendChild(label);
 
+            // Preview scale bar at bottom-right of primary rect
+            var previewScaleBar = document.createElement('div');
+            previewScaleBar.id = 'a4PreviewScaleBar';
+            previewScaleBar.style.cssText =
+                'position:absolute;bottom:6px;right:6px;pointer-events:none;' +
+                'background:rgba(255,255,255,0.88);border:1px solid rgba(0,0,0,0.45);' +
+                'border-radius:4px;padding:3px 8px 4px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.18);z-index:2002;';
+            rect.appendChild(previewScaleBar);
+
+            function updatePreviewScaleBar(targetEl, scaleVal, centerLat, boxW, boxH, land) {
+                if (!targetEl) return;
+                var effectiveScale;
+                if (scaleVal !== 'auto') {
+                    effectiveScale = parseInt(scaleVal, 10);
+                } else {
+                    var latRad = (centerLat || (rectGeoCenter ? rectGeoCenter.lat : 31.5)) * Math.PI / 180.0;
+                    var zoom = appState.map.getZoom();
+                    var metersPerPx = (40075016.686 * Math.cos(latRad)) / (256.0 * Math.pow(2, zoom));
+                    var widthMm = land ? paperSpec.longMm : paperSpec.shortMm;
+                    var groundWidthM = boxW * metersPerPx;
+                    effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
+                }
+
+                targetEl.innerHTML = buildScaleBarHtml(effectiveScale, centerLat);
+
+                // Auto-scale preview bar if box is small so it fits cleanly inside
+                var maxW = boxW - 16;
+                var maxH = boxH - 36;
+                var barBoxW = 155;
+                var barBoxH = 46;
+                var fitRatio = Math.min(1.0, Math.min(maxW / barBoxW, maxH / barBoxH));
+                if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                    targetEl.style.transform = 'scale(' + fitRatio.toFixed(2) + ')';
+                    targetEl.style.transformOrigin = 'bottom right';
+                } else {
+                    targetEl.style.transform = 'none';
+                }
+                targetEl.style.display = (boxW < 120 || boxH < 80) ? 'none' : 'block';
+            }
+
             function updateLabel() {
                 var sizeText = paperSize + (isLandscape ? ' Landscape' : ' Portrait');
+                var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
+                var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
                 if (selectedScale === 'auto') {
-                    label.textContent = sizeText + ' · Auto Scale';
+                    var latRad = (rectGeoCenter ? rectGeoCenter.lat : 31.5) * Math.PI / 180.0;
+                    var zoom = appState.map.getZoom();
+                    var metersPerPx = (40075016.686 * Math.cos(latRad)) / (256.0 * Math.pow(2, zoom));
+                    var groundWidthM = rectW * metersPerPx;
+                    var effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
+                    var scaleText = '1:' + (effectiveScale >= 1000 ? Math.round(effectiveScale / 1000) + 'k' : effectiveScale);
+                    var kmW = (groundWidthM / 1000).toFixed(1);
+                    var kmH = ((rectH * metersPerPx) / 1000).toFixed(1);
+                    var nmW = (kmW * 0.539957).toFixed(1);
+                    var nmH = (kmH * 0.539957).toFixed(1);
+                    var cmText = (effectiveScale / 100000).toFixed(2) + ' km';
+                    label.textContent = sizeText + ' · ' + scaleText + ' (Auto: 1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
                 } else {
                     var scaleNum = parseInt(selectedScale, 10);
                     var scaleText = '1:' + (scaleNum >= 1000 ? (scaleNum / 1000) + 'k' : scaleNum);
-                    var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
-                    var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
                     var kmW = (widthMm * scaleNum / 1000000).toFixed(1);
                     var kmH = (heightMm * scaleNum / 1000000).toFixed(1);
                     var nmW = (kmW * 0.539957).toFixed(1);
@@ -374,6 +425,7 @@
                     var cmText = (scaleNum / 100000) + ' km';
                     label.textContent = sizeText + ' · ' + scaleText + ' (1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
                 }
+                updatePreviewScaleBar(previewScaleBar, selectedScale, rectGeoCenter ? rectGeoCenter.lat : 31.5, rectW, rectH, isLandscape);
             }
             updateLabel();
 
@@ -445,7 +497,12 @@
                     er.style.top    = Math.round(ep.y - ph/2) + 'px';
                     er.style.width  = pw + 'px';
                     er.style.height = ph + 'px';
+                    var exSb = er.querySelector('.a4-extra-preview-scalebar');
+                    if (exSb) {
+                        updatePreviewScaleBar(exSb, selectedScale, gc.lat, pw, ph, pageLandscape);
+                    }
                 });
+                updateLabel();
             }
             appState.map.on('move zoom', refreshRectPositions);
 
@@ -585,6 +642,17 @@
                     pl.appendChild(lbl);
                     pl.appendChild(rotBtn);
                     er.appendChild(pl);
+
+                    var extraSb = document.createElement('div');
+                    extraSb.className = 'a4-extra-preview-scalebar';
+                    extraSb.style.cssText =
+                        'position:absolute;bottom:6px;right:6px;pointer-events:none;' +
+                        'background:rgba(255,255,255,0.88);border:1px solid rgba(0,0,0,0.45);' +
+                        'border-radius:4px;padding:3px 8px 4px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.18);z-index:2002;';
+                    er.appendChild(extraSb);
+                    var extraLat = extraGeocenters[p] ? extraGeocenters[p].lat : (rectGeoCenter ? rectGeoCenter.lat : 31.5);
+                    updatePreviewScaleBar(extraSb, selectedScale, extraLat, pw, ph, pageLandscape);
+
                     mapContainer.appendChild(er);
                     extraRects.push(er);
 
