@@ -262,6 +262,7 @@
             var paperSpec = PAPER_SPECS[paperSize] || PAPER_SPECS['A4'];
             var isLandscape = (window.captureOrientation === 'landscape');
             var selectedScale = '250000'; // Default scale: 1:250,000
+            var selectedScaleSide = 'right'; // Scale bar position: 'right', 'left', 'center', 'none'
 
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
@@ -369,6 +370,11 @@
 
             function updatePreviewScaleBar(targetEl, scaleVal, centerLat, boxW, boxH, land) {
                 if (!targetEl) return;
+                if (selectedScaleSide === 'none') {
+                    targetEl.style.display = 'none';
+                    return;
+                }
+
                 var effectiveScale;
                 if (scaleVal !== 'auto') {
                     effectiveScale = parseInt(scaleVal, 10);
@@ -383,19 +389,47 @@
 
                 targetEl.innerHTML = buildScaleBarHtml(effectiveScale, centerLat);
 
+                if (boxW < 120 || boxH < 80) {
+                    targetEl.style.display = 'none';
+                    return;
+                }
+                targetEl.style.display = 'block';
+
                 // Auto-scale preview bar if box is small so it fits cleanly inside
                 var maxW = boxW - 16;
                 var maxH = boxH - 36;
                 var barBoxW = 155;
                 var barBoxH = 46;
                 var fitRatio = Math.min(1.0, Math.min(maxW / barBoxW, maxH / barBoxH));
-                if (fitRatio < 1.0 && fitRatio >= 0.45) {
-                    targetEl.style.transform = 'scale(' + fitRatio.toFixed(2) + ')';
+
+                var transform = '';
+                if (selectedScaleSide === 'left') {
+                    targetEl.style.bottom = '6px';
+                    targetEl.style.left = '6px';
+                    targetEl.style.right = 'auto';
+                    if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                        transform = 'scale(' + fitRatio.toFixed(2) + ')';
+                    }
+                    targetEl.style.transformOrigin = 'bottom left';
+                } else if (selectedScaleSide === 'center') {
+                    targetEl.style.bottom = '6px';
+                    targetEl.style.left = '50%';
+                    targetEl.style.right = 'auto';
+                    transform = 'translateX(-50%)';
+                    if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                        transform += ' scale(' + fitRatio.toFixed(2) + ')';
+                    }
+                    targetEl.style.transformOrigin = 'bottom center';
+                } else { // 'right'
+                    targetEl.style.bottom = '6px';
+                    targetEl.style.right = '6px';
+                    targetEl.style.left = 'auto';
+                    if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                        transform = 'scale(' + fitRatio.toFixed(2) + ')';
+                    }
                     targetEl.style.transformOrigin = 'bottom right';
-                } else {
-                    targetEl.style.transform = 'none';
                 }
-                targetEl.style.display = (boxW < 120 || boxH < 80) ? 'none' : 'block';
+                targetEl.style.transform = transform || 'none';
             }
 
             function updateLabel() {
@@ -551,6 +585,13 @@
                 '<button id="a4ZoomToScale" style="padding:5px 10px;background:#17a2b8;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;" title="Set screen zoom to match print scale exactly (1cm on screen = 1cm on chart)">🔍 1:1 View</button>' +
                 '<button id="a4ZoomIn"   style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">+</button>' +
                 '<button id="a4ZoomOut"  style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">−</button>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Side:</span>' +
+                '<select id="a4ScaleSide" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
+                    '<option value="right" selected>Right ↘</option>' +
+                    '<option value="left">Left ↙</option>' +
+                    '<option value="center">Center ⬇</option>' +
+                    '<option value="none">Off ✕</option>' +
+                '</select>' +
                 '<span style="opacity:.7;font-size:12px;margin-left:4px;">Pages:</span>' +
                 '<select id="a4PageCount" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>' +
                 '<button id="a4LayoutStacked"  style="padding:5px 8px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;" title="Pages stacked vertically">⬇ Stack</button>' +
@@ -709,6 +750,12 @@
                 }
             });
 
+            document.getElementById('a4ScaleSide').addEventListener('change', function() {
+                selectedScaleSide = this.value;
+                updateLabel();
+                if (typeof updateExtraRects === 'function') updateExtraRects();
+            });
+
             document.getElementById('a4ZoomToScale').onclick = function() {
                 if (selectedScale === 'auto') return;
                 var scaleNum = parseInt(selectedScale, 10);
@@ -828,18 +875,27 @@
                         'ISR Flight Planner - by Yossi Hadad</span>';
                     document.body.appendChild(watermark);
 
-                    // Scale Bar — placed at bottom-right
-                    var scaleBar = document.createElement('div');
-                    scaleBar.id = 'a4ScaleBar';
-                    var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
-                        Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
-                    scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
-                    scaleBar.style.cssText =
-                        'position:fixed;z-index:99999;bottom:8px;right:8px;' +
-                        'background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.5);' +
-                        'border-radius:4px;padding:3px 10px 4px 10px;pointer-events:none;' +
-                        'box-shadow:0 1px 4px rgba(0,0,0,0.15);';
-                    document.body.appendChild(scaleBar);
+                    // Scale Bar — placed at selected side
+                    var scaleBar = null;
+                    if (selectedScaleSide !== 'none') {
+                        scaleBar = document.createElement('div');
+                        scaleBar.id = 'a4ScaleBar';
+                        var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
+                            Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
+                        scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
+                        var posStyle = 'bottom:8px;right:8px;';
+                        if (selectedScaleSide === 'left') {
+                            posStyle = 'bottom:8px;left:8px;';
+                        } else if (selectedScaleSide === 'center') {
+                            posStyle = 'bottom:8px;left:50%;transform:translateX(-50%);';
+                        }
+                        scaleBar.style.cssText =
+                            'position:fixed;z-index:99999;' + posStyle +
+                            'background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.5);' +
+                            'border-radius:4px;padding:3px 10px 4px 10px;pointer-events:none;' +
+                            'box-shadow:0 1px 4px rgba(0,0,0,0.15);';
+                        document.body.appendChild(scaleBar);
+                    }
 
                     // Find corner with fewest overlapping drawn elements
                     (function positionWatermark() {
@@ -866,7 +922,7 @@
 
                         // Collect rects of all visible drawn elements inside the map
                         var drawn = [];
-                        if (scaleBar) {
+                        if (scaleBar && document.body.contains(scaleBar)) {
                             var sbr = scaleBar.getBoundingClientRect();
                             if (sbr.width > 0 && sbr.height > 0) {
                                 drawn.push(sbr);
@@ -992,7 +1048,7 @@
                             document.head.appendChild(ps);
 
                             var oldSb = document.getElementById('a4ScaleBar');
-                            if (oldSb) {
+                            if (oldSb && selectedScaleSide !== 'none') {
                                 var pgEffectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
                                     Math.round(((40075016.686 * Math.cos((pageCenters[currentPage].lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, pageZoom))) / (0.0254 / 96.0));
                                 oldSb.innerHTML = buildScaleBarHtml(pgEffectiveScale, pageCenters[currentPage].lat);
