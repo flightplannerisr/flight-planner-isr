@@ -1,28 +1,5 @@
 var ctrZonesData = [
   {
-    "code": "LLBG CTR",
-    "name": "Ben Gurion CTR / אזור פיקוח בן גוריון",
-    "nameEn": "Ben Gurion CTR",
-    "nameHe": "אזור פיקוח בן גוריון",
-    "airspaceClass": "Class B",
-    "floor": "SFC",
-    "ceiling": "2000 FT MSL",
-    "callsign": "Ben-Gurion Tower",
-    "geom": {
-      "type": "Polygon",
-      "coordinates": [
-        [32.106111, 34.773889],
-        [32.100000, 34.847500],
-        [32.105000, 34.892222],
-        [32.081389, 35.002222],
-        [31.919444, 34.986667],
-        [31.831389, 35.029722],
-        [31.916389, 34.882500],
-        [31.933611, 34.700278]
-      ]
-    }
-  },
-  {
     "code": "LLHA CTR",
     "name": "Haifa CTR / אזור פיקוח חיפה",
     "nameEn": "Haifa CTR",
