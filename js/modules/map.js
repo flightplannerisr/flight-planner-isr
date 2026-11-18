@@ -783,38 +783,41 @@
 
                 layer._ctrData = zone;
 
-                layer.bindPopup(function() {
-                    var isHebrew = (appState.language !== 'en');
-                    var zoneName = isHebrew ? (zone.nameHe || zone.name) : (zone.nameEn || zone.name);
-                    return '<div style="direction: ' + (isHebrew ? 'rtl' : 'ltr') + '; text-align: ' + (isHebrew ? 'right' : 'left') + '; font-family: sans-serif; font-size: 12px; line-height: 1.4; min-width: 170px;">' +
-                        '<div style="font-weight: bold; font-size: 13px; color: #0d47a1; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 5px;">' +
-                        zone.code + ' &bull; ' + (isHebrew ? 'אזור פיקוח (CTR)' : 'Control Zone (CTR)') +
-                        '</div>' +
-                        '<div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #222;">' + zoneName + '</div>' +
-                        '<div style="font-size: 11px; color: #444;">' +
-                        (zone.airspaceClass ? '<div><strong>' + (isHebrew ? 'סיווג מרחב:' : 'Class:') + '</strong> ' + zone.airspaceClass + '</div>' : '') +
-                        '<div><strong>' + (isHebrew ? 'גובה מזערי (Floor):' : 'Floor:') + '</strong> ' + (zone.floor || 'SFC') + '</div>' +
-                        '<div><strong>' + (isHebrew ? 'גובה מרבי (Ceiling):' : 'Ceiling:') + '</strong> ' + (zone.ceiling || 'UNL') + '</div>' +
-                        (zone.callsign ? '<div><strong>' + (isHebrew ? 'קריאה (Callsign):' : 'Callsign:') + '</strong> ' + zone.callsign + '</div>' : '') +
-                        '</div>' +
-                        '<div style="font-size: 10px; color: #777; margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px;">' +
-                        (isHebrew ? '⚠️ נתוני פמ"ת 26A / eAIP AD 2.17' : '⚠️ Valid for AIP 26A / eAIP AD 2.17') +
-                        '</div>' +
-                        '</div>';
-                });
+                var isHebrew = (appState.language !== 'en');
+                var zoneName = isHebrew ? (zone.nameHe || zone.name) : (zone.nameEn || zone.name);
+                var popupContent = '<div style="direction: ' + (isHebrew ? 'rtl' : 'ltr') + '; text-align: ' + (isHebrew ? 'right' : 'left') + '; font-family: sans-serif; font-size: 12px; line-height: 1.4; min-width: 170px;">' +
+                    '<div style="font-weight: bold; font-size: 13px; color: #0d47a1; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 5px;">' +
+                    zone.code + ' &bull; ' + (isHebrew ? 'אזור פיקוח (CTR)' : 'Control Zone (CTR)') +
+                    '</div>' +
+                    '<div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #222;">' + zoneName + '</div>' +
+                    '<div style="font-size: 11px; color: #444;">' +
+                    (zone.airspaceClass ? '<div><strong>' + (isHebrew ? 'סיווג מרחב:' : 'Class:') + '</strong> ' + zone.airspaceClass + '</div>' : '') +
+                    '<div><strong>' + (isHebrew ? 'גובה מזערי (Floor):' : 'Floor:') + '</strong> ' + (zone.floor || 'SFC') + '</div>' +
+                    '<div><strong>' + (isHebrew ? 'גובה מרבי (Ceiling):' : 'Ceiling:') + '</strong> ' + (zone.ceiling || 'UNL') + '</div>' +
+                    (zone.callsign ? '<div><strong>' + (isHebrew ? 'קריאה (Callsign):' : 'Callsign:') + '</strong> ' + zone.callsign + '</div>' : '') +
+                    '</div>' +
+                    '<div style="font-size: 10px; color: #777; margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px;">' +
+                    (isHebrew ? '⚠️ נתוני פמ"ת 26A / eAIP AD 2.17' : '⚠️ Valid for AIP 26A / eAIP AD 2.17') +
+                    '</div>' +
+                    '</div>';
+
+                layer.bindPopup(popupContent);
 
                 var verticalLimits = (zone.floor || 'SFC') + ' – ' + (zone.ceiling || 'UNL');
-                layer.bindTooltip(function() {
-                    var isHebrew = (appState.language !== 'en');
-                    var zoneName = isHebrew ? (zone.nameHe || zone.name) : (zone.nameEn || zone.name);
-                    return '<div style="font-size: 11px; line-height: 1.35; text-align: center;">' +
-                        '<strong>' + zone.code + '</strong>' + (zoneName ? ' &bull; ' + zoneName : '') + '<br>' +
-                        '<span style="font-weight: 600; color: #0d47a1;">↕ ' + verticalLimits + '</span>' +
-                        '</div>';
-                }, { sticky: true, opacity: 0.95 });
+                var tooltipHtml = '<div style="font-size: 11px; line-height: 1.35; text-align: center;">' +
+                    '<strong>' + zone.code + '</strong>' + (zoneName ? ' &bull; ' + zoneName : '') + '<br>' +
+                    '<span style="font-weight: 600; color: #0d47a1;">↕ ' + verticalLimits + '</span>' +
+                    '</div>';
+                layer.bindTooltip(tooltipHtml, { sticky: true, opacity: 0.95 });
 
                 appState.ctrZones.push(layer);
             });
+
+            if (appState.ctrsVisible && appState.map) {
+                appState.ctrZones.forEach(function(zone) {
+                    zone.addTo(appState.map);
+                });
+            }
         }
 
         function repositionCTRZones() {
@@ -833,6 +836,16 @@
         }
 
         function toggleCTRs() {
+            var now = Date.now();
+            if (toggleCTRs._lastClick && (now - toggleCTRs._lastClick < 200)) {
+                return;
+            }
+            toggleCTRs._lastClick = now;
+
+            if (!appState.ctrZones || appState.ctrZones.length === 0) {
+                initCTRZones();
+            }
+
             appState.ctrsVisible = !appState.ctrsVisible;
             var btn = document.getElementById('ctrToggleBtn');
             var isHebrew = (appState.language !== 'en');

@@ -378,6 +378,11 @@
         
         function toggleLanguage() {
             appState.language = appState.language === 'en' ? 'he' : 'en';
+            initAirspaceZones();
+            if (appState.airspaceVisible) {
+                appState.airspaceZones.forEach(function(zone) { zone.addTo(appState.map); });
+            }
+            initCTRZones();
             updateUILanguage();
             // CVFR points always show Hebrew names, no need to update them
         }
