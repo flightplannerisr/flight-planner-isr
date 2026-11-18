@@ -263,6 +263,7 @@
             var isLandscape = (window.captureOrientation === 'landscape');
             var selectedScale = '250000'; // Default scale: 1:250,000
             var selectedScaleSide = 'right'; // Scale bar position: 'right', 'left', 'center', 'none'
+            var selectedScaleBarSize = 1.0; // Scale bar size multiplier: 0.5 to 2.0
 
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
@@ -400,14 +401,14 @@
                 var maxH = boxH - 36;
                 var barBoxW = 155;
                 var barBoxH = 46;
-                var fitRatio = Math.min(1.0, Math.min(maxW / barBoxW, maxH / barBoxH));
+                var fitRatio = Math.min(1.0, Math.min(maxW / (barBoxW * selectedScaleBarSize), maxH / (barBoxH * selectedScaleBarSize))) * selectedScaleBarSize;
 
                 var transform = '';
                 if (selectedScaleSide === 'left') {
                     targetEl.style.bottom = '6px';
                     targetEl.style.left = '6px';
                     targetEl.style.right = 'auto';
-                    if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                    if (Math.abs(fitRatio - 1.0) > 0.01) {
                         transform = 'scale(' + fitRatio.toFixed(2) + ')';
                     }
                     targetEl.style.transformOrigin = 'bottom left';
@@ -416,7 +417,7 @@
                     targetEl.style.left = '50%';
                     targetEl.style.right = 'auto';
                     transform = 'translateX(-50%)';
-                    if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                    if (Math.abs(fitRatio - 1.0) > 0.01) {
                         transform += ' scale(' + fitRatio.toFixed(2) + ')';
                     }
                     targetEl.style.transformOrigin = 'bottom center';
@@ -424,7 +425,7 @@
                     targetEl.style.bottom = '6px';
                     targetEl.style.right = '6px';
                     targetEl.style.left = 'auto';
-                    if (fitRatio < 1.0 && fitRatio >= 0.45) {
+                    if (Math.abs(fitRatio - 1.0) > 0.01) {
                         transform = 'scale(' + fitRatio.toFixed(2) + ')';
                     }
                     targetEl.style.transformOrigin = 'bottom right';
@@ -592,6 +593,15 @@
                     '<option value="center">Center ⬇</option>' +
                     '<option value="none">Off ✕</option>' +
                 '</select>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Size:</span>' +
+                '<select id="a4ScaleBarSize" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
+                    '<option value="0.5">50% (Tiny)</option>' +
+                    '<option value="0.75">75% (Small)</option>' +
+                    '<option value="1" selected>100% (Normal)</option>' +
+                    '<option value="1.25">125% (Large)</option>' +
+                    '<option value="1.5">150% (XL)</option>' +
+                    '<option value="2">200% (2x)</option>' +
+                '</select>' +
                 '<span style="opacity:.7;font-size:12px;margin-left:4px;">Pages:</span>' +
                 '<select id="a4PageCount" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>' +
                 '<button id="a4LayoutStacked"  style="padding:5px 8px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;" title="Pages stacked vertically">⬇ Stack</button>' +
@@ -752,6 +762,17 @@
 
             document.getElementById('a4ScaleSide').addEventListener('change', function() {
                 selectedScaleSide = this.value;
+                var sizeSelect = document.getElementById('a4ScaleBarSize');
+                if (sizeSelect) {
+                    sizeSelect.disabled = (selectedScaleSide === 'none');
+                    sizeSelect.style.opacity = (selectedScaleSide === 'none') ? '0.4' : '1.0';
+                }
+                updateLabel();
+                if (typeof updateExtraRects === 'function') updateExtraRects();
+            });
+
+            document.getElementById('a4ScaleBarSize').addEventListener('change', function() {
+                selectedScaleBarSize = parseFloat(this.value) || 1.0;
                 updateLabel();
                 if (typeof updateExtraRects === 'function') updateExtraRects();
             });
@@ -883,11 +904,19 @@
                         var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
                             Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
                         scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
-                        var posStyle = 'bottom:8px;right:8px;';
+                        var posStyle = 'bottom:8px;right:8px;transform-origin:bottom right;';
+                        var tf = '';
                         if (selectedScaleSide === 'left') {
-                            posStyle = 'bottom:8px;left:8px;';
+                            posStyle = 'bottom:8px;left:8px;transform-origin:bottom left;';
                         } else if (selectedScaleSide === 'center') {
-                            posStyle = 'bottom:8px;left:50%;transform:translateX(-50%);';
+                            posStyle = 'bottom:8px;left:50%;transform-origin:bottom center;';
+                            tf = 'translateX(-50%)';
+                        }
+                        if (Math.abs(selectedScaleBarSize - 1.0) > 0.01) {
+                            tf = (tf ? tf + ' ' : '') + 'scale(' + selectedScaleBarSize + ')';
+                        }
+                        if (tf) {
+                            posStyle += 'transform:' + tf + ';';
                         }
                         scaleBar.style.cssText =
                             'position:fixed;z-index:99999;' + posStyle +
