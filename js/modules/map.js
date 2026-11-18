@@ -667,6 +667,9 @@
                     '<div><strong>' + (isHebrew ? 'גובה מזערי (Floor):' : 'Floor:') + '</strong> ' + (zone.floor || 'GND') + '</div>' +
                     '<div><strong>' + (isHebrew ? 'גובה מרבי (Ceiling):' : 'Ceiling:') + '</strong> ' + (zone.ceiling || 'UNL') + '</div>' +
                     '</div>' +
+                    '<div style="font-size: 10px; color: #777; margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px;">' +
+                    (isHebrew ? '⚠️ נתוני פמ"ת 26A — יש לוודא עדכניות מול פמ"ת/נוטאם' : '⚠️ Valid for AIP 26A — verify latest AIP/NOTAMs') +
+                    '</div>' +
                     '</div>';
 
                 layer.bindPopup(popupContent);
@@ -695,6 +698,7 @@
         function toggleAirspace() {
             appState.airspaceVisible = !appState.airspaceVisible;
             var btn = document.getElementById('airspaceToggleBtn');
+            var noticeEl = document.getElementById('airspaceNotice');
             var isHebrew = (appState.language !== 'en');
             
             if (appState.airspaceVisible) {
@@ -702,6 +706,9 @@
                     btn.textContent = (translations[appState.language] && translations[appState.language].hideAirspace) || (isHebrew ? 'הסתר מרחב אווירי' : 'Hide Airspace');
                     btn.classList.add('btn-primary');
                     btn.classList.remove('btn-secondary');
+                }
+                if (noticeEl) {
+                    noticeEl.style.display = 'block';
                 }
                 appState.airspaceZones.forEach(function(zone) {
                     zone.addTo(appState.map);
@@ -711,6 +718,9 @@
                     btn.textContent = (translations[appState.language] && translations[appState.language].airspaceToggle) || (isHebrew ? 'הצג מרחב אווירי' : 'Show Airspace');
                     btn.classList.remove('btn-primary');
                     btn.classList.add('btn-secondary');
+                }
+                if (noticeEl) {
+                    noticeEl.style.display = 'none';
                 }
                 appState.airspaceZones.forEach(function(zone) {
                     appState.map.removeLayer(zone);
