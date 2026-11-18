@@ -106,3 +106,8 @@
         .leaflet-popup-pane { z-index: 700 !important; }
         .sidebar { z-index: 1000 !important; position: relative; }
         #sidebar { z-index: 1000 !important; }
+
+        /* Hide waypoint label boxes when toggled off */
+        body.waypoint-labels-hidden .wl-div {
+            visibility: hidden !important;
+        }

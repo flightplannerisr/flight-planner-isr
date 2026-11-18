@@ -503,8 +503,10 @@
             var isMiniWp = !!appState.miniWaypoints[wp.num];
             var showName = style.showName !== false;
             var showTime = style.showTime !== false;
+            var isVisible = appState.waypointLabelsVisible !== false;
+            var visStyle = isVisible ? '' : 'visibility:hidden;';
             var innerHtml =
-                '<div style="display:inline-block;background:' + bg + ';' + shadow +
+                '<div style="display:inline-block;' + visStyle + 'background:' + bg + ';' + shadow +
                 'border:' + border + 'px solid ' + style.textColor + ';border-radius:3px;padding:' + pad + ';' +
                 'color:' + style.textColor + ';white-space:nowrap;cursor:move;text-align:center;' +
                 'transform:rotate(' + rot + 'deg);transform-origin:center center;box-sizing:border-box;' +
@@ -532,6 +534,17 @@
                 keyboard: false,
                 zIndexOffset: -100
             }).addTo(appState.map);
+
+            marker._setVisibility = function(visible) {
+                var el = marker.getElement();
+                if (el) el.style.visibility = visible ? 'visible' : 'hidden';
+            };
+            if (!isVisible) {
+                marker._setVisibility(false);
+                marker.on('add', function() {
+                    marker._setVisibility(false);
+                });
+            }
 
             // Click on marker icon = select; dblclick = popup
             // Selection overlay div (bbox + rotation handle), shown on single click
@@ -665,6 +678,9 @@
             appState.waypointLabelsVisible = !appState.waypointLabelsVisible;
             var btn = document.getElementById('waypointLabelsToggleBtn');
             var vis = appState.waypointLabelsVisible ? 'visible' : 'hidden';
+            if (document.body) {
+                document.body.classList.toggle('waypoint-labels-hidden', !appState.waypointLabelsVisible);
+            }
             // Use setTimeout to ensure Leaflet DOM elements exist
             setTimeout(function() {
                 appState.waypointLabels.forEach(function(lbl) {
