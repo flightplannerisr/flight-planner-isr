@@ -111,7 +111,9 @@
                 color: navMatch ? '#28a745' : '#0066cc',
                 weight: navMatch ? 3 : 2,
                 opacity: navMatch ? 0.85 : 0.5,
-                dashArray: '5, 10'
+                dashArray: '5, 10',
+                interactive: false,
+                className: 'preview-line'
             }).addTo(appState.map);
             
             // Calculate preview info
@@ -144,7 +146,7 @@
             var headingFontSize = 13 * scale * fm;
             var iconSize = 80 * scale * sm;
             
-            var legInfoHtml = '<div style="transform: rotate(' + heading + 'deg); transform-origin: center center;">' +
+            var legInfoHtml = '<div style="pointer-events: none; transform: rotate(' + heading + 'deg); transform-origin: center center;">' +
                 '<div style="display: flex; flex-direction: column; align-items: center;">' +
                 '<div style="width: 0; height: 0; border-left: ' + triangleBase + 'px solid transparent; border-right: ' + triangleBase + 'px solid transparent; border-bottom: ' + triangleHeight + 'px solid #dc3545; position: relative;">' +
                 '<div style="position: absolute; top: ' + (8 * scale * sm) + 'px; left: 50%; transform: translateX(-50%); color: white; font-weight: bold; font-size: ' + headingFontSize + 'px; white-space: nowrap;">' + getMagHeading(heading) + '°</div>' +
@@ -163,8 +165,9 @@
                 '</div>';
             
             appState.previewLabel = L.marker([offsetLat, offsetLng], {
+                interactive: false,
                 icon: L.divIcon({
-                    className: 'leg-info-label',
+                    className: 'leg-info-label preview-leg-info-label',
                     html: legInfoHtml,
                     iconSize: [Math.round(triangleBase * 2), iconSize],
                     iconAnchor: [Math.round(triangleBase), iconSize/2]
@@ -184,12 +187,13 @@
 
                 var showLabel = (min % labelInterval === 0);
                 var labelHtml = showLabel
-                    ? '<div style="transform: rotate(' + heading + 'deg); color: #0066cc; font-weight: bold; font-size: ' + appState.labelFontSize + 'px; text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white;">' + min + '</div>'
+                    ? '<div style="pointer-events: none; transform: rotate(' + heading + 'deg); color: #0066cc; font-weight: bold; font-size: ' + appState.labelFontSize + 'px; text-shadow: 1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white;">' + min + '</div>'
                     : '';
 
                 var labelMarker = L.marker([tickLat, tickLng], {
+                    interactive: false,
                     icon: L.divIcon({
-                        className: 'time-label',
+                        className: 'time-label preview-time-marker',
                         html: labelHtml,
                         iconSize: [50, 20],
                         iconAnchor: [25, 10]
@@ -205,7 +209,9 @@
                 var tickLine = L.polyline([[perpLat1, perpLng1], [perpLat2, perpLng2]], {
                     color: '#0066cc',
                     weight: appState.lineWidth,
-                    opacity: 0.5
+                    opacity: 0.5,
+                    interactive: false,
+                    className: 'preview-line'
                 }).addTo(appState.map);
                 appState.previewTimeMarkers.push(tickLine);
             }

@@ -111,3 +111,17 @@
         body.waypoint-labels-hidden .wl-div {
             visibility: hidden !important;
         }
+
+        /* Drawing mode: prevent waypoint labels, leg info labels, and time labels from intercepting clicks */
+        body.drawing-mode .wl-div,
+        body.drawing-mode .leg-info-label,
+        body.drawing-mode .time-label {
+            pointer-events: none !important;
+        }
+
+        /* Previews should never intercept mouse events */
+        .preview-leg-info-label,
+        .preview-time-marker,
+        .preview-line {
+            pointer-events: none !important;
+        }

@@ -188,6 +188,7 @@
             if (appState.isDrawing) {
                 if (btn) { btn.textContent = 'Stop Drawing'; btn.classList.remove('btn-primary'); btn.classList.add('btn-danger'); }
                 appState.map.getContainer().style.cursor = 'crosshair';
+                document.body.classList.add('drawing-mode');
 
                 // Track mousedown time and position to distinguish a click from a pan/drag
                 appState._drawMouseDown = function(e) {
@@ -202,15 +203,17 @@
                 appState._drawClickCapture = function(e) {
                     if (!appState.isDrawing) return;
 
-                    // Ignore if the press lasted too long (pan) or moved too far (drag)
-                    var elapsed = Date.now() - (appState._drawDownTime || 0);
-                    var dx = e.clientX - (appState._drawDownX || e.clientX);
-                    var dy = e.clientY - (appState._drawDownY || e.clientY);
-                    var moved = Math.sqrt(dx * dx + dy * dy);
-                    if (elapsed > 300 || moved > 5) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        return;
+                    // Ignore if the press was an actual pan/drag (>600ms or moved >15px)
+                    if (appState._drawDownTime) {
+                        var elapsed = Date.now() - appState._drawDownTime;
+                        var dx = e.clientX - (appState._drawDownX || e.clientX);
+                        var dy = e.clientY - (appState._drawDownY || e.clientY);
+                        var moved = Math.sqrt(dx * dx + dy * dy);
+                        if (elapsed > 600 || moved > 15) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            return;
+                        }
                     }
 
                     var mapEl = appState.map.getContainer();
@@ -267,6 +270,7 @@
             } else {
                 if (btn) { btn.textContent = 'Start Drawing'; btn.classList.remove('btn-danger'); btn.classList.add('btn-primary'); }
                 appState.map.getContainer().style.cursor = '';
+                document.body.classList.remove('drawing-mode');
 
                 // Remove capture listener
                 if (appState._drawClickCapture) {
