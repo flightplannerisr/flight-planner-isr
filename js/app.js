@@ -188,6 +188,7 @@
             if (appState.isDrawing) {
                 if (btn) { btn.textContent = 'Stop Drawing'; btn.classList.remove('btn-primary'); btn.classList.add('btn-danger'); }
                 appState.map.getContainer().style.cursor = 'crosshair';
+                document.body.classList.add('drawing-mode');
 
                 // Track mousedown time and position to distinguish a click from a pan/drag
                 appState._drawMouseDown = function(e) {
@@ -202,40 +203,46 @@
                 appState._drawClickCapture = function(e) {
                     if (!appState.isDrawing) return;
 
-                    // Ignore if the press lasted too long (pan) or moved too far (drag)
-                    var elapsed = Date.now() - (appState._drawDownTime || 0);
-                    var dx = e.clientX - (appState._drawDownX || e.clientX);
-                    var dy = e.clientY - (appState._drawDownY || e.clientY);
-                    var moved = Math.sqrt(dx * dx + dy * dy);
-                    if (elapsed > 300 || moved > 5) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        return;
+                    // Ignore if the press was an actual pan/drag (>600ms or moved >15px)
+                    if (appState._drawDownTime) {
+                        var elapsed = Date.now() - appState._drawDownTime;
+                        var dx = e.clientX - (appState._drawDownX || e.clientX);
+                        var dy = e.clientY - (appState._drawDownY || e.clientY);
+                        var moved = Math.sqrt(dx * dx + dy * dy);
+                        if (elapsed > 600 || moved > 15) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            return;
+                        }
                     }
 
-                    // Check if click landed inside a waypoint circle — if so open its popup
                     var mapEl = appState.map.getContainer();
                     var rect  = mapEl.getBoundingClientRect();
                     var clickPt = L.point(e.clientX - rect.left, e.clientY - rect.top);
                     var clickLL = appState.map.containerPointToLatLng(clickPt);
+
+                    e.stopPropagation();
+                    e.preventDefault();
+                    appState._drawClickHandled = true;
+
+                    // 1. Check if clicked on or near a predefined navigation point first!
+                    var navPoint = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(clickPt, e) : null;
+                    if (navPoint) {
+                        addWaypoint(navPoint.lat, navPoint.lng, navPoint.name);
+                        return;
+                    }
+
+                    // 2. Only if NOT clicking a navigation point, check if clicking right on an existing waypoint center (tight 10px target)
                     var hitCircle = null;
                     for (var i = 0; i < appState.circles.length; i++) {
                         var c = appState.circles[i];
                         if (!c) continue;
                         var cPt = appState.map.latLngToContainerPoint(c.getLatLng());
-                        var radiusPx = appState.map.latLngToContainerPoint(
-                            L.latLng(c.getLatLng().lat, c.getLatLng().lng)
-                        ).distanceTo(appState.map.latLngToContainerPoint(
-                            L.latLng(c.getLatLng().lat + (c.getRadius() / 111320), c.getLatLng().lng)
-                        ));
-                        if (clickPt.distanceTo(cPt) <= Math.max(radiusPx, 12)) {
+                        if (clickPt.distanceTo(cPt) <= 10) {
                             hitCircle = i;
                             break;
                         }
                     }
-
-                    e.stopPropagation();
-                    e.preventDefault();
 
                     if (hitCircle !== null) {
                         // Fire the circle's popup without adding a waypoint
@@ -243,7 +250,6 @@
                         return;
                     }
 
-                    appState._drawClickHandled = true;
                     // Apply calibration correction if on a calibrated chart map
                     var mapName = appState.currentMapName;
                     if ((mapName === 'Air Nav Chart' || mapName === 'AZM Chart') && typeof calibrateLatLng === 'function') {
@@ -264,6 +270,7 @@
             } else {
                 if (btn) { btn.textContent = 'Start Drawing'; btn.classList.remove('btn-danger'); btn.classList.add('btn-primary'); }
                 appState.map.getContainer().style.cursor = '';
+                document.body.classList.remove('drawing-mode');
 
                 // Remove capture listener
                 if (appState._drawClickCapture) {
