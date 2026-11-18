@@ -443,6 +443,11 @@
             var planNameInput = document.getElementById('plan-name');
             if (planNameInput) planNameInput.placeholder = t.planName;
             
+            var airspaceNoticeTextEl = document.getElementById('airspaceNoticeText');
+            if (airspaceNoticeTextEl && t.airspaceNotice) {
+                airspaceNoticeTextEl.textContent = t.airspaceNotice;
+            }
+            
             // Update info tooltip
             var infoBox = document.querySelector('.info-box');
             if (infoBox) infoBox.textContent = t.infoTooltip;

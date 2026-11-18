@@ -394,6 +394,7 @@
                 repositionMarkerList(appState.cvfrPoints);
                 repositionMarkerList(appState.airstrips);
                 repositionMarkerList(appState.reportingPoints);
+                repositionAirspaceZones();
 
                 updateRoute();
 
@@ -563,45 +564,168 @@
         }
 
         function initAirspaceZones() {
-            var zones = [
-                { name: "Ben Gurion CTR", lat: 32.0, lng: 34.9, radius: 15000, color: 'rgba(255,0,0,0.2)', type: 'Class B' },
-                { name: "Sde Dov CTR", lat: 32.11, lng: 34.78, radius: 8000, color: 'rgba(255,165,0,0.2)', type: 'Class D' },
-                { name: "Haifa CTR", lat: 32.81, lng: 35.04, radius: 10000, color: 'rgba(255,165,0,0.2)', type: 'Class D' },
-                { name: "Ramon CTR", lat: 29.73, lng: 35.01, radius: 10000, color: 'rgba(255,165,0,0.2)', type: 'Class D' },
-                { name: "Nevatim CTR", lat: 31.21, lng: 35.01, radius: 10000, color: 'rgba(255,0,0,0.2)', type: 'Class B' },
-                { name: "Northern Restricted", lat: 33.2, lng: 35.6, radius: 20000, color: 'rgba(0,0,255,0.2)', type: 'Restricted' },
-                { name: "Gaza Restricted", lat: 31.5, lng: 34.4, radius: 15000, color: 'rgba(0,0,255,0.2)', type: 'Restricted' }
-            ];
-            
-            zones.forEach(function(zone) {
-                var circle = L.circle([zone.lat, zone.lng], {
-                    color: zone.color.replace('0.2', '0.8'),
-                    fillColor: zone.color,
-                    fillOpacity: 0.2,
-                    radius: zone.radius,
-                    weight: 2,
-                    interactive: false
+            // Remove existing layers if any
+            if (appState.airspaceZones && appState.airspaceZones.length > 0) {
+                appState.airspaceZones.forEach(function(zone) {
+                    if (appState.map && appState.map.hasLayer(zone)) {
+                        appState.map.removeLayer(zone);
+                    }
                 });
-                circle.bindPopup('<strong>' + zone.name + '</strong><br>' + zone.type);
-                appState.airspaceZones.push(circle);
+            }
+            appState.airspaceZones = [];
+
+            if (typeof specialAirspaceData === 'undefined' || !Array.isArray(specialAirspaceData)) {
+                return;
+            }
+
+            specialAirspaceData.forEach(function(zone) {
+                var style = {
+                    className: 'special-airspace-layer',
+                    weight: 2,
+                    interactive: true
+                };
+
+                var typeLabelEn = zone.type;
+                var typeLabelHe = zone.type;
+                var headerColor = '#d32f2f';
+
+                if (zone.type === 'Prohibited') {
+                    style.color = '#c62828';
+                    style.fillColor = '#d32f2f';
+                    style.fillOpacity = 0.22;
+                    typeLabelEn = 'Prohibited Area';
+                    typeLabelHe = 'אזור אסור לטיסה (LLP)';
+                    headerColor = '#b71c1c';
+                } else if (zone.type === 'Restricted') {
+                    style.color = '#e65100';
+                    style.fillColor = '#ef6c00';
+                    style.fillOpacity = 0.20;
+                    typeLabelEn = 'Restricted Area';
+                    typeLabelHe = 'אזור מוגבל לטיסה (LLR)';
+                    headerColor = '#bf360c';
+                } else if (zone.type === 'Danger') {
+                    style.color = '#f57f17';
+                    style.fillColor = '#fbc02d';
+                    style.fillOpacity = 0.18;
+                    style.dashArray = '5, 5';
+                    typeLabelEn = 'Danger Area';
+                    typeLabelHe = 'אזור מסוכן לטיסה (LLD)';
+                    headerColor = '#e65100';
+                } else if (zone.type === 'UAS_NoFly') {
+                    style.color = '#6a1b9a';
+                    style.fillColor = '#8e24aa';
+                    style.fillOpacity = 0.15;
+                    style.weight = 1.5;
+                    style.dashArray = '4, 4';
+                    typeLabelEn = 'UAS / Drone No-Fly Zone';
+                    typeLabelHe = 'איסור הטסת כטב"ם/רחפנים (LLU)';
+                    headerColor = '#4a148c';
+                } else if (zone.type === 'CTR') {
+                    style.color = '#1565c0';
+                    style.fillColor = '#1976d2';
+                    style.fillOpacity = 0.15;
+                    typeLabelEn = 'Control Zone (CTR)';
+                    typeLabelHe = 'אזור פיקוח שדה תעופה (CTR)';
+                    headerColor = '#0d47a1';
+                } else {
+                    style.color = '#546e7a';
+                    style.fillColor = '#78909c';
+                    style.fillOpacity = 0.18;
+                }
+
+                var layer = null;
+                if (zone.geom.type === 'Circle') {
+                    var centerLL = L.latLng(zone.geom.center[0], zone.geom.center[1]);
+                    var dispLL = (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(centerLL) : centerLL;
+                    var opts = Object.assign({}, style, { radius: zone.geom.radius });
+                    layer = L.circle([dispLL.lat, dispLL.lng], opts);
+                    layer._realLatLng = centerLL;
+                    layer._geomType = 'Circle';
+                } else if (zone.geom.type === 'Polygon') {
+                    var realLatLngs = zone.geom.coordinates.map(function(c) {
+                        return L.latLng(c[0], c[1]);
+                    });
+                    var dispLatLngs = realLatLngs.map(function(ll) {
+                        return (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(ll) : ll;
+                    });
+                    layer = L.polygon(dispLatLngs, style);
+                    layer._realLatLngs = realLatLngs;
+                    layer._geomType = 'Polygon';
+                }
+
+                if (!layer) return;
+
+                layer._airspaceData = zone;
+
+                var isHebrew = (appState.language !== 'en');
+                var popupContent = '<div style="direction: ' + (isHebrew ? 'rtl' : 'ltr') + '; text-align: ' + (isHebrew ? 'right' : 'left') + '; font-family: sans-serif; font-size: 12px; line-height: 1.4; min-width: 170px;">' +
+                    '<div style="font-weight: bold; font-size: 13px; color: ' + headerColor + '; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 5px;">' +
+                    zone.code + ' &bull; ' + (isHebrew ? typeLabelHe : typeLabelEn) +
+                    '</div>' +
+                    (zone.name ? '<div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #222;">' + zone.name + '</div>' : '') +
+                    '<div style="font-size: 11px; color: #444;">' +
+                    '<div><strong>' + (isHebrew ? 'גובה מזערי (Floor):' : 'Floor:') + '</strong> ' + (zone.floor || 'GND') + '</div>' +
+                    '<div><strong>' + (isHebrew ? 'גובה מרבי (Ceiling):' : 'Ceiling:') + '</strong> ' + (zone.ceiling || 'UNL') + '</div>' +
+                    '</div>' +
+                    '<div style="font-size: 10px; color: #777; margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px;">' +
+                    (isHebrew ? '⚠️ נתוני פמ"ת 26A — יש לוודא עדכניות מול פמ"ת/נוטאם' : '⚠️ Valid for AIP 26A — verify latest AIP/NOTAMs') +
+                    '</div>' +
+                    '</div>';
+
+                layer.bindPopup(popupContent);
+                var verticalLimits = (zone.floor || 'GND') + ' – ' + (zone.ceiling || 'UNL');
+                var tooltipHtml = '<div style="font-size: 11px; line-height: 1.35; text-align: center;">' +
+                    '<strong>' + zone.code + '</strong>' + (zone.name ? ' &bull; ' + zone.name : '') + '<br>' +
+                    '<span style="font-weight: 600; color: #0d47a1;">↕ ' + verticalLimits + '</span>' +
+                    '</div>';
+                layer.bindTooltip(tooltipHtml, { sticky: true, opacity: 0.95 });
+
+                appState.airspaceZones.push(layer);
+            });
+        }
+
+        function repositionAirspaceZones() {
+            if (!appState.airspaceZones) return;
+            appState.airspaceZones.forEach(function(layer) {
+                if (layer._geomType === 'Circle' && layer._realLatLng) {
+                    var disp = (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(layer._realLatLng) : layer._realLatLng;
+                    layer.setLatLng(disp);
+                } else if (layer._geomType === 'Polygon' && layer._realLatLngs) {
+                    var dispLatLngs = layer._realLatLngs.map(function(ll) {
+                        return (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(ll) : ll;
+                    });
+                    layer.setLatLngs(dispLatLngs);
+                }
             });
         }
         
         function toggleAirspace() {
             appState.airspaceVisible = !appState.airspaceVisible;
             var btn = document.getElementById('airspaceToggleBtn');
+            var noticeEl = document.getElementById('airspaceNotice');
+            var isHebrew = (appState.language !== 'en');
             
             if (appState.airspaceVisible) {
-                btn.textContent = 'Hide Airspace';
-                btn.classList.add('btn-primary');
-                btn.classList.remove('btn-secondary');
+                if (btn) {
+                    btn.textContent = (translations[appState.language] && translations[appState.language].hideAirspace) || (isHebrew ? 'הסתר מרחב אווירי' : 'Hide Airspace');
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-secondary');
+                }
+                if (noticeEl) {
+                    noticeEl.style.display = 'block';
+                }
                 appState.airspaceZones.forEach(function(zone) {
                     zone.addTo(appState.map);
                 });
             } else {
-                btn.textContent = 'Show Airspace';
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-secondary');
+                if (btn) {
+                    btn.textContent = (translations[appState.language] && translations[appState.language].airspaceToggle) || (isHebrew ? 'הצג מרחב אווירי' : 'Show Airspace');
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                }
+                if (noticeEl) {
+                    noticeEl.style.display = 'none';
+                }
                 appState.airspaceZones.forEach(function(zone) {
                     appState.map.removeLayer(zone);
                 });

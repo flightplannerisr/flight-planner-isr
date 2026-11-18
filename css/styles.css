@@ -115,7 +115,8 @@
         /* Drawing mode: prevent waypoint labels, leg info labels, and time labels from intercepting clicks */
         body.drawing-mode .wl-div,
         body.drawing-mode .leg-info-label,
-        body.drawing-mode .time-label {
+        body.drawing-mode .time-label,
+        body.drawing-mode .special-airspace-layer {
             pointer-events: none !important;
         }
 

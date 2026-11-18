@@ -71,6 +71,9 @@
                         <button class="btn-secondary" id="legDistanceToggleBtn" onclick="toggleLegDistance()" style="font-size: 11px; padding: 6px 8px;">Show Distance (NM)</button>
                         <button class="btn-primary"   id="airstripsToggleBtn" onclick="toggleAirstrips()" style="font-size: 11px; padding: 6px 8px;">Hide Airstrips</button>
                     </div>
+                    <div id="airspaceNotice" style="display: none; margin-top: 8px; padding: 6px 9px; background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px; font-size: 11px; line-height: 1.35; color: #5d4037;">
+                        <span style="margin-inline-end: 4px;">⚠️</span><span id="airspaceNoticeText">Restricted and prohibited area coordinates are valid for AIP 26A. If a newer AIP is published, please double-check with official sources.</span>
+                    </div>
                 </div>
                 
                 <!-- Export Subsection -->
@@ -430,6 +433,7 @@
     <script src="js/data/airstrips.js"></script>
     <script src="js/data/cvfr-points.js"></script>
     <script src="js/data/lsa-points.js"></script>
+    <script src="js/data/special-airspace.js"></script>
     <script src="js/data/translations.js"></script>
 
     <!-- Core Modules -->
