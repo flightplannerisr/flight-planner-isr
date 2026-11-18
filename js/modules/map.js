@@ -395,6 +395,7 @@
                 repositionMarkerList(appState.airstrips);
                 repositionMarkerList(appState.reportingPoints);
                 repositionAirspaceZones();
+                repositionCTRZones();
 
                 updateRoute();
 
@@ -435,6 +436,7 @@
             
             // Initialize airspace zones (hidden by default)
             initAirspaceZones();
+            initCTRZones();
             
             // Initialize reporting points (hidden by default)
             initReportingPoints();
@@ -727,6 +729,144 @@
                     noticeEl.style.display = 'none';
                 }
                 appState.airspaceZones.forEach(function(zone) {
+                    appState.map.removeLayer(zone);
+                });
+            }
+        }
+        
+        function initCTRZones() {
+            // Remove existing layers if any
+            if (appState.ctrZones && appState.ctrZones.length > 0) {
+                appState.ctrZones.forEach(function(zone) {
+                    if (appState.map && appState.map.hasLayer(zone)) {
+                        appState.map.removeLayer(zone);
+                    }
+                });
+            }
+            appState.ctrZones = [];
+
+            if (typeof ctrZonesData === 'undefined' || !Array.isArray(ctrZonesData)) {
+                return;
+            }
+
+            ctrZonesData.forEach(function(zone) {
+                var style = {
+                    className: 'ctr-layer',
+                    color: '#1565c0',
+                    weight: 2,
+                    fillColor: '#1976d2',
+                    fillOpacity: 0.16,
+                    interactive: true
+                };
+
+                var layer = null;
+                if (zone.geom.type === 'Circle') {
+                    var centerLL = L.latLng(zone.geom.center[0], zone.geom.center[1]);
+                    var dispLL = (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(centerLL) : centerLL;
+                    var opts = Object.assign({}, style, { radius: zone.geom.radius });
+                    layer = L.circle([dispLL.lat, dispLL.lng], opts);
+                    layer._realLatLng = centerLL;
+                    layer._geomType = 'Circle';
+                } else if (zone.geom.type === 'Polygon') {
+                    var realLatLngs = zone.geom.coordinates.map(function(c) {
+                        return L.latLng(c[0], c[1]);
+                    });
+                    var dispLatLngs = realLatLngs.map(function(ll) {
+                        return (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(ll) : ll;
+                    });
+                    layer = L.polygon(dispLatLngs, style);
+                    layer._realLatLngs = realLatLngs;
+                    layer._geomType = 'Polygon';
+                }
+
+                if (!layer) return;
+
+                layer._ctrData = zone;
+
+                var isHebrew = (appState.language !== 'en');
+                var zoneName = isHebrew ? (zone.nameHe || zone.name) : (zone.nameEn || zone.name);
+                var popupContent = '<div style="direction: ' + (isHebrew ? 'rtl' : 'ltr') + '; text-align: ' + (isHebrew ? 'right' : 'left') + '; font-family: sans-serif; font-size: 12px; line-height: 1.4; min-width: 170px;">' +
+                    '<div style="font-weight: bold; font-size: 13px; color: #0d47a1; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 5px;">' +
+                    zone.code + ' &bull; ' + (isHebrew ? 'אזור פיקוח (CTR)' : 'Control Zone (CTR)') +
+                    '</div>' +
+                    '<div style="font-weight: 600; font-size: 12px; margin-bottom: 5px; color: #222;">' + zoneName + '</div>' +
+                    '<div style="font-size: 11px; color: #444;">' +
+                    (zone.airspaceClass ? '<div><strong>' + (isHebrew ? 'סיווג מרחב:' : 'Class:') + '</strong> ' + zone.airspaceClass + '</div>' : '') +
+                    '<div><strong>' + (isHebrew ? 'גובה מזערי (Floor):' : 'Floor:') + '</strong> ' + (zone.floor || 'SFC') + '</div>' +
+                    '<div><strong>' + (isHebrew ? 'גובה מרבי (Ceiling):' : 'Ceiling:') + '</strong> ' + (zone.ceiling || 'UNL') + '</div>' +
+                    (zone.callsign ? '<div><strong>' + (isHebrew ? 'קריאה (Callsign):' : 'Callsign:') + '</strong> ' + zone.callsign + '</div>' : '') +
+                    '</div>' +
+                    '<div style="font-size: 10px; color: #777; margin-top: 6px; border-top: 1px dotted #ccc; padding-top: 3px;">' +
+                    (isHebrew ? '⚠️ נתוני פמ"ת 26A / eAIP AD 2.17' : '⚠️ Valid for AIP 26A / eAIP AD 2.17') +
+                    '</div>' +
+                    '</div>';
+
+                layer.bindPopup(popupContent);
+
+                var verticalLimits = (zone.floor || 'SFC') + ' – ' + (zone.ceiling || 'UNL');
+                var tooltipHtml = '<div style="font-size: 11px; line-height: 1.35; text-align: center;">' +
+                    '<strong>' + zone.code + '</strong>' + (zoneName ? ' &bull; ' + zoneName : '') + '<br>' +
+                    '<span style="font-weight: 600; color: #0d47a1;">↕ ' + verticalLimits + '</span>' +
+                    '</div>';
+                layer.bindTooltip(tooltipHtml, { sticky: true, opacity: 0.95 });
+
+                appState.ctrZones.push(layer);
+            });
+
+            if (appState.ctrsVisible && appState.map) {
+                appState.ctrZones.forEach(function(zone) {
+                    zone.addTo(appState.map);
+                });
+            }
+        }
+
+        function repositionCTRZones() {
+            if (!appState.ctrZones) return;
+            appState.ctrZones.forEach(function(layer) {
+                if (layer._geomType === 'Circle' && layer._realLatLng) {
+                    var disp = (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(layer._realLatLng) : layer._realLatLng;
+                    layer.setLatLng(disp);
+                } else if (layer._geomType === 'Polygon' && layer._realLatLngs) {
+                    var dispLatLngs = layer._realLatLngs.map(function(ll) {
+                        return (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(ll) : ll;
+                    });
+                    layer.setLatLngs(dispLatLngs);
+                }
+            });
+        }
+
+        function toggleCTRs() {
+            var now = Date.now();
+            if (toggleCTRs._lastClick && (now - toggleCTRs._lastClick < 200)) {
+                return;
+            }
+            toggleCTRs._lastClick = now;
+
+            if (!appState.ctrZones || appState.ctrZones.length === 0) {
+                initCTRZones();
+            }
+
+            appState.ctrsVisible = !appState.ctrsVisible;
+            var btn = document.getElementById('ctrToggleBtn');
+            var isHebrew = (appState.language !== 'en');
+            var t = (typeof translations !== 'undefined' && translations[appState.language]) || {};
+
+            if (appState.ctrsVisible) {
+                if (btn) {
+                    btn.textContent = t.hideCTRs || (isHebrew ? 'הסתר אזורי פיקוח (CTR)' : 'Hide CTRs');
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-secondary');
+                }
+                appState.ctrZones.forEach(function(zone) {
+                    zone.addTo(appState.map);
+                });
+            } else {
+                if (btn) {
+                    btn.textContent = t.showCTRs || (isHebrew ? 'הצג אזורי פיקוח (CTR)' : 'Show CTRs');
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-secondary');
+                }
+                appState.ctrZones.forEach(function(zone) {
                     appState.map.removeLayer(zone);
                 });
             }
