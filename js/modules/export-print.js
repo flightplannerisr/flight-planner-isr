@@ -91,6 +91,7 @@
                 '<button onclick="captureManualSelection()" style="padding: 12px; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Select Area Manually</button>' +
                 '<button onclick="captureA4Area()" style="padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ Print / Save A4</button>' +
                 '<button onclick="captureA3Area()" style="padding: 12px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ Print / Save A3</button>' +
+                '<button onclick="captureA5Area()" style="padding: 12px; background: #6f42c1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ Print / Save A5 (Kneeboard)</button>' +
                 '<button onclick="closeScreenshotModal()" style="padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cancel</button>' +
                 '</div>';
             
@@ -198,36 +199,91 @@
             }, 500);
         };
         
+        // Helper to compute Leaflet zoom level for a given real-world map scale (e.g. 250000) at latitude
+        function computeScaleZoom(scaleNum, lat) {
+            // Standard CSS print resolution is 96 DPI: 1 inch = 25.4mm = 96px => 1px = 0.0254 / 96 meters
+            var metersPerPx = (0.0254 / 96.0) * scaleNum;
+            var latRad = (lat || 31.5) * Math.PI / 180.0;
+            var cosLat = Math.cos(latRad);
+            // Leaflet Web Mercator: world circumference = 40075016.686m = 256 * 2^zoom * metersPerPx / cos(lat)
+            return Math.log2((40075016.686 * cosLat) / (256.0 * metersPerPx));
+        }
+
+        // Paper dimensions in millimeters & 96 DPI CSS print pixels: [shortSideMm, longSideMm]
+        var PAPER_SPECS = {
+            'A3': { shortMm: 297, longMm: 420, portW: 1123, portH: 1587, landW: 1587, landH: 1123, cssSizePort: '297mm 420mm', cssSizeLand: '420mm 297mm' },
+            'A4': { shortMm: 210, longMm: 297, portW: 794,  portH: 1123, landW: 1123, landH: 794,  cssSizePort: '210mm 297mm', cssSizeLand: '297mm 210mm' },
+            'A5': { shortMm: 148, longMm: 210, portW: 559,  portH: 794,  landW: 794,  landH: 559,  cssSizePort: '148mm 210mm', cssSizeLand: '210mm 148mm' }
+        };
+
         window.captureA3Area = function() { window.captureA4Area('A3'); };
+        window.captureA5Area = function() { window.captureA4Area('A5'); };
 
         window.captureA4Area = function(paperSize) {
             paperSize = paperSize || 'A4';
-            var paperRatio = (paperSize === 'A3') ? (420 / 297) : (297 / 210); // long/short side ratio
-            // A4: 297/210=1.4142, A3: 420/297=1.4141 (same ratio! A3 is just 2x A4)
-            // Print dimensions at 96dpi: A4 portrait=794x1123, A3 portrait=1123x1587
+            var paperSpec = PAPER_SPECS[paperSize] || PAPER_SPECS['A4'];
+            var isLandscape = (window.captureOrientation === 'landscape');
+            var selectedScale = '250000'; // Default scale: 1:250,000
+
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
-
-            var isLandscape = (window.captureOrientation === 'landscape');
 
             var mapContainer = document.getElementById('map');
             var mapW = mapContainer.offsetWidth;
             var mapH = mapContainer.offsetHeight;
 
-            // Paper ratio is always ~1.4142 (both A4 and A3 share the same ratio)
-            var ratio = paperRatio;
-            var rectW, rectH;
-            if (isLandscape) {
-                rectH = Math.round(Math.min(mapH, mapW / ratio) * 0.80);
-                rectW = Math.round(rectH * ratio);
-            } else {
-                rectW = Math.round(Math.min(mapW, mapH / ratio) * 0.80);
-                rectH = Math.round(rectW * ratio);
+            // Geographic center of primary rect — source of truth
+            var rectGeoCenter = appState.map.getCenter();
+
+            function calculateRectDimensions(land, scaleVal, centerLat) {
+                var widthMm = land ? paperSpec.longMm : paperSpec.shortMm;
+                var heightMm = land ? paperSpec.shortMm : paperSpec.longMm;
+
+                if (scaleVal === 'auto') {
+                    var r = widthMm / heightMm;
+                    var rw, rh;
+                    if (land) {
+                        rh = Math.round(Math.min(mapH, mapW / r) * 0.80);
+                        rw = Math.round(rh * r);
+                    } else {
+                        rw = Math.round(Math.min(mapW, mapH / r) * 0.80);
+                        rh = Math.round(rw * r);
+                    }
+                    return { w: rw, h: rh };
+                }
+
+                var scaleNum = parseInt(scaleVal, 10);
+                var groundWidthM = (widthMm / 1000.0) * scaleNum;
+                var groundHeightM = (heightMm / 1000.0) * scaleNum;
+
+                var zoom = appState.map.getZoom();
+                var latRad = (centerLat || (rectGeoCenter ? rectGeoCenter.lat : 31.5)) * Math.PI / 180.0;
+                var metersPerPx = (40075016.686 * Math.cos(latRad)) / (256.0 * Math.pow(2, zoom));
+
+                var rw = Math.round(groundWidthM / metersPerPx);
+                var rh = Math.round(groundHeightM / metersPerPx);
+                return { w: rw, h: rh };
             }
 
-            // Start centred on the map
-            var startX = Math.round((mapW - rectW) / 2);
-            var startY = Math.round((mapH - rectH) / 2);
+            var initDims = calculateRectDimensions(isLandscape, selectedScale, rectGeoCenter.lat);
+            // If initial rect exceeds visible map container, adjust map zoom so user sees whole frame
+            if (selectedScale !== 'auto') {
+                var initialZoom = appState.map.getZoom();
+                var maxDimRatio = Math.max(initDims.w / (mapW * 0.85), initDims.h / (mapH * 0.85));
+                if (maxDimRatio > 1) {
+                    var zoomReduction = Math.ceil(Math.log2(maxDimRatio));
+                    var adjustedZoom = Math.max(appState.map.getMinZoom() || 6, initialZoom - zoomReduction);
+                    appState.map.setView(rectGeoCenter, adjustedZoom, { animate: false });
+                    initDims = calculateRectDimensions(isLandscape, selectedScale, rectGeoCenter.lat);
+                }
+            }
+
+            var rectW = initDims.w;
+            var rectH = initDims.h;
+
+            var centerPt = appState.map.latLngToContainerPoint(rectGeoCenter);
+            var startX = Math.round(centerPt.x - rectW / 2);
+            var startY = Math.round(centerPt.y - rectH / 2);
 
             // ── Overlay dimming layer ──────────────────────────────────────
             var overlay = document.createElement('div');
@@ -246,7 +302,7 @@
                 panels[side] = p;
             });
 
-            // ── A4 rectangle ───────────────────────────────────────────────
+            // ── Print rectangle ───────────────────────────────────────────────
             var rect = document.createElement('div');
             rect.id = 'a4Rect';
             rect.style.cssText = [
@@ -261,20 +317,38 @@
 
             // Corner label
             var label = document.createElement('div');
-            label.style.cssText = 'position:absolute;top:4px;left:4px;background:rgba(0,102,204,0.85);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;';
-            label.textContent = (paperSize||'A4') + (isLandscape ? ' Landscape' : ' Portrait');
+            label.style.cssText = 'position:absolute;top:4px;left:4px;background:rgba(0,102,204,0.85);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;';
             rect.appendChild(label);
+
+            function updateLabel() {
+                var sizeText = paperSize + (isLandscape ? ' Landscape' : ' Portrait');
+                if (selectedScale === 'auto') {
+                    label.textContent = sizeText + ' · Auto Scale';
+                } else {
+                    var scaleNum = parseInt(selectedScale, 10);
+                    var scaleText = '1:' + (scaleNum >= 1000 ? (scaleNum / 1000) + 'k' : scaleNum);
+                    var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
+                    var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
+                    var kmW = (widthMm * scaleNum / 1000000).toFixed(1);
+                    var kmH = (heightMm * scaleNum / 1000000).toFixed(1);
+                    var nmW = (kmW * 0.539957).toFixed(1);
+                    var nmH = (kmH * 0.539957).toFixed(1);
+                    var cmText = (scaleNum / 100000) + ' km';
+                    label.textContent = sizeText + ' · ' + scaleText + ' (1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
+                }
+            }
+            updateLabel();
 
             // Declared early so positionRect can call updateExtraRects safely
             var extraRects = [];
 
-            // Geographic center of primary rect — source of truth
-            var rectGeoCenter = null;
-
             function positionRect(x, y) {
-                // Clamp inside map
-                x = Math.max(0, Math.min(mapW - rectW, x));
-                y = Math.max(0, Math.min(mapH - rectH, y));
+                var minX = Math.min(0, mapW - rectW);
+                var maxX = Math.max(0, mapW - rectW);
+                var minY = Math.min(0, mapH - rectH);
+                var maxY = Math.max(0, mapH - rectH);
+                x = Math.max(minX, Math.min(maxX, x));
+                y = Math.max(minY, Math.min(maxY, y));
                 rect.style.left   = x + 'px';
                 rect.style.top    = y + 'px';
                 rect.style.width  = rectW + 'px';
@@ -289,15 +363,27 @@
             }
 
             function updatePanels(x, y, w, h) {
-                panels.top.style.cssText    = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:0;width:100%;height:' + y + 'px;';
-                panels.bottom.style.cssText = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + (y + h) + 'px;width:100%;height:' + (mapH - y - h) + 'px;';
-                panels.left.style.cssText   = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + y + 'px;width:' + x + 'px;height:' + h + 'px;';
-                panels.right.style.cssText  = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:' + (x + w) + 'px;top:' + y + 'px;width:' + (mapW - x - w) + 'px;height:' + h + 'px;';
+                var topH = Math.max(0, y);
+                var botY = Math.max(0, y + h);
+                var botH = Math.max(0, mapH - botY);
+                var leftW = Math.max(0, x);
+                var rightX = Math.max(0, x + w);
+                var rightW = Math.max(0, mapW - rightX);
+
+                panels.top.style.cssText    = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:0;width:100%;height:' + topH + 'px;';
+                panels.bottom.style.cssText = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + botY + 'px;width:100%;height:' + botH + 'px;';
+                panels.left.style.cssText   = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + topH + 'px;width:' + leftW + 'px;height:' + Math.min(mapH - topH, Math.max(0, h)) + 'px;';
+                panels.right.style.cssText  = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:' + rightX + 'px;top:' + topH + 'px;width:' + rightW + 'px;height:' + Math.min(mapH - topH, Math.max(0, h)) + 'px;';
             }
 
             // Re-anchor rects to geo position when map moves/zooms
             function refreshRectPositions() {
                 if (!rectGeoCenter) return;
+                if (selectedScale !== 'auto') {
+                    var dims = calculateRectDimensions(isLandscape, selectedScale, rectGeoCenter.lat);
+                    rectW = dims.w;
+                    rectH = dims.h;
+                }
                 var center = appState.map.latLngToContainerPoint(rectGeoCenter);
                 var x = Math.round(center.x - rectW / 2);
                 var y = Math.round(center.y - rectH / 2);
@@ -313,8 +399,9 @@
                     var gc = extraGeocenters[p];
                     if (!gc) return;
                     var pageLandscape = pageOrientations[p] !== undefined ? pageOrientations[p] : isLandscape;
-                    var pw = pageLandscape ? Math.max(rectW, rectH) : Math.min(rectW, rectH);
-                    var ph = pageLandscape ? Math.min(rectW, rectH) : Math.max(rectW, rectH);
+                    var pageDims = calculateRectDimensions(pageLandscape, selectedScale, gc.lat);
+                    var pw = pageDims.w;
+                    var ph = pageDims.h;
                     var ep = appState.map.latLngToContainerPoint(gc);
                     er.style.left   = Math.round(ep.x - pw/2) + 'px';
                     er.style.top    = Math.round(ep.y - ph/2) + 'px';
@@ -323,8 +410,6 @@
                 });
             }
             appState.map.on('move zoom', refreshRectPositions);
-
-            // NOTE: positionRect(startX, startY) is called after toolbar is appended
 
             // ── Drag logic ─────────────────────────────────────────────────
             var dragging = false, dragOffX, dragOffY;
@@ -350,27 +435,35 @@
             var toolbar = document.createElement('div');
             toolbar.id = 'a4Toolbar';
             toolbar.style.cssText = [
-                'position:fixed;bottom:30px;left:50%;transform:translateX(-50%)',
-                'background:rgba(0,0,0,0.82);color:#fff;border-radius:10px',
-                'padding:10px 18px;display:flex;align-items:center;gap:12px',
-                'z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,0.4);font-size:13px;font-weight:600'
+                'position:fixed;bottom:20px;left:50%;transform:translateX(-50%)',
+                'background:rgba(0,0,0,0.85);color:#fff;border-radius:10px',
+                'padding:8px 14px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px',
+                'z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,0.4);font-size:13px;font-weight:600;max-width:95vw'
             ].join(';');
             toolbar.innerHTML =
-                '<span style="opacity:.7;">Drag rect · scroll to zoom</span>' +
-                '<button id="a4Portrait"  style="padding:5px 12px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;">📱 Portrait</button>' +
-                '<button id="a4Landscape" style="padding:5px 12px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;">📐 Landscape</button>' +
-                '<button id="a4ZoomIn"   style="padding:5px 12px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:15px;">+</button>' +
-                '<button id="a4ZoomOut"  style="padding:5px 12px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:15px;">−</button>' +
-                '<span style="opacity:.7;font-size:12px;">Pages:</span>' +
-                '<select id="a4PageCount" style="padding:5px 8px;border-radius:5px;border:none;font-size:13px;font-weight:600;background:#fff;color:#333;cursor:pointer;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>' +
-                '<button id="a4LayoutStacked"  style="padding:5px 10px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;" title="Pages stacked vertically">⬇ Stacked</button>' +
-                '<button id="a4LayoutSideBySide" style="padding:5px 10px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;" title="Pages side by side">➡ Side by Side</button>' +
+                '<span style="opacity:.7;font-size:12px;">Drag rect · scroll to zoom</span>' +
+                '<button id="a4Portrait"  style="padding:5px 10px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;">📱 Port</button>' +
+                '<button id="a4Landscape" style="padding:5px 10px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;">📐 Land</button>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Scale:</span>' +
+                '<select id="a4ScaleRatio" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
+                    '<option value="250000" selected>1:250,000 (Chart)</option>' +
+                    '<option value="100000">1:100,000 (Detailed)</option>' +
+                    '<option value="500000">1:500,000 (Regional)</option>' +
+                    '<option value="auto">Fit View (Auto)</option>' +
+                '</select>' +
+                '<button id="a4ZoomToScale" style="padding:5px 10px;background:#17a2b8;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;" title="Set screen zoom to match print scale exactly (1cm on screen = 1cm on chart)">🔍 1:1 View</button>' +
+                '<button id="a4ZoomIn"   style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">+</button>' +
+                '<button id="a4ZoomOut"  style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">−</button>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Pages:</span>' +
+                '<select id="a4PageCount" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>' +
+                '<button id="a4LayoutStacked"  style="padding:5px 8px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;" title="Pages stacked vertically">⬇ Stack</button>' +
+                '<button id="a4LayoutSideBySide" style="padding:5px 8px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;" title="Pages side by side">➡ Side</button>' +
                 '<span style="opacity:.7;font-size:12px;">Overlap: <span id="a4OverlapLabel">0</span>%</span>' +
-                '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:80px;cursor:pointer;accent-color:#0066cc;">' +
-                '<button id="a4Print"    style="padding:7px 18px;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">🖨️ Print / Save</button>' +
-                '<button id="a4Cancel"   style="padding:7px 14px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>';
+                '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:70px;cursor:pointer;accent-color:#0066cc;">' +
+                '<button id="a4Print"    style="padding:6px 14px;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">🖨️ Print / Save</button>' +
+                '<button id="a4Cancel"   style="padding:6px 10px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>';
             document.body.appendChild(toolbar);
-            positionRect(startX, startY); // Now safe — toolbar is in DOM so a4PageCount exists
+            positionRect(startX, startY); // Safe — toolbar is now in DOM
 
             // Page layout direction: portrait defaults to side-by-side, landscape to stacked
             var pagesHorizontal = !isLandscape;
@@ -414,14 +507,21 @@
                 var stepH = pagesHorizontal ? 0 : pos.h * (1 - overlap);
                 for (var p = 1; p < pageCount; p++) {
                     var pageLandscape = pageOrientations[p] !== undefined ? pageOrientations[p] : isLandscape;
-                    var pw = pageLandscape ? Math.max(pos.w, pos.h) : Math.min(pos.w, pos.h);
-                    var ph = pageLandscape ? Math.min(pos.w, pos.h) : Math.max(pos.w, pos.h);
+                    var pDims = calculateRectDimensions(pageLandscape, selectedScale, rectGeoCenter.lat);
+                    var pw = pDims.w;
+                    var ph = pDims.h;
                     var er = document.createElement('div');
                     er.style.cssText = 'position:absolute;border:2px dashed rgba(255,255,255,0.5);box-shadow:0 0 0 1px rgba(0,102,204,0.5);z-index:2001;box-sizing:border-box;';
-                    var ex = pos.x + p * stepW;
-                    var ey = pos.y + p * stepH;
-                    // Store geo center for this page
-                    extraGeocenters[p] = appState.map.containerPointToLatLng(L.point(ex + pw/2, ey + ph/2));
+                    var ex, ey;
+                    if (extraGeocenters[p]) {
+                        var pt = appState.map.latLngToContainerPoint(extraGeocenters[p]);
+                        ex = Math.round(pt.x - pw / 2);
+                        ey = Math.round(pt.y - ph / 2);
+                    } else {
+                        ex = Math.round(pos.x + p * stepW);
+                        ey = Math.round(pos.y + p * stepH);
+                        extraGeocenters[p] = appState.map.containerPointToLatLng(L.point(ex + pw / 2, ey + ph / 2));
+                    }
                     er.style.left = ex + 'px';
                     er.style.top  = ey + 'px';
                     er.style.width = pw + 'px'; er.style.height = ph + 'px';
@@ -487,6 +587,27 @@
             document.getElementById('a4ZoomIn').onclick  = function() { appState.map.zoomIn();  };
             document.getElementById('a4ZoomOut').onclick = function() { appState.map.zoomOut(); };
 
+            document.getElementById('a4ScaleRatio').addEventListener('change', function() {
+                selectedScale = this.value;
+                var dims = calculateRectDimensions(isLandscape, selectedScale, rectGeoCenter.lat);
+                rectW = dims.w;
+                rectH = dims.h;
+                var center = appState.map.latLngToContainerPoint(rectGeoCenter);
+                positionRect(Math.round(center.x - rectW / 2), Math.round(center.y - rectH / 2));
+                updateLabel();
+                var zoomBtn = document.getElementById('a4ZoomToScale');
+                if (zoomBtn) {
+                    zoomBtn.style.display = (selectedScale === 'auto') ? 'none' : 'inline-block';
+                }
+            });
+
+            document.getElementById('a4ZoomToScale').onclick = function() {
+                if (selectedScale === 'auto') return;
+                var scaleNum = parseInt(selectedScale, 10);
+                var targetZoom = computeScaleZoom(scaleNum, rectGeoCenter.lat);
+                appState.map.setView(rectGeoCenter, targetZoom, { animate: true });
+            };
+
             function setA4Orientation(landscape) {
                 isLandscape = landscape;
                 window.captureOrientation = landscape ? 'landscape' : 'portrait';
@@ -496,20 +617,14 @@
                 document.getElementById('a4Landscape').style.background = landscape ? '#0066cc' : 'transparent';
                 document.getElementById('a4Landscape').style.borderColor = landscape ? '#fff' : 'rgba(255,255,255,0.3)';
                 // Rebuild rect dimensions
-                if (landscape) {
-                    rectH = Math.round(Math.min(mapH, mapW / 1.4142) * 0.80);
-                    rectW = Math.round(rectH * 1.4142);
-                } else {
-                    rectW = Math.round(Math.min(mapW, mapH / 1.4142) * 0.80);
-                    rectH = Math.round(rectW * 1.4142);
-                }
-                // Re-centre rect and update label
-                var curPos = window._a4Pos || { x: Math.round((mapW - rectW) / 2), y: Math.round((mapH - rectH) / 2) };
-                positionRect(curPos.x, curPos.y);
-                label.textContent = (paperSize||'A4') + (landscape ? ' Landscape' : ' Portrait');
-                // Default layout: portrait → side by side, landscape → stacked
-                setPagesLayout(!landscape);
-                // Update page layout default: portrait=side-by-side, landscape=stacked
+                var dims = calculateRectDimensions(landscape, selectedScale, rectGeoCenter.lat);
+                rectW = dims.w;
+                rectH = dims.h;
+
+                var curCenter = rectGeoCenter || appState.map.getCenter();
+                var pt = appState.map.latLngToContainerPoint(curCenter);
+                positionRect(Math.round(pt.x - rectW / 2), Math.round(pt.y - rectH / 2));
+                updateLabel();
                 setPagesLayout(!landscape);
             }
 
@@ -528,45 +643,40 @@
             };
 
             document.getElementById('a4Print').onclick = function() {
-            
                 var pos = window._a4Pos;
-
-                // Get the map container's actual position on screen
-                // (accounts for browser chrome, address bar, etc.)
                 var mapRect = mapContainer.getBoundingClientRect();
 
                 // Convert rect corners to geographic bounds using container-relative coords
                 var nw = appState.map.containerPointToLatLng(L.point(pos.x,         pos.y));
                 var se = appState.map.containerPointToLatLng(L.point(pos.x + pos.w, pos.y + pos.h));
-                var rectCenter = appState.map.containerPointToLatLng(
+                var primaryCenter = rectGeoCenter || appState.map.containerPointToLatLng(
                     L.point(pos.x + pos.w / 2, pos.y + pos.h / 2)
                 );
 
-                // Page size at 96dpi (1mm = 3.7795px)
-                // A4 portrait: 794×1123, A3 portrait: 1123×1587
-                var a4W, a4H;
-                if (paperSize === 'A3') {
-                    a4W = isLandscape ? 1587 : 1123;
-                    a4H = isLandscape ? 1123 : 1587;
-                } else {
-                    a4W = isLandscape ? 1123 : 794;
-                    a4H = isLandscape ? 794  : 1123;
-                }
+                // Print dimensions in CSS pixels (96 DPI)
+                var printW = isLandscape ? paperSpec.landW : paperSpec.portW;
+                var printH = isLandscape ? paperSpec.landH : paperSpec.portH;
+                var singleCssPageSize = isLandscape ? paperSpec.cssSizeLand : paperSpec.cssSizePort;
 
-                // Compute zoom so the rect's geographic span fits exactly into A4
-                var lngSpan  = Math.abs(se.lng - nw.lng);
-                var zoomByW  = Math.log2(a4W * 360 / (256 * lngSpan));
-                function mercY(lat) { var r = lat * Math.PI / 180; return Math.log(Math.tan(Math.PI/4 + r/2)); }
-                var mercSpan = Math.abs(mercY(nw.lat) - mercY(se.lat));
-                var zoomByH  = Math.log2(a4H * 2 * Math.PI / (256 * mercSpan));
-                var printZoom = Math.min(zoomByW, zoomByH);
+                // Compute zoom for printing
+                var printZoom;
+                if (selectedScale !== 'auto') {
+                    var scaleNum = parseInt(selectedScale, 10);
+                    printZoom = computeScaleZoom(scaleNum, primaryCenter.lat);
+                } else {
+                    var lngSpan  = Math.abs(se.lng - nw.lng);
+                    var zoomByW  = Math.log2(printW * 360 / (256 * lngSpan));
+                    function mercY(lat) { var r = lat * Math.PI / 180; return Math.log(Math.tan(Math.PI/4 + r/2)); }
+                    var mercSpan = Math.abs(mercY(nw.lat) - mercY(se.lat));
+                    var zoomByH  = Math.log2(printH * 2 * Math.PI / (256 * mercSpan));
+                    printZoom = Math.min(zoomByW, zoomByH);
+                }
 
                 // Compute center points for each page from geo centers
                 var pageCountForPrint = parseInt(document.getElementById('a4PageCount') ? document.getElementById('a4PageCount').value : '1') || 1;
                 var pageCenters = [];
                 // Page 0: primary rect geo center
-                pageCenters.push(rectGeoCenter || appState.map.containerPointToLatLng(
-                    L.point(pos.x + pos.w/2, pos.y + pos.h/2)));
+                pageCenters.push(primaryCenter);
                 // Pages 1+: extra rect geo centers
                 for (var pp = 1; pp < pageCountForPrint; pp++) {
                     pageCenters.push(extraGeocenters[pp] || pageCenters[0]);
@@ -574,19 +684,23 @@
                 cleanupA4();
 
                 // Save original map state
-                var origCenter = appState.map.getCenter();
-                var origZoom   = appState.map.getZoom();
-                var mapDiv     = document.getElementById('map');
-                var origW      = mapDiv.style.width;
-                var origH      = mapDiv.style.height;
-                var origFlex   = mapDiv.style.flex;
-                var sidebar    = document.querySelector('.sidebar');
-                var zoomInd    = document.querySelector('.zoom-indicator');
+                var origCenter   = appState.map.getCenter();
+                var origZoom     = appState.map.getZoom();
+                var origZoomSnap = appState.map.options.zoomSnap;
+                var mapDiv       = document.getElementById('map');
+                var origW        = mapDiv.style.width;
+                var origH        = mapDiv.style.height;
+                var origFlex     = mapDiv.style.flex;
+                var sidebar      = document.querySelector('.sidebar');
+                var zoomInd      = document.querySelector('.zoom-indicator');
 
-                // Resize map to exactly A4 dimensions
+                // Allow exact floating-point zoom without snapping during print
+                appState.map.options.zoomSnap = 0;
+
+                // Resize map to exactly paper dimensions
                 mapDiv.style.flex   = 'none';
-                mapDiv.style.width  = a4W + 'px';
-                mapDiv.style.height = a4H + 'px';
+                mapDiv.style.width  = printW + 'px';
+                mapDiv.style.height = printH + 'px';
                 if (sidebar) sidebar.style.display = 'none';
                 if (zoomInd) zoomInd.style.display = 'none';
 
@@ -670,14 +784,14 @@
                         '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                         '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                         '  html, body { margin:0 !important; padding:0 !important;' +
-                        '    width:' + a4W + 'px !important; height:' + a4H + 'px !important;' +
+                        '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    overflow:hidden !important; }' +
                         '  .container { display:block !important; margin:0 !important; padding:0 !important; }' +
                         '  #map { position:fixed !important; top:0 !important; left:0 !important;' +
-                        '    width:' + a4W + 'px !important; height:' + a4H + 'px !important;' +
+                        '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
-                        '  @page { size:' + (isLandscape ? a4W + 'px ' + a4H + 'px' : a4W + 'px ' + a4H + 'px') + '; margin:0; }' +
+                        '  @page { size:' + singleCssPageSize + '; margin:0; }' +
                         '}';
                     document.head.appendChild(printStyle);
 
@@ -691,6 +805,7 @@
                         mapDiv.style.height = origH;
                         if (sidebar) sidebar.style.display = '';
                         if (zoomInd) zoomInd.style.display = '';
+                        appState.map.options.zoomSnap = origZoomSnap;
                         appState.map.invalidateSize({ animate: false });
                         appState.map.setView(origCenter, origZoom, { animate: false });
                         if (window.sidebarWasVisible) {
@@ -715,14 +830,13 @@
                             }
                             var pageLand = currentPage === 0 ? isLandscape :
                                 (pageOrientations[currentPage] !== undefined ? pageOrientations[currentPage] : isLandscape);
-                            var pgW, pgH;
-                            if (paperSize === 'A3') {
-                                pgW = pageLand ? 1587 : 1123;
-                                pgH = pageLand ? 1123 : 1587;
-                            } else {
-                                pgW = pageLand ? 1123 : 794;
-                                pgH = pageLand ? 794  : 1123;
-                            }
+                            var pgW = pageLand ? paperSpec.landW : paperSpec.portW;
+                            var pgH = pageLand ? paperSpec.landH : paperSpec.portH;
+                            var pgCssSize = pageLand ? paperSpec.cssSizeLand : paperSpec.cssSizePort;
+                            var pageZoom = (selectedScale !== 'auto') ?
+                                computeScaleZoom(parseInt(selectedScale, 10), pageCenters[currentPage].lat) :
+                                printZoom;
+
                             mapDiv.style.width  = pgW + 'px';
                             mapDiv.style.height = pgH + 'px';
                             // Recreate print style with correct dimensions for this page
@@ -744,11 +858,11 @@
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +
-                                '  @page { size:' + pgW + 'px ' + pgH + 'px; margin:0; }' +
+                                '  @page { size:' + pgCssSize + '; margin:0; }' +
                                 '}';
                             document.head.appendChild(ps);
                             appState.map.invalidateSize({ animate: false });
-                            appState.map.setView(pageCenters[currentPage], printZoom, { animate: false });
+                            appState.map.setView(pageCenters[currentPage], pageZoom, { animate: false });
                             setTimeout(function() {
                                 window.onafterprint = function() {
                                     window.onafterprint = null;
