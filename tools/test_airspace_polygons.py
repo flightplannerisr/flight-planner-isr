@@ -18,7 +18,7 @@ def intersect(A, B, C, D):
 def is_self_intersecting(pts):
     n = len(pts)
     if n < 4:
-        return False
+        return False, None, None
     # Check every pair of non-adjacent edges
     edges = [(pts[i], pts[(i + 1) % n]) for i in range(n)]
     for i in range(len(edges)):
