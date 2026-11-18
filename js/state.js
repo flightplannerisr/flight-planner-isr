@@ -35,6 +35,8 @@
             infoBoxFontMultiplier: 1.6364,
             airspaceZones: [],
             airspaceVisible: false,
+            ctrZones: [],
+            ctrsVisible: false,
             isDrawing: false,
             debugMode: false,
             map: null,

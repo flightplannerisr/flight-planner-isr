@@ -116,7 +116,8 @@
         body.drawing-mode .wl-div,
         body.drawing-mode .leg-info-label,
         body.drawing-mode .time-label,
-        body.drawing-mode .special-airspace-layer {
+        body.drawing-mode .special-airspace-layer,
+        body.drawing-mode .ctr-layer {
             pointer-events: none !important;
         }
 

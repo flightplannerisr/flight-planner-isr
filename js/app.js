@@ -3,6 +3,8 @@
             document.getElementById('clearBtn').addEventListener('click', clearRoute);
             document.getElementById('addCoordBtn').addEventListener('click', addWaypointByCoordinates);
             document.getElementById('airspaceToggleBtn').addEventListener('click', toggleAirspace);
+            var ctrBtn = document.getElementById('ctrToggleBtn');
+            if (ctrBtn) ctrBtn.addEventListener('click', toggleCTRs);
             document.getElementById('reverseRouteBtn').addEventListener('click', generateReverseRoute);
             document.getElementById('toggleDirectionBtn').addEventListener('click', toggleDirectionVisibility);
             document.getElementById('addTextBoxBtn2').addEventListener('click', startAddingTextBox);
@@ -423,6 +425,7 @@
                 'addTextBoxBtn': t.addTextBox,
                 'addTextBoxBtn2': t.addTextBox,
                 'airspaceToggleBtn': appState.airspaceVisible ? t.hideAirspace : t.airspaceToggle,
+                'ctrToggleBtn': appState.ctrsVisible ? t.hideCTRs : t.showCTRs,
                 'reportingPointsToggleBtn': appState.reportingPointsVisible ? t.hideReportingPoints : t.showReportingPoints,
                 'frequenciesToggleBtn': appState.frequenciesVisible ? t.hideFrequencies : t.showFrequencies,
                 'airstripsToggleBtn': appState.airstripsVisible ? t.hideAirstrips : t.showAirstrips,

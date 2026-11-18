@@ -63,6 +63,7 @@
                     <h3 style="font-size: 13px; margin: 0 0 8px 0; color: #666; font-weight: 600;">Map Layers</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
                         <button class="btn-secondary" id="airspaceToggleBtn" style="font-size: 11px; padding: 6px 8px;">Show Airspace</button>
+                        <button class="btn-secondary" id="ctrToggleBtn" onclick="toggleCTRs()" style="font-size: 11px; padding: 6px 8px;">Show CTRs</button>
                         <button class="btn-primary"   id="lsaPointsToggleBtn" onclick="toggleLSAPoints()" style="font-size: 11px; padding: 6px 8px;">Hide LSA</button>
                         <button class="btn-secondary" id="cvfrPointsToggleBtn" onclick="toggleCVFRPoints()" style="font-size: 11px; padding: 6px 8px;">Show CVFR</button>
                         <button class="btn-secondary" id="frequenciesToggleBtn" onclick="toggleFrequencies()" style="font-size: 11px; padding: 6px 8px;">Show Frequencies</button>
@@ -434,6 +435,7 @@
     <script src="js/data/cvfr-points.js"></script>
     <script src="js/data/lsa-points.js"></script>
     <script src="js/data/special-airspace.js"></script>
+    <script src="js/data/ctr-zones.js"></script>
     <script src="js/data/translations.js"></script>
 
     <!-- Core Modules -->
