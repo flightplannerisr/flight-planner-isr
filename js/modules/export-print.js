@@ -219,11 +219,51 @@
         window.captureA3Area = function() { window.captureA4Area('A3'); };
         window.captureA5Area = function() { window.captureA4Area('A5'); };
 
+        // Helper to construct a graphic scale bar for printed maps
+        function buildScaleBarHtml(scaleNum, lat) {
+            // Standard CSS print resolution is 96 DPI: 1 inch = 25.4mm = 96px => 1px = 0.0254 / 96 meters
+            var pxPerM = 96.0 / (0.0254 * scaleNum);
+            var candidates = [0.5, 1, 2, 3, 4, 5, 10, 20, 50];
+            var bestNm = candidates[0];
+            var minDiff = Infinity;
+            for (var i = 0; i < candidates.length; i++) {
+                var w = candidates[i] * 1852 * pxPerM;
+                var diff = Math.abs(w - 130);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    bestNm = candidates[i];
+                }
+            }
+            var barW = Math.round(bestNm * 1852 * pxPerM);
+            var km = +(bestNm * 1.852).toFixed(1);
+            var scaleStr = '1:' + scaleNum.toLocaleString();
+            var cmKm = +(scaleNum / 100000.0).toFixed(2);
+            var halfNm = (bestNm % 2 === 0) ? (bestNm / 2) : +(bestNm / 2).toFixed(1);
+            var halfKm = +(km / 2.0).toFixed(1);
+
+            return '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;font-size:8.5px;line-height:1.2;color:#111;text-align:center;">' +
+                '<div style="font-weight:700;letter-spacing:0.4px;font-size:9.5px;margin-bottom:1px;">SCALE ' + scaleStr + '</div>' +
+                '<div style="font-size:7.5px;color:#333;margin-bottom:2px;">1 cm = ' + cmKm + ' km</div>' +
+                '<div style="display:flex;justify-content:space-between;width:' + barW + 'px;font-size:7.5px;font-weight:600;margin:0 auto 1px;padding:0 1px;box-sizing:border-box;">' +
+                '<span>0</span><span>' + halfNm + '</span><span>' + bestNm + ' NM</span>' +
+                '</div>' +
+                '<div style="width:' + barW + 'px;height:5px;border:1px solid #111;display:flex;margin:0 auto;box-sizing:border-box;background:#fff;">' +
+                '<div style="flex:1;background:#111;border-right:1px solid #111;"></div>' +
+                '<div style="flex:1;background:#fff;"></div>' +
+                '</div>' +
+                '<div style="display:flex;justify-content:space-between;width:' + barW + 'px;font-size:7px;color:#444;margin:1px auto 0;padding:0 1px;box-sizing:border-box;">' +
+                '<span>0</span><span>' + halfKm + '</span><span>' + km + ' km</span>' +
+                '</div>' +
+                '</div>';
+        }
+
         window.captureA4Area = function(paperSize) {
             paperSize = paperSize || 'A4';
             var paperSpec = PAPER_SPECS[paperSize] || PAPER_SPECS['A4'];
             var isLandscape = (window.captureOrientation === 'landscape');
             var selectedScale = '250000'; // Default scale: 1:250,000
+            var selectedScaleSide = 'right'; // Scale bar position: 'right', 'left', 'center', 'none'
+            var selectedScaleBarSize = 1.0; // Scale bar size multiplier: 0.5 to 2.0
 
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
@@ -320,15 +360,99 @@
             label.style.cssText = 'position:absolute;top:4px;left:4px;background:rgba(0,102,204,0.85);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;';
             rect.appendChild(label);
 
+            // Preview scale bar at bottom-right of primary rect
+            var previewScaleBar = document.createElement('div');
+            previewScaleBar.id = 'a4PreviewScaleBar';
+            previewScaleBar.style.cssText =
+                'position:absolute;bottom:6px;right:6px;pointer-events:none;' +
+                'background:rgba(255,255,255,0.88);border:1px solid rgba(0,0,0,0.45);' +
+                'border-radius:4px;padding:3px 8px 4px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.18);z-index:2002;';
+            rect.appendChild(previewScaleBar);
+
+            function updatePreviewScaleBar(targetEl, scaleVal, centerLat, boxW, boxH, land) {
+                if (!targetEl) return;
+                if (selectedScaleSide === 'none') {
+                    targetEl.style.display = 'none';
+                    return;
+                }
+
+                var effectiveScale;
+                if (scaleVal !== 'auto') {
+                    effectiveScale = parseInt(scaleVal, 10);
+                } else {
+                    var latRad = (centerLat || (rectGeoCenter ? rectGeoCenter.lat : 31.5)) * Math.PI / 180.0;
+                    var zoom = appState.map.getZoom();
+                    var metersPerPx = (40075016.686 * Math.cos(latRad)) / (256.0 * Math.pow(2, zoom));
+                    var widthMm = land ? paperSpec.longMm : paperSpec.shortMm;
+                    var groundWidthM = boxW * metersPerPx;
+                    effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
+                }
+
+                targetEl.innerHTML = buildScaleBarHtml(effectiveScale, centerLat);
+
+                if (boxW < 120 || boxH < 80) {
+                    targetEl.style.display = 'none';
+                    return;
+                }
+                targetEl.style.display = 'block';
+
+                // Auto-scale preview bar if box is small so it fits cleanly inside
+                var maxW = boxW - 16;
+                var maxH = boxH - 36;
+                var barBoxW = 155;
+                var barBoxH = 46;
+                var fitRatio = Math.min(1.0, Math.min(maxW / (barBoxW * selectedScaleBarSize), maxH / (barBoxH * selectedScaleBarSize))) * selectedScaleBarSize;
+
+                var transform = '';
+                if (selectedScaleSide === 'left') {
+                    targetEl.style.bottom = '6px';
+                    targetEl.style.left = '6px';
+                    targetEl.style.right = 'auto';
+                    if (Math.abs(fitRatio - 1.0) > 0.01) {
+                        transform = 'scale(' + fitRatio.toFixed(2) + ')';
+                    }
+                    targetEl.style.transformOrigin = 'bottom left';
+                } else if (selectedScaleSide === 'center') {
+                    targetEl.style.bottom = '6px';
+                    targetEl.style.left = '50%';
+                    targetEl.style.right = 'auto';
+                    transform = 'translateX(-50%)';
+                    if (Math.abs(fitRatio - 1.0) > 0.01) {
+                        transform += ' scale(' + fitRatio.toFixed(2) + ')';
+                    }
+                    targetEl.style.transformOrigin = 'bottom center';
+                } else { // 'right'
+                    targetEl.style.bottom = '6px';
+                    targetEl.style.right = '6px';
+                    targetEl.style.left = 'auto';
+                    if (Math.abs(fitRatio - 1.0) > 0.01) {
+                        transform = 'scale(' + fitRatio.toFixed(2) + ')';
+                    }
+                    targetEl.style.transformOrigin = 'bottom right';
+                }
+                targetEl.style.transform = transform || 'none';
+            }
+
             function updateLabel() {
                 var sizeText = paperSize + (isLandscape ? ' Landscape' : ' Portrait');
+                var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
+                var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
                 if (selectedScale === 'auto') {
-                    label.textContent = sizeText + ' · Auto Scale';
+                    var latRad = (rectGeoCenter ? rectGeoCenter.lat : 31.5) * Math.PI / 180.0;
+                    var zoom = appState.map.getZoom();
+                    var metersPerPx = (40075016.686 * Math.cos(latRad)) / (256.0 * Math.pow(2, zoom));
+                    var groundWidthM = rectW * metersPerPx;
+                    var effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
+                    var scaleText = '1:' + (effectiveScale >= 1000 ? Math.round(effectiveScale / 1000) + 'k' : effectiveScale);
+                    var kmW = (groundWidthM / 1000).toFixed(1);
+                    var kmH = ((rectH * metersPerPx) / 1000).toFixed(1);
+                    var nmW = (kmW * 0.539957).toFixed(1);
+                    var nmH = (kmH * 0.539957).toFixed(1);
+                    var cmText = (effectiveScale / 100000).toFixed(2) + ' km';
+                    label.textContent = sizeText + ' · ' + scaleText + ' (Auto: 1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
                 } else {
                     var scaleNum = parseInt(selectedScale, 10);
                     var scaleText = '1:' + (scaleNum >= 1000 ? (scaleNum / 1000) + 'k' : scaleNum);
-                    var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
-                    var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
                     var kmW = (widthMm * scaleNum / 1000000).toFixed(1);
                     var kmH = (heightMm * scaleNum / 1000000).toFixed(1);
                     var nmW = (kmW * 0.539957).toFixed(1);
@@ -336,6 +460,7 @@
                     var cmText = (scaleNum / 100000) + ' km';
                     label.textContent = sizeText + ' · ' + scaleText + ' (1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
                 }
+                updatePreviewScaleBar(previewScaleBar, selectedScale, rectGeoCenter ? rectGeoCenter.lat : 31.5, rectW, rectH, isLandscape);
             }
             updateLabel();
 
@@ -407,7 +532,12 @@
                     er.style.top    = Math.round(ep.y - ph/2) + 'px';
                     er.style.width  = pw + 'px';
                     er.style.height = ph + 'px';
+                    var exSb = er.querySelector('.a4-extra-preview-scalebar');
+                    if (exSb) {
+                        updatePreviewScaleBar(exSb, selectedScale, gc.lat, pw, ph, pageLandscape);
+                    }
                 });
+                updateLabel();
             }
             appState.map.on('move zoom', refreshRectPositions);
 
@@ -456,6 +586,22 @@
                 '<button id="a4ZoomToScale" style="padding:5px 10px;background:#17a2b8;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;" title="Set screen zoom to match print scale exactly (1cm on screen = 1cm on chart)">🔍 1:1 View</button>' +
                 '<button id="a4ZoomIn"   style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">+</button>' +
                 '<button id="a4ZoomOut"  style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">−</button>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Side:</span>' +
+                '<select id="a4ScaleSide" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
+                    '<option value="right" selected>Right ↘</option>' +
+                    '<option value="left">Left ↙</option>' +
+                    '<option value="center">Center ⬇</option>' +
+                    '<option value="none">Off ✕</option>' +
+                '</select>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Size:</span>' +
+                '<select id="a4ScaleBarSize" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
+                    '<option value="0.5">50% (Tiny)</option>' +
+                    '<option value="0.75">75% (Small)</option>' +
+                    '<option value="1" selected>100% (Normal)</option>' +
+                    '<option value="1.25">125% (Large)</option>' +
+                    '<option value="1.5">150% (XL)</option>' +
+                    '<option value="2">200% (2x)</option>' +
+                '</select>' +
                 '<span style="opacity:.7;font-size:12px;margin-left:4px;">Pages:</span>' +
                 '<select id="a4PageCount" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>' +
                 '<button id="a4LayoutStacked"  style="padding:5px 8px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;" title="Pages stacked vertically">⬇ Stack</button>' +
@@ -547,6 +693,17 @@
                     pl.appendChild(lbl);
                     pl.appendChild(rotBtn);
                     er.appendChild(pl);
+
+                    var extraSb = document.createElement('div');
+                    extraSb.className = 'a4-extra-preview-scalebar';
+                    extraSb.style.cssText =
+                        'position:absolute;bottom:6px;right:6px;pointer-events:none;' +
+                        'background:rgba(255,255,255,0.88);border:1px solid rgba(0,0,0,0.45);' +
+                        'border-radius:4px;padding:3px 8px 4px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.18);z-index:2002;';
+                    er.appendChild(extraSb);
+                    var extraLat = extraGeocenters[p] ? extraGeocenters[p].lat : (rectGeoCenter ? rectGeoCenter.lat : 31.5);
+                    updatePreviewScaleBar(extraSb, selectedScale, extraLat, pw, ph, pageLandscape);
+
                     mapContainer.appendChild(er);
                     extraRects.push(er);
 
@@ -601,6 +758,23 @@
                 if (zoomBtn) {
                     zoomBtn.style.display = (selectedScale === 'auto') ? 'none' : 'inline-block';
                 }
+            });
+
+            document.getElementById('a4ScaleSide').addEventListener('change', function() {
+                selectedScaleSide = this.value;
+                var sizeSelect = document.getElementById('a4ScaleBarSize');
+                if (sizeSelect) {
+                    sizeSelect.disabled = (selectedScaleSide === 'none');
+                    sizeSelect.style.opacity = (selectedScaleSide === 'none') ? '0.4' : '1.0';
+                }
+                updateLabel();
+                if (typeof updateExtraRects === 'function') updateExtraRects();
+            });
+
+            document.getElementById('a4ScaleBarSize').addEventListener('change', function() {
+                selectedScaleBarSize = parseFloat(this.value) || 1.0;
+                updateLabel();
+                if (typeof updateExtraRects === 'function') updateExtraRects();
             });
 
             document.getElementById('a4ZoomToScale').onclick = function() {
@@ -722,6 +896,36 @@
                         'ISR Flight Planner - by Yossi Hadad</span>';
                     document.body.appendChild(watermark);
 
+                    // Scale Bar — placed at selected side
+                    var scaleBar = null;
+                    if (selectedScaleSide !== 'none') {
+                        scaleBar = document.createElement('div');
+                        scaleBar.id = 'a4ScaleBar';
+                        var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
+                            Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
+                        scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
+                        var posStyle = 'bottom:8px;right:8px;transform-origin:bottom right;';
+                        var tf = '';
+                        if (selectedScaleSide === 'left') {
+                            posStyle = 'bottom:8px;left:8px;transform-origin:bottom left;';
+                        } else if (selectedScaleSide === 'center') {
+                            posStyle = 'bottom:8px;left:50%;transform-origin:bottom center;';
+                            tf = 'translateX(-50%)';
+                        }
+                        if (Math.abs(selectedScaleBarSize - 1.0) > 0.01) {
+                            tf = (tf ? tf + ' ' : '') + 'scale(' + selectedScaleBarSize + ')';
+                        }
+                        if (tf) {
+                            posStyle += 'transform:' + tf + ';';
+                        }
+                        scaleBar.style.cssText =
+                            'position:fixed;z-index:99999;' + posStyle +
+                            'background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.5);' +
+                            'border-radius:4px;padding:3px 10px 4px 10px;pointer-events:none;' +
+                            'box-shadow:0 1px 4px rgba(0,0,0,0.15);';
+                        document.body.appendChild(scaleBar);
+                    }
+
                     // Find corner with fewest overlapping drawn elements
                     (function positionWatermark() {
                         var mr = document.getElementById('map').getBoundingClientRect();
@@ -747,6 +951,12 @@
 
                         // Collect rects of all visible drawn elements inside the map
                         var drawn = [];
+                        if (scaleBar && document.body.contains(scaleBar)) {
+                            var sbr = scaleBar.getBoundingClientRect();
+                            if (sbr.width > 0 && sbr.height > 0) {
+                                drawn.push(sbr);
+                            }
+                        }
                         var selectors = [
                             '.leg-info-label', '.time-label', '.leaflet-marker-icon',
                             '.wl-div', '.tb-div', '.al-div'
@@ -793,12 +1003,13 @@
                         '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
+                        '  #a4ScaleBar { display:block !important; }' +
                         '  @page { size:' + singleCssPageSize + '; margin:0; }' +
                         '}';
                     document.head.appendChild(printStyle);
 
                     function restore() {
-                        ['a4PrintStyle', 'a4Watermark'].forEach(function(id) {
+                        ['a4PrintStyle', 'a4Watermark', 'a4ScaleBar'].forEach(function(id) {
                             var el = document.getElementById(id);
                             if (el) el.parentNode.removeChild(el);
                         });
@@ -860,9 +1071,18 @@
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +
+                                '  #a4ScaleBar { display:block !important; }' +
                                 '  @page { size:' + pgCssSize + '; margin:0; }' +
                                 '}';
                             document.head.appendChild(ps);
+
+                            var oldSb = document.getElementById('a4ScaleBar');
+                            if (oldSb && selectedScaleSide !== 'none') {
+                                var pgEffectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
+                                    Math.round(((40075016.686 * Math.cos((pageCenters[currentPage].lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, pageZoom))) / (0.0254 / 96.0));
+                                oldSb.innerHTML = buildScaleBarHtml(pgEffectiveScale, pageCenters[currentPage].lat);
+                            }
+
                             appState.map.invalidateSize({ animate: false });
                             appState.map.setView(pageCenters[currentPage], pageZoom, { animate: false });
                             setTimeout(function() {
