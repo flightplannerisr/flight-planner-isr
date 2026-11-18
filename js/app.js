@@ -244,6 +244,14 @@
                     }
 
                     appState._drawClickHandled = true;
+
+                    // Check if clicked on or near a predefined navigation point
+                    var navPoint = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(clickPt, e) : null;
+                    if (navPoint) {
+                        addWaypoint(navPoint.lat, navPoint.lng, navPoint.name);
+                        return;
+                    }
+
                     // Apply calibration correction if on a calibrated chart map
                     var mapName = appState.currentMapName;
                     if ((mapName === 'Air Nav Chart' || mapName === 'AZM Chart') && typeof calibrateLatLng === 'function') {

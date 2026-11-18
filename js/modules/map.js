@@ -392,6 +392,8 @@
                 }
                 repositionMarkerList(appState.lsaPoints);
                 repositionMarkerList(appState.cvfrPoints);
+                repositionMarkerList(appState.airstrips);
+                repositionMarkerList(appState.reportingPoints);
 
                 updateRoute();
 
@@ -521,6 +523,14 @@
             appState.map.on('click', function(e) {
                 if (!appState.isDrawing) return;
                 if (appState._drawClickHandled) { appState._drawClickHandled = false; return; }
+
+                var clickPt = appState.map.latLngToContainerPoint(e.latlng);
+                var navPoint = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(clickPt, e.originalEvent) : null;
+                if (navPoint) {
+                    addWaypoint(navPoint.lat, navPoint.lng, navPoint.name);
+                    return;
+                }
+
                 // Apply calibration correction if on a calibrated chart map
                 var latlng = e.latlng;
                 if (typeof calibrateLatLng === 'function') {
@@ -617,6 +627,8 @@
                     icon: icon,
                     title: point.name + ' (' + point.type + ')'
                 });
+                marker._realLatLng = L.latLng(point.lat, point.lng);
+                marker._navPoint = point;
                 
                 marker.bindPopup(
                     '<strong>' + point.name + '</strong><br>' +
@@ -752,6 +764,7 @@
                     title: strip.name
                 });
                 marker._realLatLng = L.latLng(strip.lat, strip.lng);
+                marker._navPoint = strip;
                 
                 marker.bindPopup(
                     '<strong>' + strip.name + '</strong><br>' +
@@ -825,6 +838,7 @@
                     title: displayName
                 });
                 marker._realLatLng = L.latLng(point.lat, point.lng);
+                marker._navPoint = point;
                 
                 var pointType = isMandatory ? 'Compulsory Reporting' : 'On-Request Reporting';
                 marker.bindPopup(
@@ -870,11 +884,13 @@
                     iconAnchor: [triangleSize/2, triangleSize/2]
                 });
                 
-                var marker = L.marker([point.lat, point.lng], {
+                var dispPos = (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(L.latLng(point.lat, point.lng)) : L.latLng(point.lat, point.lng);
+                var marker = L.marker([dispPos.lat, dispPos.lng], {
                     icon: icon,
                     title: displayName
                 });
                 marker._realLatLng = L.latLng(point.lat, point.lng);
+                marker._navPoint = point;
                 
                 var pointType = isMandatory ? 'Compulsory Reporting' : 'On-Request Reporting';
                 marker.bindPopup(
@@ -1207,3 +1223,104 @@
             }
         }
         
+
+        // Find predefined navigation point at or near click position (within snap radius)
+        window.findNearbyNavPoint = function(clickPt, e, maxDistancePx) {
+            if (!clickPt || !appState || !appState.map) return null;
+            if (e && e.shiftKey) return null; // Hold Shift to bypass snapping and place free waypoint
+
+            maxDistancePx = maxDistancePx !== undefined ? maxDistancePx : 25; // 25px snap radius
+
+            // 1. Direct hit check on a visible marker DOM element
+            if (e && e.target) {
+                var markerEl = e.target.closest('.cvfr-triangle-marker, .lsa-triangle-marker, .airstrip-marker, .reporting-point-marker');
+                if (markerEl) {
+                    var visibleMarkers = [];
+                    if (appState.airstripsVisible && Array.isArray(appState.airstrips)) visibleMarkers = visibleMarkers.concat(appState.airstrips);
+                    if (appState.cvfrPointsVisible && Array.isArray(appState.cvfrPoints)) visibleMarkers = visibleMarkers.concat(appState.cvfrPoints);
+                    if (appState.lsaPointsVisible && Array.isArray(appState.lsaPoints)) visibleMarkers = visibleMarkers.concat(appState.lsaPoints);
+                    if (appState.reportingPointsVisible && Array.isArray(appState.reportingPoints)) visibleMarkers = visibleMarkers.concat(appState.reportingPoints);
+
+                    for (var i = 0; i < visibleMarkers.length; i++) {
+                        var vm = visibleMarkers[i];
+                        if (!vm || !vm._navPoint) continue;
+                        var el = (typeof vm.getElement === 'function') ? vm.getElement() : vm._icon;
+                        if (el && (el === markerEl || el.contains(e.target))) {
+                            var pData = vm._navPoint;
+                            var pName = (appState.language === 'en') ? (pData.name || pData.name_he) : (pData.name_he || pData.name);
+                            var realLL = vm._realLatLng || L.latLng(pData.lat, pData.lng);
+                            var dispLL = vm.getLatLng ? vm.getLatLng() : ((typeof toDisplayLatLng === 'function') ? toDisplayLatLng(realLL) : realLL);
+                            return {
+                                name: pName,
+                                lat: realLL.lat,
+                                lng: realLL.lng,
+                                displayLat: dispLL.lat,
+                                displayLng: dispLL.lng,
+                                distance: 0
+                            };
+                        }
+                    }
+                }
+            }
+
+            // 2. Spatial proximity check against all navigation points
+            var bestMatch = null;
+            var minDistance = maxDistancePx;
+
+            function checkCandidate(ptData, customName, markerDispLL) {
+                if (!ptData || typeof ptData.lat !== 'number' || typeof ptData.lng !== 'number') return;
+                var realLL = L.latLng(ptData.lat, ptData.lng);
+                var dispLL = markerDispLL || ((typeof toDisplayLatLng === 'function') ? toDisplayLatLng(realLL) : realLL);
+                var screenPt = appState.map.latLngToContainerPoint(dispLL);
+                var dist = clickPt.distanceTo(screenPt);
+                if (dist <= minDistance) {
+                    minDistance = dist;
+                    var name;
+                    if (customName) {
+                        name = customName;
+                    } else if (appState.language === 'en') {
+                        name = ptData.name || ptData.name_he || '';
+                    } else {
+                        name = ptData.name_he || ptData.name || '';
+                    }
+                    bestMatch = {
+                        name: name,
+                        lat: realLL.lat,
+                        lng: realLL.lng,
+                        displayLat: dispLL.lat,
+                        displayLng: dispLL.lng,
+                        distance: dist
+                    };
+                }
+            }
+
+            // Check visible markers first (priority if clicked near a visible icon)
+            if (appState.airstripsVisible && Array.isArray(appState.airstrips)) {
+                appState.airstrips.forEach(function(m) { if (m && m._navPoint) checkCandidate(m._navPoint, m._navPoint.name, m.getLatLng()); });
+            }
+            if (appState.cvfrPointsVisible && Array.isArray(appState.cvfrPoints)) {
+                appState.cvfrPoints.forEach(function(m) { if (m && m._navPoint) checkCandidate(m._navPoint, null, m.getLatLng()); });
+            }
+            if (appState.lsaPointsVisible && Array.isArray(appState.lsaPoints)) {
+                appState.lsaPoints.forEach(function(m) { if (m && m._navPoint) checkCandidate(m._navPoint, null, m.getLatLng()); });
+            }
+            if (appState.reportingPointsVisible && Array.isArray(appState.reportingPoints)) {
+                appState.reportingPoints.forEach(function(m) { if (m && m._navPoint) checkCandidate(m._navPoint, m._navPoint.name, m.getLatLng()); });
+            }
+
+            // Also check all points in the datasets (allows snapping even when vector layer is hidden or on chart maps)
+            if (typeof airstripsData !== 'undefined' && Array.isArray(airstripsData)) {
+                airstripsData.forEach(function(strip) { checkCandidate(strip, strip.name); });
+            }
+            if (typeof cvfrPointsData !== 'undefined' && Array.isArray(cvfrPointsData)) {
+                cvfrPointsData.forEach(function(pt) { checkCandidate(pt); });
+            }
+            if (typeof lsaPointsData !== 'undefined' && Array.isArray(lsaPointsData)) {
+                lsaPointsData.forEach(function(pt) { checkCandidate(pt); });
+            }
+            if (typeof reportingPointsData !== 'undefined' && Array.isArray(reportingPointsData)) {
+                reportingPointsData.forEach(function(pt) { checkCandidate(pt, pt.name); });
+            }
+
+            return bestMatch;
+        };

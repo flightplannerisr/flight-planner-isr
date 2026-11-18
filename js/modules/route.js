@@ -92,8 +92,15 @@
             appState.previewTimeMarkers.forEach(function(m) { appState.map.removeLayer(m); });
             appState.previewTimeMarkers = [];
 
+            // Check if cursor is near a navigation point to snap preview
+            var pt = appState.map.latLngToContainerPoint(latlng);
+            var navMatch = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(pt) : null;
+            if (navMatch) {
+                latlng = L.latLng(navMatch.displayLat, navMatch.displayLng);
+            }
+
             // latlng is display (Leaflet) coords — convert to real for math
-            var realLatlng = calibrateDisplayToReal(latlng);
+            var realLatlng = navMatch ? L.latLng(navMatch.lat, navMatch.lng) : calibrateDisplayToReal(latlng);
             
             // Draw preview line using display coords
             var lastWPd = dCoord(lastWP);
@@ -101,9 +108,9 @@
                 [lastWPd.lat, lastWPd.lng],
                 [latlng.lat, latlng.lng]
             ], {
-                color: '#0066cc',
-                weight: 2,
-                opacity: 0.5,
+                color: navMatch ? '#28a745' : '#0066cc',
+                weight: navMatch ? 3 : 2,
+                opacity: navMatch ? 0.85 : 0.5,
                 dashArray: '5, 10'
             }).addTo(appState.map);
             
@@ -142,7 +149,8 @@
                 '<div style="width: 0; height: 0; border-left: ' + triangleBase + 'px solid transparent; border-right: ' + triangleBase + 'px solid transparent; border-bottom: ' + triangleHeight + 'px solid #dc3545; position: relative;">' +
                 '<div style="position: absolute; top: ' + (8 * scale * sm) + 'px; left: 50%; transform: translateX(-50%); color: white; font-weight: bold; font-size: ' + headingFontSize + 'px; white-space: nowrap;">' + getMagHeading(heading) + '°</div>' +
                 '</div>' +
-                '<div style="background: rgba(255,255,255,' + appState.infoBoxOpacity + '); padding: ' + (3 * scale * sm) + 'px ' + (6 * scale * sm) + 'px; border: ' + (2 * scale * sm) + 'px solid #0066cc; border-radius: ' + (4 * scale * sm) + 'px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display:inline-block; text-align: center; opacity: 0.7;">' +
+                '<div style="background: rgba(255,255,255,' + appState.infoBoxOpacity + '); padding: ' + (3 * scale * sm) + 'px ' + (6 * scale * sm) + 'px; border: ' + (2 * scale * sm) + 'px solid ' + (navMatch ? '#28a745' : '#0066cc') + '; border-radius: ' + (4 * scale * sm) + 'px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display:inline-block; text-align: center; opacity: 0.85;">' +
+                (navMatch ? '<div style="color: #28a745; font-weight: bold; font-size: ' + (fontSize * 1.05) + 'px; border-bottom: 1px solid #28a745; padding-bottom: 2px; margin-bottom: 2px; white-space: nowrap;">📍 ' + navMatch.name + '</div>' : '') +
                 '<div style="color: #333; font-weight: bold; font-size: ' + fontSize + 'px;">' + timeStr + '</div>' +
                 (appState.debugMode ?
                     '<div style="border-top: 1px solid #0066cc; margin: ' + (2 * scale * sm) + 'px 0;"></div>' +
@@ -260,7 +268,7 @@
             return null;
         }
         
-        function addWaypoint(lat, lng) {
+        function addWaypoint(lat, lng, name) {
             var waypointNum = appState.waypoints.length + 1;
 
             // For chart maps with calibration, store display coords separately
@@ -277,7 +285,7 @@
                 displayLat: displayLat,
                 displayLng: displayLng,
                 num: waypointNum,
-                name: 'WP' + waypointNum
+                name: name || ('WP' + waypointNum)
             });
             
             // Calculate tile coordinates for debugging
@@ -1156,12 +1164,7 @@
         };
 
         window.importSavedWaypoint = function(lat, lng, name) {
-            addWaypoint(lat, lng);
-            var idx = appState.waypoints.length - 1;
-            if (name) {
-                appState.waypoints[idx].name = name;
-                updateWaypointLabelMarker(idx);
-            }
+            addWaypoint(lat, lng, name);
             appState.map.panTo([lat, lng]);
             // Close modal
             if (window._wpImportModal && window._wpImportModal.parentNode) {
