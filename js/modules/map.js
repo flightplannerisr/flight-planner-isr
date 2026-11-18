@@ -140,7 +140,7 @@
                 ];
                 
                 appState.airNavMapOverlay = L.imageOverlay(
-                    './air_nav_combined_aligned.jpg',
+                    './images/layers/air_nav_combined_aligned.jpg',
                     mapBounds,
                     { opacity: 1.0, interactive: false }
                 ).addTo(appState.map);
@@ -221,7 +221,7 @@
                 ];
 
                 appState.azmMapOverlay = L.imageOverlay(
-                    './air_nav_combined_aligned_AZM.jpg',
+                    './images/layers/air_nav_combined_aligned_AZM.jpg',
                     mapBounds,
                     { opacity: 1.0, interactive: false }
                 ).addTo(appState.map);
@@ -310,7 +310,7 @@
             var blankTilesAirNav = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel AIP Air Navigation Chart'
             });
-            var airNavOverlay = L.imageOverlay('./air_nav_combined_aligned.jpg', chartBounds, {
+            var airNavOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned.jpg', chartBounds, {
                 opacity: 1.0,
                 interactive: false
             });
@@ -322,7 +322,7 @@
             var blankTilesAzm = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel Civil Aviation Authority – AZM Low Level Chart'
             });
-            var azmOverlay = L.imageOverlay('./air_nav_combined_aligned_AZM.jpg', chartBounds, {
+            var azmOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned_AZM.jpg', chartBounds, {
                 opacity: 1.0,
                 interactive: false
             });
