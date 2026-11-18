@@ -447,6 +447,8 @@
                 '<span style="opacity:.7;font-size:12px;margin-left:4px;">Scale:</span>' +
                 '<select id="a4ScaleRatio" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
                     '<option value="250000" selected>1:250,000 (Chart)</option>' +
+                    '<option value="150000">1:150,000</option>' +
+                    '<option value="125000">1:125,000</option>' +
                     '<option value="100000">1:100,000 (Detailed)</option>' +
                     '<option value="500000">1:500,000 (Regional)</option>' +
                     '<option value="auto">Fit View (Auto)</option>' +
