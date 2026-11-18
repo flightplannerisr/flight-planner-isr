@@ -673,8 +673,12 @@
                     '</div>';
 
                 layer.bindPopup(popupContent);
-                var tooltipText = zone.code + (zone.name ? ' (' + zone.name + ')' : '');
-                layer.bindTooltip(tooltipText, { sticky: true, opacity: 0.9 });
+                var verticalLimits = (zone.floor || 'GND') + ' – ' + (zone.ceiling || 'UNL');
+                var tooltipHtml = '<div style="font-size: 11px; line-height: 1.35; text-align: center;">' +
+                    '<strong>' + zone.code + '</strong>' + (zone.name ? ' &bull; ' + zone.name : '') + '<br>' +
+                    '<span style="font-weight: 600; color: #0d47a1;">↕ ' + verticalLimits + '</span>' +
+                    '</div>';
+                layer.bindTooltip(tooltipHtml, { sticky: true, opacity: 0.95 });
 
                 appState.airspaceZones.push(layer);
             });
