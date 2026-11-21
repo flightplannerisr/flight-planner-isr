@@ -64,9 +64,9 @@
                 exitAirNavMode: "Switch to Street Map",
                 showCoordinates: "Show Coords",
                 hideCoordinates: "Hide Coords",
-                alignRishon: "🎯 Align Map (Rishon LLRS)",
+                alignRishon: "🎯 Align Map (LLRS / BOVED / NSHRM)",
                 alignRishonActive: "🎯 Calibrating... (Click to Cancel)",
-                alignRishonAligned: "🎯 Re-align Map (LLRS ✓)",
+                alignRishonAligned: "🎯 Re-align Map (✓)",
                 resetAlignment: "↩ Reset Alignment"
             },
             he: {
@@ -134,9 +134,9 @@
                 exitAirNavMode: "עבור למפת רחוב",
                 showCoordinates: "הצג קו׳",
                 hideCoordinates: "הסתר קו׳",
-                alignRishon: "🎯 כיול מפה (ראשון LLRS)",
+                alignRishon: "🎯 כיול מפה (ראשון / בית עובד / נשרים)",
                 alignRishonActive: "🎯 מבצע כיול... (לחץ לביטול)",
-                alignRishonAligned: "🎯 כיול מחדש (LLRS ✓)",
+                alignRishonAligned: "🎯 כיול מחדש (✓)",
                 resetAlignment: "↩ איפוס כיול"
             }
         };

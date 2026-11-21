@@ -241,7 +241,7 @@
         // Embedded calibration points for Air Nav Chart (baked in at build time)
         var EMBEDDED_CALIBRATION = {
             'Air Nav Chart': [{"pixel":{"x":34.246723484312874,"y":33.030428814264944},"world":{"lng":34.166666666666664,"lat":33.030428814264944}},{"pixel":{"x":34.39028559392879,"y":33.028717318457744},"world":{"lng":34.333333333333336,"lat":33.028717318457744}},{"pixel":{"x":34.533847703544694,"y":33.03004373060628},"world":{"lng":34.5,"lat":33.03004373060628}},{"pixel":{"x":34.67710360176437,"y":33.02589327771029},"world":{"lng":34.666666666666664,"lat":33.02589327771029}},{"pixel":{"x":34.82066571138028,"y":33.02490912103726},"world":{"lng":34.833333333333336,"lat":33.02490912103726}},{"pixel":{"x":34.96460346396516,"y":33.243784832521555},"world":{"lng":35,"lat":33.243784832521555}},{"pixel":{"x":35.10772593027216,"y":33.260865894974145},"world":{"lng":35.166666666666664,"lat":33.260865894974145}},{"pixel":{"x":35.25084839657915,"y":33.25706368589016},"world":{"lng":35.333333333333336,"lat":33.25706368589016}},{"pixel":{"x":35.394043037604426,"y":33.25748616173813},"world":{"lng":35.5,"lat":33.25748616173813}},{"pixel":{"x":35.53694897975665,"y":33.2571240397078},"world":{"lng":35.666666666666664,"lat":33.2571240397078}},{"pixel":{"x":35.680117607116706,"y":33.25813999394796},"world":{"lng":35.833333333333336,"lat":33.25813999394796}},{"pixel":{"x":35.73205289713252,"y":33.24350618739461},"world":{"lng":35.73205289713252,"lat":33.333333333333336}},{"pixel":{"x":35.73646545410157,"y":33.092620175434696},"world":{"lng":35.73646545410157,"lat":33.16666666666667}},{"pixel":{"x":35.73693752288819,"y":32.94144775165421},"world":{"lng":35.73693752288819,"lat":33}},{"pixel":{"x":35.73700331470546,"y":32.79045349183996},"world":{"lng":35.73700331470546,"lat":32.833333333333336}},{"pixel":{"x":35.73771780796342,"y":32.638919618673384},"world":{"lng":35.73771780796342,"lat":32.66666666666667}},{"pixel":{"x":35.738993688781214,"y":32.48708557345855},"world":{"lng":35.738993688781214,"lat":32.5}},{"pixel":{"x":35.738381265988664,"y":32.3349517692279},"world":{"lng":35.738381265988664,"lat":32.333333333333336}},{"pixel":{"x":35.73659503284378,"y":32.18273459787912},"world":{"lng":35.73659503284378,"lat":32.16666666666667}},{"pixel":{"x":35.46634234836659,"y":32.02944598336014},"world":{"lng":35.46634234836659,"lat":32}},{"pixel":{"x":35.468711096343995,"y":31.876756072775212},"world":{"lng":35.468711096343995,"lat":31.833333333333336}},{"pixel":{"x":35.46360757307289,"y":31.72373142188384},"world":{"lng":35.46360757307289,"lat":31.666666666666668}},{"pixel":{"x":35.44972598977552,"y":31.570453703747372},"world":{"lng":35.44972598977552,"lat":31.500000000000004}},{"pixel":{"x":35.449113566982966,"y":31.416749385230997},"world":{"lng":35.449113566982966,"lat":31.333333333333336}},{"pixel":{"x":35.65302928503468,"y":31.262822143485614},"world":{"lng":35.65302928503468,"lat":31.166666666666668}},{"pixel":{"x":35.65242237041612,"y":31.108720359145156},"world":{"lng":35.65242237041612,"lat":31.000000000000004}},{"pixel":{"x":35.64914503147588,"y":30.954784438271904},"world":{"lng":35.64914503147588,"lat":30.833333333333336}},{"pixel":{"x":35.6489022656285,"y":30.800183007950118},"world":{"lng":35.6489022656285,"lat":30.666666666666668}},{"pixel":{"x":35.65539797760065,"y":30.645687293260725},"world":{"lng":35.65539797760065,"lat":30.500000000000004}},{"pixel":{"x":35.65539797760065,"y":30.49074585702965},"world":{"lng":35.65539797760065,"lat":30.333333333333336}},{"pixel":{"x":35.65484046936036,"y":30.33554651541684},"world":{"lng":35.65484046936036,"lat":30.166666666666668}},{"pixel":{"x":35.654411315917976,"y":30.180154036836655},"world":{"lng":35.654411315917976,"lat":30.000000000000004}},{"pixel":{"x":35.65501213073731,"y":30.02459039493858},"world":{"lng":35.65501213073731,"lat":29.833333333333336}},{"pixel":{"x":35.65475463867188,"y":29.868707842421205},"world":{"lng":35.65475463867188,"lat":29.666666666666668}},{"pixel":{"x":35.65501213073731,"y":29.71243225447675},"world":{"lng":35.65501213073731,"lat":29.500000000000004}},{"pixel":{"x":34.3894386291504,"y":32.94278032263393},"world":{"lng":34.333333333333336,"lat":33}},{"pixel":{"x":35.538756953239776,"y":32.940980091135124},"world":{"lng":35.666666666666664,"lat":33}},{"pixel":{"x":34.96117516484789,"y":31.569438250274985},"world":{"lng":35,"lat":31.500000000000004}},{"pixel":{"x":34.51427936553956,"y":30.336768810533894},"world":{"lng":34.5,"lat":30.166666666666668}},{"pixel":{"x":35.25405690756169,"y":30.645072587144828},"world":{"lng":35.333333333333336,"lat":30.500000000000004}}],
-            'AZM Chart': [{"pixel": {"x": 34.237064, "y": 0.0}, "world": {"lng": 34.166667, "lat": 0.0}}, {"pixel": {"x": 34.380832, "y": 0.0}, "world": {"lng": 34.333333, "lat": 0.0}}, {"pixel": {"x": 34.5246, "y": 0.0}, "world": {"lng": 34.5, "lat": 0.0}}, {"pixel": {"x": 34.668368, "y": 0.0}, "world": {"lng": 34.666667, "lat": 0.0}}, {"pixel": {"x": 34.812136, "y": 0.0}, "world": {"lng": 34.833333, "lat": 0.0}}, {"pixel": {"x": 34.955904, "y": 0.0}, "world": {"lng": 35.0, "lat": 0.0}}, {"pixel": {"x": 35.099671, "y": 0.0}, "world": {"lng": 35.166667, "lat": 0.0}}, {"pixel": {"x": 35.243439, "y": 0.0}, "world": {"lng": 35.333333, "lat": 0.0}}, {"pixel": {"x": 35.387207, "y": 0.0}, "world": {"lng": 35.5, "lat": 0.0}}, {"pixel": {"x": 35.530975, "y": 0.0}, "world": {"lng": 35.666667, "lat": 0.0}}, {"pixel": {"x": 35.674743, "y": 0.0}, "world": {"lng": 35.833333, "lat": 0.0}}, {"pixel": {"x": 0.0, "y": 33.255193}, "world": {"lng": 0.0, "lat": 33.333333}}, {"pixel": {"x": 0.0, "y": 33.107252}, "world": {"lng": 0.0, "lat": 33.166667}}, {"pixel": {"x": 0.0, "y": 32.959311}, "world": {"lng": 0.0, "lat": 33.0}}, {"pixel": {"x": 0.0, "y": 32.811369}, "world": {"lng": 0.0, "lat": 32.833333}}, {"pixel": {"x": 0.0, "y": 32.663428}, "world": {"lng": 0.0, "lat": 32.666667}}, {"pixel": {"x": 0.0, "y": 32.515487}, "world": {"lng": 0.0, "lat": 32.5}}, {"pixel": {"x": 0.0, "y": 32.367546}, "world": {"lng": 0.0, "lat": 32.333333}}, {"pixel": {"x": 0.0, "y": 32.219605}, "world": {"lng": 0.0, "lat": 32.166667}}, {"pixel": {"x": 0.0, "y": 32.071663}, "world": {"lng": 0.0, "lat": 32.0}}, {"pixel": {"x": 0.0, "y": 31.923722}, "world": {"lng": 0.0, "lat": 31.833333}}, {"pixel": {"x": 0.0, "y": 31.775781}, "world": {"lng": 0.0, "lat": 31.666667}}, {"pixel": {"x": 0.0, "y": 31.62784}, "world": {"lng": 0.0, "lat": 31.5}}, {"pixel": {"x": 0.0, "y": 31.479899}, "world": {"lng": 0.0, "lat": 31.333333}}, {"pixel": {"x": 0.0, "y": 31.330597}, "world": {"lng": 0.0, "lat": 31.166667}}, {"pixel": {"x": 0.0, "y": 31.181295}, "world": {"lng": 0.0, "lat": 31.0}}, {"pixel": {"x": 0.0, "y": 31.031994}, "world": {"lng": 0.0, "lat": 30.833333}}, {"pixel": {"x": 0.0, "y": 30.882692}, "world": {"lng": 0.0, "lat": 30.666667}}, {"pixel": {"x": 0.0, "y": 30.73339}, "world": {"lng": 0.0, "lat": 30.5}}, {"pixel": {"x": 0.0, "y": 30.584089}, "world": {"lng": 0.0, "lat": 30.333333}}, {"pixel": {"x": 0.0, "y": 30.434787}, "world": {"lng": 0.0, "lat": 30.166667}}, {"pixel": {"x": 0.0, "y": 30.285485}, "world": {"lng": 0.0, "lat": 30.0}}, {"pixel": {"x": 0.0, "y": 30.136183}, "world": {"lng": 0.0, "lat": 29.833333}}, {"pixel": {"x": 0.0, "y": 29.986882}, "world": {"lng": 0.0, "lat": 29.666667}}, {"pixel": {"x": 0.0, "y": 29.83758}, "world": {"lng": 0.0, "lat": 29.5}}]
+            'AZM Chart': [{"pixel": {"x": 34.21399, "y": 0.0}, "world": {"lng": 34.166667, "lat": 0.0}}, {"pixel": {"x": 34.360652, "y": 0.0}, "world": {"lng": 34.333333, "lat": 0.0}}, {"pixel": {"x": 34.507314, "y": 0.0}, "world": {"lng": 34.5, "lat": 0.0}}, {"pixel": {"x": 34.653976, "y": 0.0}, "world": {"lng": 34.666667, "lat": 0.0}}, {"pixel": {"x": 34.800637, "y": 0.0}, "world": {"lng": 34.833333, "lat": 0.0}}, {"pixel": {"x": 34.947299, "y": 0.0}, "world": {"lng": 35.0, "lat": 0.0}}, {"pixel": {"x": 35.093961, "y": 0.0}, "world": {"lng": 35.166667, "lat": 0.0}}, {"pixel": {"x": 35.240623, "y": 0.0}, "world": {"lng": 35.333333, "lat": 0.0}}, {"pixel": {"x": 35.387285, "y": 0.0}, "world": {"lng": 35.5, "lat": 0.0}}, {"pixel": {"x": 35.533947, "y": 0.0}, "world": {"lng": 35.666667, "lat": 0.0}}, {"pixel": {"x": 35.680609, "y": 0.0}, "world": {"lng": 35.833333, "lat": 0.0}}, {"pixel": {"x": 0.0, "y": 33.255922}, "world": {"lng": 0.0, "lat": 33.333333}}, {"pixel": {"x": 0.0, "y": 33.106263}, "world": {"lng": 0.0, "lat": 33.166667}}, {"pixel": {"x": 0.0, "y": 32.956605}, "world": {"lng": 0.0, "lat": 33.0}}, {"pixel": {"x": 0.0, "y": 32.806947}, "world": {"lng": 0.0, "lat": 32.833333}}, {"pixel": {"x": 0.0, "y": 32.657288}, "world": {"lng": 0.0, "lat": 32.666667}}, {"pixel": {"x": 0.0, "y": 32.50763}, "world": {"lng": 0.0, "lat": 32.5}}, {"pixel": {"x": 0.0, "y": 32.357972}, "world": {"lng": 0.0, "lat": 32.333333}}, {"pixel": {"x": 0.0, "y": 32.208313}, "world": {"lng": 0.0, "lat": 32.166667}}, {"pixel": {"x": 0.0, "y": 32.058655}, "world": {"lng": 0.0, "lat": 32.0}}, {"pixel": {"x": 0.0, "y": 31.908997}, "world": {"lng": 0.0, "lat": 31.833333}}, {"pixel": {"x": 0.0, "y": 31.759338}, "world": {"lng": 0.0, "lat": 31.666667}}, {"pixel": {"x": 0.0, "y": 31.60968}, "world": {"lng": 0.0, "lat": 31.5}}, {"pixel": {"x": 0.0, "y": 31.460022}, "world": {"lng": 0.0, "lat": 31.333333}}, {"pixel": {"x": 0.0, "y": 31.313136}, "world": {"lng": 0.0, "lat": 31.166667}}, {"pixel": {"x": 0.0, "y": 31.16351}, "world": {"lng": 0.0, "lat": 31.0}}, {"pixel": {"x": 0.0, "y": 31.013884}, "world": {"lng": 0.0, "lat": 30.833333}}, {"pixel": {"x": 0.0, "y": 30.864257}, "world": {"lng": 0.0, "lat": 30.666667}}, {"pixel": {"x": 0.0, "y": 30.714631}, "world": {"lng": 0.0, "lat": 30.5}}, {"pixel": {"x": 0.0, "y": 30.565005}, "world": {"lng": 0.0, "lat": 30.333333}}, {"pixel": {"x": 0.0, "y": 30.415379}, "world": {"lng": 0.0, "lat": 30.166667}}, {"pixel": {"x": 0.0, "y": 30.265752}, "world": {"lng": 0.0, "lat": 30.0}}, {"pixel": {"x": 0.0, "y": 30.116126}, "world": {"lng": 0.0, "lat": 29.833333}}, {"pixel": {"x": 0.0, "y": 29.9665}, "world": {"lng": 0.0, "lat": 29.666667}}, {"pixel": {"x": 0.0, "y": 29.816873}, "world": {"lng": 0.0, "lat": 29.5}}]
         };
 
         async function loadCalibration(mapName) {
@@ -555,29 +555,23 @@
                 toggleDrawing();
             }
 
-            // Find Rishon LeZion reporting point (LLRS at 31.9675°N, 34.7536°E)
-            var rishonData = null;
-            var searchPools = [];
-            if (typeof lsaPointsData !== 'undefined' && Array.isArray(lsaPointsData)) searchPools.push(lsaPointsData);
-            if (typeof cvfrPointsData !== 'undefined' && Array.isArray(cvfrPointsData)) searchPools.push(cvfrPointsData);
-            if (typeof reportingPointsData !== 'undefined' && Array.isArray(reportingPointsData)) searchPools.push(reportingPointsData);
+            // Target points available for alignment calibration
+            var ALIGN_TARGETS = [
+                { id: 'LLRS', name: 'LLRS', name_he: 'ראשון לציון', lat: 31.9675000, lng: 34.7536111 },
+                { id: 'BOVED', name: 'BOVED', name_he: 'בית-עובד', lat: 31.9202778, lng: 34.7700000 },
+                { id: 'NSHRM', name: 'NSHRM', name_he: 'מ. נשרים', lat: 31.9091667, lng: 34.8916667 }
+            ];
 
-            for (var p = 0; p < searchPools.length && !rishonData; p++) {
-                var pool = searchPools[p];
-                for (var i = 0; i < pool.length; i++) {
-                    var pt = pool[i];
-                    if (pt.name === "LLRS" || pt.name_he === "ראשון לציון" || (pt.name && pt.name.indexOf("RISHON") !== -1)) {
-                        rishonData = pt;
-                        break;
-                    }
-                }
+            if (!window._alignCurrentTarget) {
+                window._alignCurrentTarget = ALIGN_TARGETS[0];
             }
 
-            if (!rishonData) {
-                rishonData = { name: "LLRS", name_he: "ראשון לציון", lat: 31.9675000, lng: 34.7536111, type: "on-request" };
+            function getTargetDisplayPos(target) {
+                var realLL = L.latLng(target.lat, target.lng);
+                return (typeof toDisplayLatLng === 'function') ? toDisplayLatLng(realLL) : realLL;
             }
 
-            // Ensure LSA and CVFR points are visible so LLRS marker is shown
+            // Ensure LSA and CVFR points are visible so reporting markers are shown
             if (!appState.lsaPointsVisible && typeof toggleLSAPoints === 'function') {
                 toggleLSAPoints();
             }
@@ -585,39 +579,45 @@
                 toggleCVFRPoints();
             }
 
-            var rishonNominal = L.latLng(rishonData.lat, rishonData.lng);
+            function updateGuideAndMap(target) {
+                var dispLL = getTargetDisplayPos(target);
 
-            // Pan and zoom to Rishon LLRS if zoomed out or off-screen
-            if (map.getZoom() < 12) {
-                map.setView(rishonNominal, 12, { animate: false });
-            } else if (!map.getBounds().contains(rishonNominal)) {
-                map.panTo(rishonNominal, { animate: false });
+                // Pan and zoom to target if zoomed out or off-screen
+                if (map.getZoom() < 12) {
+                    map.setView(dispLL, 12, { animate: false });
+                } else if (!map.getBounds().contains(dispLL)) {
+                    map.panTo(dispLL, { animate: false });
+                }
+
+                // Clean previous guide marker if any
+                if (window._rishonGuideMarker) {
+                    map.removeLayer(window._rishonGuideMarker);
+                    window._rishonGuideMarker = null;
+                }
+
+                var labelText = isHebrew
+                    ? ('📍 ' + target.name_he + ' (' + target.name + ')<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">לחץ על המפה במקום בו מודפסת הנקודה</span>')
+                    : ('📍 ' + target.name + ' (' + target.name_he + ')<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">Click where ' + target.name + ' is printed on the map</span>');
+
+                var pulseHtml =
+                    '<div style="position:relative;display:flex;align-items:center;justify-content:center;pointer-events:none;">' +
+                    '  <div style="width:26px;height:26px;border:3px solid #e74c3c;border-radius:50%;background:rgba(231,76,60,0.3);box-shadow:0 0 14px #e74c3c;animation:rishonPulse 1.2s infinite alternate;"></div>' +
+                    '  <div style="position:absolute;top:30px;background:rgba(0,0,0,0.85);color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:1px solid #e74c3c;text-align:center;">' +
+                    labelText +
+                    '  </div>' +
+                    '</div>';
+
+                var pulseIcon = L.divIcon({
+                    className: 'rishon-pulse-icon',
+                    html: pulseHtml,
+                    iconSize: [26, 26],
+                    iconAnchor: [13, 13]
+                });
+
+                window._rishonGuideMarker = L.marker(dispLL, { icon: pulseIcon, interactive: false, zIndexOffset: 10000 }).addTo(map);
             }
 
-            // Clean previous guide marker if any
-            if (window._rishonGuideMarker) {
-                map.removeLayer(window._rishonGuideMarker);
-                window._rishonGuideMarker = null;
-            }
-
-            var pulseHtml =
-                '<div style="position:relative;display:flex;align-items:center;justify-content:center;pointer-events:none;">' +
-                '  <div style="width:26px;height:26px;border:3px solid #e74c3c;border-radius:50%;background:rgba(231,76,60,0.3);box-shadow:0 0 14px #e74c3c;animation:rishonPulse 1.2s infinite alternate;"></div>' +
-                '  <div style="position:absolute;top:30px;background:rgba(0,0,0,0.85);color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:1px solid #e74c3c;text-align:center;">' +
-                (isHebrew
-                    ? '📍 ראשון לציון (LLRS)<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">לחץ על המפה במקום בו מודפסת הנקודה</span>'
-                    : '📍 Rishon LeZion (LLRS)<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">Click where LLRS is printed on the map</span>') +
-                '  </div>' +
-                '</div>';
-
-            var pulseIcon = L.divIcon({
-                className: 'rishon-pulse-icon',
-                html: pulseHtml,
-                iconSize: [26, 26],
-                iconAnchor: [13, 13]
-            });
-
-            window._rishonGuideMarker = L.marker(rishonNominal, { icon: pulseIcon, interactive: false, zIndexOffset: 10000 }).addTo(map);
+            updateGuideAndMap(window._alignCurrentTarget);
 
             // Set cursor & alignment mode class
             document.body.classList.add('align-mode-active');
@@ -625,50 +625,82 @@
             if (mapContainer) mapContainer.style.cursor = 'crosshair';
             if (map.getContainer()) map.getContainer().style.cursor = 'crosshair';
 
-            // Show floating top banner
-            var existingBanner = document.getElementById('alignRishonBanner');
-            if (existingBanner && existingBanner.parentNode) existingBanner.parentNode.removeChild(existingBanner);
+            // Show floating top banner with point selector buttons
+            window.renderAlignBanner = function() {
+                var existingBanner = document.getElementById('alignRishonBanner');
+                if (existingBanner && existingBanner.parentNode) existingBanner.parentNode.removeChild(existingBanner);
 
-            var curShift = window.getChartMapShift(mapName);
-            var hasShift = (curShift && (Math.abs(curShift.lat) > 0.000001 || Math.abs(curShift.lng) > 0.000001));
+                var curShift = window.getChartMapShift(mapName);
+                var hasShift = (curShift && (Math.abs(curShift.lat) > 0.000001 || Math.abs(curShift.lng) > 0.000001));
 
-            var banner = document.createElement('div');
-            banner.id = 'alignRishonBanner';
-            banner.style.cssText =
-                'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:10002;' +
-                'background:#1a365d;color:#ffffff;padding:10px 18px;border-radius:8px;' +
-                'box-shadow:0 4px 20px rgba(0,0,0,0.35);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
-                'font-size:13px;font-weight:600;display:flex;align-items:center;gap:14px;border:1px solid #2b6cb0;';
+                var banner = document.createElement('div');
+                banner.id = 'alignRishonBanner';
+                banner.style.cssText =
+                    'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:10002;' +
+                    'background:#1a365d;color:#ffffff;padding:10px 18px;border-radius:8px;' +
+                    'box-shadow:0 4px 20px rgba(0,0,0,0.35);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+                    'font-size:13px;font-weight:600;display:flex;flex-wrap:wrap;align-items:center;gap:12px;border:1px solid #2b6cb0;max-width:92vw;';
 
-            var promptText = isHebrew
-                ? '🎯 הזזת המפה: לחץ על המפה במקום בו מודפסת נקודת ראשון לציון (LLRS - 31.9675°N, 34.7536°E)'
-                : '🎯 Move Map: Click on the map image where Rishon LeZion (LLRS - 31.9675°N, 34.7536°E) is printed';
+                var activeTarget = window._alignCurrentTarget;
+                var targetButtonsHtml = '<div style="display:flex;gap:5px;align-items:center;">';
+                ALIGN_TARGETS.forEach(function(tgt) {
+                    var isSel = (tgt.id === activeTarget.id);
+                    var bg = isSel ? '#3182ce' : '#2d3748';
+                    var border = isSel ? '2px solid #63b3ed' : '1px solid #4a5568';
+                    var label = tgt.name + ' (' + tgt.name_he + ')';
+                    targetButtonsHtml += '<button onclick="window.setAlignTarget(\'' + tgt.id + '\')" style="padding:4px 9px;background:' + bg + ';color:#fff;border:' + border + ';border-radius:4px;cursor:pointer;font-size:11px;font-weight:700;">' + label + '</button>';
+                });
+                targetButtonsHtml += '</div>';
 
-            var resetBtnHtml = hasShift
-                ? '<button onclick="window.resetRishonAlignment()" style="padding:5px 12px;background:#e2e8f0;color:#2d3748;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
-                  (isHebrew ? '↩ איפוס מפה' : '↩ Reset Map') + '</button>'
-                : '';
+                var promptText = isHebrew
+                    ? ('🎯 לחץ על המפה במקום בו מודפסת הנקודה <strong>' + activeTarget.name_he + ' (' + activeTarget.name + ')</strong>')
+                    : ('🎯 Click on map where <strong>' + activeTarget.name + ' (' + activeTarget.name_he + ')</strong> is printed');
 
-            var cancelBtnHtml =
-                '<button onclick="window.cancelRishonAlignment()" style="padding:5px 12px;background:#e53e3e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
-                (isHebrew ? '✕ ביטול' : '✕ Cancel (Esc)') + '</button>';
+                var resetBtnHtml = hasShift
+                    ? '<button onclick="window.resetRishonAlignment()" style="padding:5px 12px;background:#e2e8f0;color:#2d3748;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
+                      (isHebrew ? '↩ איפוס מפה' : '↩ Reset Map') + '</button>'
+                    : '';
 
-            banner.innerHTML =
-                '<span>' + promptText + '</span>' +
-                '<div style="display:flex;gap:8px;align-items:center;">' +
-                resetBtnHtml +
-                cancelBtnHtml +
-                '</div>';
+                var cancelBtnHtml =
+                    '<button onclick="window.cancelRishonAlignment()" style="padding:5px 12px;background:#e53e3e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
+                    (isHebrew ? '✕ ביטול' : '✕ Cancel (Esc)') + '</button>';
 
-            document.body.appendChild(banner);
+                banner.innerHTML =
+                    '<div style="display:flex;align-items:center;gap:8px;">' +
+                    '<span>' + (isHebrew ? 'נקודת כיול:' : 'Align point:') + '</span>' +
+                    targetButtonsHtml +
+                    '</div>' +
+                    '<span>' + promptText + '</span>' +
+                    '<div style="display:flex;gap:8px;align-items:center;margin-left:auto;">' +
+                    resetBtnHtml +
+                    cancelBtnHtml +
+                    '</div>';
+
+                document.body.appendChild(banner);
+            };
+
+            window.setAlignTarget = function(targetId) {
+                var found = ALIGN_TARGETS.filter(function(t){ return t.id === targetId; })[0];
+                if (found) {
+                    window._alignCurrentTarget = found;
+                    updateGuideAndMap(found);
+                    if (typeof window.renderAlignBanner === 'function') {
+                        window.renderAlignBanner();
+                    }
+                }
+            };
+
+            window.renderAlignBanner();
 
             // Click handler on map
             window._rishonAlignClickHandler = function(e) {
                 var clickedLL = e.latlng;
+                var activeTarget = window._alignCurrentTarget || ALIGN_TARGETS[0];
+                var targetDispLL = getTargetDisplayPos(activeTarget);
 
-                // Shift needed to move clicked map feature to Rishon reporting point
-                var deltaLat = rishonNominal.lat - clickedLL.lat;
-                var deltaLng = rishonNominal.lng - clickedLL.lng;
+                // Shift needed to move clicked map feature to target reporting point
+                var deltaLat = targetDispLL.lat - clickedLL.lat;
+                var deltaLng = targetDispLL.lng - clickedLL.lng;
 
                 var cur = window.getChartMapShift(appState.currentMapName);
                 var newLat = cur.lat + deltaLat;
@@ -677,9 +709,13 @@
                 window.setChartMapShift(appState.currentMapName, newLat, newLng);
                 window.cancelRishonAlignment(true);
 
+                var targetName = isHebrew
+                    ? (activeTarget.name_he + ' / ' + activeTarget.name)
+                    : (activeTarget.name + ' / ' + activeTarget.name_he);
+
                 window.showToast(isHebrew
-                    ? '✅ מפת הרקע הוזזה והותאמה לנקודת ראשון לציון (LLRS)!'
-                    : '✅ Map image moved and aligned to Rishon LeZion (LLRS) point!');
+                    ? ('✅ מפת הרקע הוזזה והותאמה לנקודת ' + targetName + '!')
+                    : ('✅ Map image moved and aligned to ' + targetName + '!'));
             };
 
             // Attach click listener after short timeout
