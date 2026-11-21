@@ -322,15 +322,15 @@
             var blankTilesAzm = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel Civil Aviation Authority – AZM Low Level Chart'
             });
-            var azmNorthBounds = [[31.177404, 34.075264], [33.438523, 35.938694]];
-            var azmOverlay = L.imageOverlay('./images/layers/azm_north_georef.jpg', azmNorthBounds, {
+            var azmCombinedBounds = [[29.163537, 34.083945], [33.434157, 35.991125]];
+            var azmOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned_AZM.jpg', azmCombinedBounds, {
                 opacity: 1.0,
                 interactive: false
             });
             azmChart.addLayer(blankTilesAzm);
             azmChart.addLayer(azmOverlay);
             
-            appState.azmNorthBounds = azmNorthBounds;
+            appState.azmCombinedBounds = azmCombinedBounds;
             appState.azmMapOverlay = azmOverlay;
             appState.chartBaseBounds = [[29.5, 34.166667], [33.333333, 35.833333]];
             appState.chartOverlays = {

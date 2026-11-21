@@ -161,7 +161,7 @@
             if (typeof appState === 'undefined') return;
             mapName = mapName || appState.currentMapName;
             var shift = window.getChartMapShift(mapName);
-            var base = (mapName === 'AZM Chart' && appState.azmNorthBounds) ? appState.azmNorthBounds : (appState.chartBaseBounds || [[29.5, 34.166667], [33.333333, 35.833333]]);
+            var base = (mapName === 'AZM Chart' && appState.azmCombinedBounds) ? appState.azmCombinedBounds : (appState.chartBaseBounds || [[29.5, 34.166667], [33.333333, 35.833333]]);
             var shiftedBounds = [
                 [base[0][0] + shift.lat, base[0][1] + shift.lng],
                 [base[1][0] + shift.lat, base[1][1] + shift.lng]
