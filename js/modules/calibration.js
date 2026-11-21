@@ -402,32 +402,53 @@
 
         window.updateAlignButtonUI = function() {
             var btn = document.getElementById('alignRishonBtn');
-            if (!btn) return;
-            var mapName = (typeof appState !== 'undefined' && appState.currentMapName) ? appState.currentMapName : 'OpenStreetMap';
+            var resetBtn = document.getElementById('resetAlignBtn');
+            var mapName = (typeof appState !== 'undefined' && appState.currentMapName) ? appState.currentMapName : 'Air Nav Chart';
             var isChart = (mapName === 'Air Nav Chart' || mapName === 'AZM Chart');
             var curShift = window.getChartMapShift(mapName);
             var hasShift = isChart && (curShift && (Math.abs(curShift.lat) > 0.000001 || Math.abs(curShift.lng) > 0.000001));
             var isHebrew = (typeof appState !== 'undefined' && appState.language !== 'en');
 
-            if (document.getElementById('alignRishonBanner')) {
-                btn.textContent = isHebrew ? '🎯 מכייל מפה... (לחץ לביטול)' : '🎯 Moving Map... (Click to Cancel)';
-                btn.style.background = '#feebc8';
-                btn.style.borderColor = '#dd6b20';
-                btn.style.color = '#c05621';
-            } else if (hasShift) {
-                btn.textContent = isHebrew ? '🎯 כייל מפה מחדש (LLRS ✓)' : '🎯 Re-align Map (LLRS ✓)';
-                btn.style.background = '#e8f8ec';
-                btn.style.borderColor = '#28a745';
-                btn.style.color = '#1e7e34';
-                btn.title = (isHebrew ? 'מפה מוזזת עבור ' : 'Map shifted for ') + mapName +
-                    ' (ΔLat: ' + (curShift.lat >= 0 ? '+' : '') + curShift.lat.toFixed(5) + '°, ΔLng: ' +
-                    (curShift.lng >= 0 ? '+' : '') + curShift.lng.toFixed(5) + '°)';
-            } else {
-                btn.textContent = isHebrew ? '🎯 כייל מפה (ראשון LLRS)' : '🎯 Align Map (Rishon LLRS)';
-                btn.style.background = '#f0f7ff';
-                btn.style.borderColor = '#0066cc';
-                btn.style.color = '#0066cc';
-                btn.title = isHebrew ? 'לחץ להזזת המפה כך שנקודת ראשון לציון (LLRS) תתיישר במדויק' : 'Click to move map image so Rishon LeZion (LLRS) point aligns';
+            if (btn) {
+                if (document.getElementById('alignRishonBanner')) {
+                    btn.textContent = isHebrew ? '🎯 מכייל... (ביטול)' : '🎯 Moving... (Cancel)';
+                    btn.style.background = '#feebc8';
+                    btn.style.borderColor = '#dd6b20';
+                    btn.style.color = '#c05621';
+                } else if (hasShift) {
+                    btn.textContent = isHebrew ? '🎯 כייל שוב (LLRS ✓)' : '🎯 Re-align (LLRS ✓)';
+                    btn.style.background = '#e8f8ec';
+                    btn.style.borderColor = '#28a745';
+                    btn.style.color = '#1e7e34';
+                    btn.title = (isHebrew ? 'מפה מוזזת עבור ' : 'Map shifted for ') + mapName +
+                        ' (ΔLat: ' + (curShift.lat >= 0 ? '+' : '') + curShift.lat.toFixed(5) + '°, ΔLng: ' +
+                        (curShift.lng >= 0 ? '+' : '') + curShift.lng.toFixed(5) + '°)';
+                } else {
+                    btn.textContent = isHebrew ? '🎯 כייל מפה (ראשון LLRS)' : '🎯 Align Map (Rishon LLRS)';
+                    btn.style.background = '#f0f7ff';
+                    btn.style.borderColor = '#0066cc';
+                    btn.style.color = '#0066cc';
+                    btn.title = isHebrew ? 'לחץ להזזת המפה כך שנקודת ראשון לציון (LLRS) תתיישר במדויק' : 'Click to move map image so Rishon LeZion (LLRS) point aligns';
+                }
+            }
+
+            if (resetBtn) {
+                resetBtn.textContent = isHebrew ? '↩ איפוס כיול' : '↩ Reset Alignment';
+                if (hasShift) {
+                    resetBtn.style.opacity = '1';
+                    resetBtn.style.background = '#fff5f5';
+                    resetBtn.style.borderColor = '#e53e3e';
+                    resetBtn.style.color = '#c53030';
+                    resetBtn.title = (isHebrew ? 'אפס כיול מפה עבור ' : 'Reset map alignment for ') + mapName +
+                        ' (ΔLat: ' + (curShift.lat >= 0 ? '+' : '') + curShift.lat.toFixed(5) + '°, ΔLng: ' +
+                        (curShift.lng >= 0 ? '+' : '') + curShift.lng.toFixed(5) + '°)';
+                } else {
+                    resetBtn.style.opacity = '0.6';
+                    resetBtn.style.background = '#f7fafc';
+                    resetBtn.style.borderColor = '#cbd5e0';
+                    resetBtn.style.color = '#718096';
+                    resetBtn.title = isHebrew ? 'המפה במיקום ברירת המחדל' : 'Map alignment is at default position';
+                }
             }
         };
 
@@ -521,9 +542,9 @@
 
             // Pan and zoom to Rishon LLRS if zoomed out or off-screen
             if (map.getZoom() < 12) {
-                map.setView(rishonNominal, 12, { animate: true });
+                map.setView(rishonNominal, 12, { animate: false });
             } else if (!map.getBounds().contains(rishonNominal)) {
-                map.panTo(rishonNominal, { animate: true });
+                map.panTo(rishonNominal, { animate: false });
             }
 
             // Clean previous guide marker if any
@@ -657,15 +678,22 @@
             window.updateAlignButtonUI();
         };
 
-        window.resetRishonAlignment = function() {
-            var mapName = (typeof appState !== 'undefined' && appState.currentMapName) ? appState.currentMapName : 'Air Nav Chart';
-            window.resetChartMapShift(mapName);
-            window.cancelRishonAlignment(true);
+        function resetRishonAlignment() {
+            window.resetChartMapShift('Air Nav Chart');
+            window.resetChartMapShift('AZM Chart');
+            if (typeof window.cancelRishonAlignment === 'function') {
+                window.cancelRishonAlignment(true);
+            }
             var isHebrew = (typeof appState !== 'undefined' && appState.language !== 'en');
             window.showToast(isHebrew
-                ? '↩ מיקום המפה אופס לברירת המחדל'
-                : '↩ Map position reset to default');
-        };
+                ? '↩ כיול המפה אופס לברירת המחדל'
+                : '↩ Map alignment reset to default');
+            if (typeof window.updateAlignButtonUI === 'function') {
+                window.updateAlignButtonUI();
+            }
+        }
+        window.resetRishonAlignment = resetRishonAlignment;
+        window._resetRishonAlignmentImpl = resetRishonAlignment;
 
         function toggleRishonAlignmentMode() {
             if (document.getElementById('alignRishonBanner')) {

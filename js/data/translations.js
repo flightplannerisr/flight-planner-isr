@@ -66,7 +66,8 @@
                 hideCoordinates: "Hide Coords",
                 alignRishon: "🎯 Align Map (Rishon LLRS)",
                 alignRishonActive: "🎯 Calibrating... (Click to Cancel)",
-                alignRishonAligned: "🎯 Re-align Map (LLRS ✓)"
+                alignRishonAligned: "🎯 Re-align Map (LLRS ✓)",
+                resetAlignment: "↩ Reset Alignment"
             },
             he: {
                 title: "🛩️ מתכנן טיסה ישראל",
@@ -135,6 +136,7 @@
                 hideCoordinates: "הסתר קו׳",
                 alignRishon: "🎯 כיול מפה (ראשון LLRS)",
                 alignRishonActive: "🎯 מבצע כיול... (לחץ לביטול)",
-                alignRishonAligned: "🎯 כיול מחדש (LLRS ✓)"
+                alignRishonAligned: "🎯 כיול מחדש (LLRS ✓)",
+                resetAlignment: "↩ איפוס כיול"
             }
         };

@@ -132,12 +132,12 @@
         body.align-mode-active #map {
             cursor: crosshair !important;
         }
+        body.align-mode-active .leaflet-marker-pane,
+        body.align-mode-active .leaflet-popup-pane,
+        body.align-mode-active .leaflet-overlay-pane,
         body.align-mode-active .wl-div,
         body.align-mode-active .leg-info-label,
-        body.align-mode-active .time-label,
-        body.align-mode-active .special-airspace-layer,
-        body.align-mode-active .ctr-layer,
-        body.align-mode-active .leaflet-marker-icon:not(.reporting-point-marker) {
+        body.align-mode-active .time-label {
             pointer-events: none !important;
         }
 
