@@ -302,10 +302,9 @@
                 attribution: '© Google Maps'
             });
             
-            // Exact shared Leaflet WGS84 bounds derived directly from QGIS EPSG:3857 world files
-            var sharedChartBounds = [[29.505837, 34.087530], [33.425343, 35.938721]];
-            var airNavBounds = sharedChartBounds;
-            var azmCombinedBounds = sharedChartBounds;
+            // Exact Leaflet WGS84 bounds derived directly from QGIS EPSG:3857 world files
+            var airNavBounds = [[29.505837, 34.087530], [33.425343, 35.938721]];
+            var azmCombinedBounds = [[29.497381, 34.087530], [33.416887, 35.938721]];
 
             // Air Nav Chart layer (image overlay on blank base)
             var airNavChart = L.layerGroup();
