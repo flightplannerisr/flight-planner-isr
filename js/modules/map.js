@@ -302,8 +302,8 @@
                 attribution: '© Google Maps'
             });
             
-            // Exact shared Leaflet WGS84 bounds derived directly from official AIP PDF vector graticule
-            var sharedChartBounds = [[29.500000, 34.083740], [33.421850, 35.957010]];
+            // Exact shared Leaflet WGS84 bounds derived directly from QGIS EPSG:3857 world files
+            var sharedChartBounds = [[29.505837, 34.087530], [33.425343, 35.938721]];
             var airNavBounds = sharedChartBounds;
             var azmCombinedBounds = sharedChartBounds;
 
