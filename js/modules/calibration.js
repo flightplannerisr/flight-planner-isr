@@ -127,41 +127,66 @@
             return L.latLng(py, px);
         }
 
-        // Convert stored WGS84 coords to display coords for chart maps
-        window.toDisplayLatLng = function(latlng) {
-            var mapName = appState.currentMapName;
-            if (mapName !== 'Air Nav Chart' && mapName !== 'AZM Chart') return latlng;
-            var transform = calibTransforms[mapName];
-            if (!transform) return latlng;
-            return applyInverseTransform(transform, latlng);
+        // Chart map shifts (stored in localStorage) - moving the map overlay, NOT the points!
+        var chartMapShifts = {};
+        try {
+            var savedShifts = localStorage.getItem('flightplanner_chart_map_shifts');
+            if (savedShifts) chartMapShifts = JSON.parse(savedShifts);
+        } catch(e) {}
+
+        window.getChartMapShift = function(mapName) {
+            mapName = mapName || (typeof appState !== 'undefined' && appState.currentMapName) || 'Air Nav Chart';
+            return (chartMapShifts && chartMapShifts[mapName]) ? chartMapShifts[mapName] : { lat: 0, lng: 0 };
         };
 
-        // Reposition overlay markers (LSA, CVFR, airstrips, etc.) using display coords
-        function refreshOverlayMarkers(mapName) {
+        window.setChartMapShift = function(mapName, dLat, dLng) {
+            mapName = mapName || (typeof appState !== 'undefined' && appState.currentMapName) || 'Air Nav Chart';
+            chartMapShifts[mapName] = { lat: dLat, lng: dLng };
+            try {
+                localStorage.setItem('flightplanner_chart_map_shifts', JSON.stringify(chartMapShifts));
+            } catch(e) {}
+            window.applyChartMapShift(mapName);
+        };
+
+        window.resetChartMapShift = function(mapName) {
+            mapName = mapName || (typeof appState !== 'undefined' && appState.currentMapName) || 'Air Nav Chart';
+            delete chartMapShifts[mapName];
+            try {
+                localStorage.setItem('flightplanner_chart_map_shifts', JSON.stringify(chartMapShifts));
+            } catch(e) {}
+            window.applyChartMapShift(mapName);
+        };
+
+        window.applyChartMapShift = function(mapName) {
+            if (typeof appState === 'undefined') return;
             mapName = mapName || appState.currentMapName;
-            // Only apply transform if this is the currently active map
-            var isCurrentMap = (mapName === appState.currentMapName);
-            var transform = isCurrentMap ? calibTransforms[mapName] : null;
-            var isChartMap = (mapName === 'Air Nav Chart' || mapName === 'AZM Chart');
+            var shift = window.getChartMapShift(mapName);
+            var base = appState.chartBaseBounds || [[29.5, 34.166667], [33.333333, 35.833333]];
+            var shiftedBounds = [
+                [base[0][0] + shift.lat, base[0][1] + shift.lng],
+                [base[1][0] + shift.lat, base[1][1] + shift.lng]
+            ];
 
-            function dispPos(realLL) {
-                if (!transform || !isChartMap || !isCurrentMap) return realLL;
-                return applyInverseTransform(transform, realLL);
+            if (appState.chartOverlays && appState.chartOverlays[mapName]) {
+                appState.chartOverlays[mapName].setBounds(shiftedBounds);
             }
+            if (mapName === 'Air Nav Chart' && appState.airNavMapOverlay) {
+                appState.airNavMapOverlay.setBounds(shiftedBounds);
+            }
+            if (mapName === 'AZM Chart' && appState.azmMapOverlay) {
+                appState.azmMapOverlay.setBounds(shiftedBounds);
+            }
+        };
 
-            // LSA points
-            appState.lsaPoints.forEach(function(marker) {
-                if (marker._realLatLng) marker.setLatLng(dispPos(marker._realLatLng));
-            });
-            // CVFR points
-            appState.cvfrPoints.forEach(function(marker) {
-                if (marker._realLatLng) marker.setLatLng(dispPos(marker._realLatLng));
-            });
-            // Airstrips
-            appState.airstrips.forEach(function(marker) {
-                if (marker._realLatLng) marker.setLatLng(dispPos(marker._realLatLng));
-            });
+        // Coordinates of points are untouched — return latlng directly
+        window.toDisplayLatLng = function(latlng) {
+            return latlng;
+        };
+
+        function refreshOverlayMarkers(mapName) {
+            // Point coordinates are not touched
         }
+        window.refreshOverlayMarkers = refreshOverlayMarkers;
 
         function calibFileName(mapName) { return 'calibration_' + mapName.replace(/[^a-z0-9]/gi, '_') + '.json'; }
 
@@ -225,22 +250,14 @@
         }
 
         window.calibrateLatLng = async function(e) {
-            var mapName = appState.currentMapName;
-            if (mapName !== 'Air Nav Chart' && mapName !== 'AZM Chart') return e.latlng;
-            var transform = await getCalibTransform(mapName);
-            if (!transform) return e.latlng;
-            return applyTransform(transform, e.latlng);
+            return e.latlng;
         };
 
         // Synchronous version: convert display (Leaflet) coords → real WGS84
-        // Used during drag when we need immediate conversion
         function calibrateDisplayToReal(latlng) {
-            var mapName = appState.currentMapName;
-            if (mapName !== 'Air Nav Chart' && mapName !== 'AZM Chart') return latlng;
-            var transform = calibTransforms[mapName];
-            if (!transform) return latlng;
-            return applyTransform(transform, latlng);
+            return latlng;
         }
+        window.calibrateDisplayToReal = calibrateDisplayToReal;
 
         function dms(deg) {
             var d = Math.floor(Math.abs(deg)), m = Math.round((Math.abs(deg)-d)*60);
@@ -380,4 +397,276 @@
             var btn = document.getElementById('debugToggleBtn');
             if (btn) { btn.textContent = 'Calibrate'; btn.style.background = '#f0f0f0'; btn.style.color = '#333'; btn.style.borderColor = '#999'; }
         };
+
+        // ── MANUAL RISHON MAP-ALIGNMENT SYSTEM (MOVES THE MAP, NOT POINTS) ──
+
+        window.updateAlignButtonUI = function() {
+            var btn = document.getElementById('alignRishonBtn');
+            if (!btn) return;
+            var mapName = (typeof appState !== 'undefined' && appState.currentMapName) ? appState.currentMapName : 'OpenStreetMap';
+            var isChart = (mapName === 'Air Nav Chart' || mapName === 'AZM Chart');
+            var curShift = window.getChartMapShift(mapName);
+            var hasShift = isChart && (curShift && (Math.abs(curShift.lat) > 0.000001 || Math.abs(curShift.lng) > 0.000001));
+            var isHebrew = (typeof appState !== 'undefined' && appState.language !== 'en');
+
+            if (document.getElementById('alignRishonBanner')) {
+                btn.textContent = isHebrew ? '🎯 מכייל מפה... (לחץ לביטול)' : '🎯 Moving Map... (Click to Cancel)';
+                btn.style.background = '#feebc8';
+                btn.style.borderColor = '#dd6b20';
+                btn.style.color = '#c05621';
+            } else if (hasShift) {
+                btn.textContent = isHebrew ? '🎯 כייל מפה מחדש (מכויל ✓)' : '🎯 Re-align Map (Aligned ✓)';
+                btn.style.background = '#e8f8ec';
+                btn.style.borderColor = '#28a745';
+                btn.style.color = '#1e7e34';
+                btn.title = (isHebrew ? 'מפה מוזזת עבור ' : 'Map shifted for ') + mapName +
+                    ' (ΔLat: ' + (curShift.lat >= 0 ? '+' : '') + curShift.lat.toFixed(5) + '°, ΔLng: ' +
+                    (curShift.lng >= 0 ? '+' : '') + curShift.lng.toFixed(5) + '°)';
+            } else {
+                btn.textContent = isHebrew ? '🎯 כייל מפה (נקודת ראשון)' : '🎯 Align Map (Rishon Point)';
+                btn.style.background = '#f0f7ff';
+                btn.style.borderColor = '#0066cc';
+                btn.style.color = '#0066cc';
+                btn.title = isHebrew ? 'לחץ להזזת המפה כך שנקודת ראשון תתיישר במדויק' : 'Click to move map image so Rishon LeZion point aligns';
+            }
+        };
+
+        window.showToast = function(message, duration) {
+            duration = duration || 3500;
+            var old = document.getElementById('appToast');
+            if (old && old.parentNode) old.parentNode.removeChild(old);
+
+            var toast = document.createElement('div');
+            toast.id = 'appToast';
+            toast.style.cssText =
+                'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:10003;' +
+                'background:rgba(20,20,20,0.92);color:#ffffff;padding:10px 20px;border-radius:8px;' +
+                'box-shadow:0 4px 16px rgba(0,0,0,0.3);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+                'font-size:13px;font-weight:600;pointer-events:none;transition:opacity 0.3s ease;opacity:0;';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            requestAnimationFrame(function() { toast.style.opacity = '1'; });
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+            }, duration);
+        };
+
+        window.startRishonAlignment = function() {
+            var map = (typeof appState !== 'undefined') ? appState.map : null;
+            if (!map) return;
+
+            var mapName = appState.currentMapName;
+            var isChart = (mapName === 'Air Nav Chart' || mapName === 'AZM Chart');
+            var isHebrew = (typeof appState !== 'undefined' && appState.language !== 'en');
+
+            // If not on a chart map, switch to Air Nav Chart first
+            if (!isChart) {
+                if (appState.baseMaps && appState.baseMaps['Air Nav Chart']) {
+                    map.eachLayer(function(l) {
+                        for (var k in appState.baseMaps) {
+                            if (appState.baseMaps[k] === l) map.removeLayer(l);
+                        }
+                    });
+                    appState.baseMaps['Air Nav Chart'].addTo(map);
+                    appState.currentMapName = 'Air Nav Chart';
+                    mapName = 'Air Nav Chart';
+                    if (typeof applyChartMapShift === 'function') {
+                        applyChartMapShift('Air Nav Chart');
+                    }
+                } else {
+                    window.showToast(isHebrew
+                        ? 'כיול המפה זמין במפת ניווט אווירית (Air Nav) או מפת אז"מ (AZM)'
+                        : 'Map alignment is available for Air Nav Chart or AZM Chart');
+                    return;
+                }
+            }
+
+            // If drawing mode is active, stop it
+            if (appState.isDrawing && typeof toggleDrawing === 'function') {
+                toggleDrawing();
+            }
+
+            // Find Rishon LeZion reporting point
+            var rishonData = null;
+            if (typeof reportingPointsData !== 'undefined' && Array.isArray(reportingPointsData)) {
+                for (var i = 0; i < reportingPointsData.length; i++) {
+                    if (reportingPointsData[i].name === "RISHON LEZION") {
+                        rishonData = reportingPointsData[i];
+                        break;
+                    }
+                }
+            }
+            if (!rishonData) {
+                rishonData = { name: "RISHON LEZION", lat: 31.9667, lng: 34.8000, type: "VFR" };
+            }
+
+            // Ensure reporting points are visible
+            if (!appState.reportingPointsVisible && typeof toggleReportingPoints === 'function') {
+                toggleReportingPoints();
+            }
+
+            var rishonNominal = L.latLng(rishonData.lat, rishonData.lng);
+
+            // Pan to Rishon if off screen
+            if (!map.getBounds().contains(rishonNominal)) {
+                map.panTo(rishonNominal, { animate: true });
+            }
+
+            // Clean previous guide marker if any
+            if (window._rishonGuideMarker) {
+                map.removeLayer(window._rishonGuideMarker);
+                window._rishonGuideMarker = null;
+            }
+
+            var pulseHtml =
+                '<div style="position:relative;display:flex;align-items:center;justify-content:center;pointer-events:none;">' +
+                '  <div style="width:26px;height:26px;border:3px solid #e74c3c;border-radius:50%;background:rgba(231,76,60,0.3);box-shadow:0 0 14px #e74c3c;animation:rishonPulse 1.2s infinite alternate;"></div>' +
+                '  <div style="position:absolute;top:30px;background:rgba(0,0,0,0.85);color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:1px solid #e74c3c;text-align:center;">' +
+                (isHebrew
+                    ? '📍 נקודת ראשון לציון<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">לחץ על המפה במקום בו מודפסת הנקודה</span>'
+                    : '📍 Rishon reporting point<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">Click where it is printed on the map image</span>') +
+                '  </div>' +
+                '</div>';
+
+            var pulseIcon = L.divIcon({
+                className: 'rishon-pulse-icon',
+                html: pulseHtml,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13]
+            });
+
+            window._rishonGuideMarker = L.marker(rishonNominal, { icon: pulseIcon, interactive: false, zIndexOffset: 10000 }).addTo(map);
+
+            // Set cursor & alignment mode class
+            document.body.classList.add('align-mode-active');
+            var mapContainer = document.getElementById('map');
+            if (mapContainer) mapContainer.style.cursor = 'crosshair';
+            if (map.getContainer()) map.getContainer().style.cursor = 'crosshair';
+
+            // Show floating top banner
+            var existingBanner = document.getElementById('alignRishonBanner');
+            if (existingBanner && existingBanner.parentNode) existingBanner.parentNode.removeChild(existingBanner);
+
+            var curShift = window.getChartMapShift(mapName);
+            var hasShift = (curShift && (Math.abs(curShift.lat) > 0.000001 || Math.abs(curShift.lng) > 0.000001));
+
+            var banner = document.createElement('div');
+            banner.id = 'alignRishonBanner';
+            banner.style.cssText =
+                'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:10002;' +
+                'background:#1a365d;color:#ffffff;padding:10px 18px;border-radius:8px;' +
+                'box-shadow:0 4px 20px rgba(0,0,0,0.35);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
+                'font-size:13px;font-weight:600;display:flex;align-items:center;gap:14px;border:1px solid #2b6cb0;';
+
+            var promptText = isHebrew
+                ? '🎯 הזזת המפה: לחץ על המפה במקום בו מודפסת נקודת ראשון לציון'
+                : '🎯 Move Map: Click on the map image where Rishon LeZion point is printed';
+
+            var resetBtnHtml = hasShift
+                ? '<button onclick="window.resetRishonAlignment()" style="padding:5px 12px;background:#e2e8f0;color:#2d3748;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
+                  (isHebrew ? '↩ איפוס מפה' : '↩ Reset Map') + '</button>'
+                : '';
+
+            var cancelBtnHtml =
+                '<button onclick="window.cancelRishonAlignment()" style="padding:5px 12px;background:#e53e3e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
+                (isHebrew ? '✕ ביטול' : '✕ Cancel (Esc)') + '</button>';
+
+            banner.innerHTML =
+                '<span>' + promptText + '</span>' +
+                '<div style="display:flex;gap:8px;align-items:center;">' +
+                resetBtnHtml +
+                cancelBtnHtml +
+                '</div>';
+
+            document.body.appendChild(banner);
+
+            // Click handler on map
+            window._rishonAlignClickHandler = function(e) {
+                var clickedLL = e.latlng;
+
+                // Shift needed to move clicked map feature to Rishon reporting point
+                var deltaLat = rishonNominal.lat - clickedLL.lat;
+                var deltaLng = rishonNominal.lng - clickedLL.lng;
+
+                var cur = window.getChartMapShift(appState.currentMapName);
+                var newLat = cur.lat + deltaLat;
+                var newLng = cur.lng + deltaLng;
+
+                window.setChartMapShift(appState.currentMapName, newLat, newLng);
+                window.cancelRishonAlignment(true);
+
+                window.showToast(isHebrew
+                    ? '✅ מפת הרקע הוזזה והותאמה לנקודת ראשון לציון!'
+                    : '✅ Map image moved and aligned to Rishon LeZion reporting point!');
+            };
+
+            // Attach click listener after short timeout
+            setTimeout(function() {
+                if (map) map.once('click', window._rishonAlignClickHandler);
+            }, 100);
+
+            // Escape key handler
+            window._rishonAlignKeyHandler = function(e) {
+                if (e.key === 'Escape') {
+                    window.cancelRishonAlignment();
+                }
+            };
+            document.addEventListener('keydown', window._rishonAlignKeyHandler);
+
+            window.updateAlignButtonUI();
+        };
+
+        window.cancelRishonAlignment = function(isFinished) {
+            var map = (typeof appState !== 'undefined') ? appState.map : null;
+            if (map && window._rishonAlignClickHandler) {
+                map.off('click', window._rishonAlignClickHandler);
+                window._rishonAlignClickHandler = null;
+            }
+            if (window._rishonAlignKeyHandler) {
+                document.removeEventListener('keydown', window._rishonAlignKeyHandler);
+                window._rishonAlignKeyHandler = null;
+            }
+            if (window._rishonGuideMarker && map) {
+                map.removeLayer(window._rishonGuideMarker);
+                window._rishonGuideMarker = null;
+            }
+            document.body.classList.remove('align-mode-active');
+            var mapContainer = document.getElementById('map');
+            if (mapContainer) mapContainer.style.cursor = '';
+            if (map && map.getContainer()) map.getContainer().style.cursor = '';
+
+            var banner = document.getElementById('alignRishonBanner');
+            if (banner && banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+
+            window.updateAlignButtonUI();
+        };
+
+        window.resetRishonAlignment = function() {
+            var mapName = (typeof appState !== 'undefined' && appState.currentMapName) ? appState.currentMapName : 'Air Nav Chart';
+            window.resetChartMapShift(mapName);
+            window.cancelRishonAlignment(true);
+            var isHebrew = (typeof appState !== 'undefined' && appState.language !== 'en');
+            window.showToast(isHebrew
+                ? '↩ מיקום המפה אופס לברירת המחדל'
+                : '↩ Map position reset to default');
+        };
+
+        function toggleRishonAlignmentMode() {
+            if (document.getElementById('alignRishonBanner')) {
+                if (typeof window.cancelRishonAlignment === 'function') {
+                    window.cancelRishonAlignment();
+                }
+            } else {
+                if (typeof window.startRishonAlignment === 'function') {
+                    window.startRishonAlignment();
+                }
+            }
+        }
+        window.toggleRishonAlignmentMode = toggleRishonAlignmentMode;
+        window._toggleRishonAlignmentImpl = toggleRishonAlignmentMode;
+
+
 

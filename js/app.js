@@ -252,9 +252,8 @@
                         return;
                     }
 
-                    // Apply calibration correction if on a calibrated chart map
-                    var mapName = appState.currentMapName;
-                    if ((mapName === 'Air Nav Chart' || mapName === 'AZM Chart') && typeof calibrateLatLng === 'function') {
+                    // Apply calibration correction if on a calibrated chart map or aligned map
+                    if (typeof calibrateLatLng === 'function') {
                         calibrateLatLng({ latlng: clickLL, containerPoint: clickPt }).then(function(corrected) {
                             addWaypoint(corrected.lat, corrected.lng);
                         });
@@ -445,6 +444,9 @@
             for (var id in elements) {
                 var el = document.getElementById(id);
                 if (el) el.textContent = elements[id];
+            }
+            if (typeof updateAlignButtonUI === 'function') {
+                updateAlignButtonUI();
             }
             
             // Update input placeholder

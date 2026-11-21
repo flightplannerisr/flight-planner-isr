@@ -329,6 +329,18 @@
             azmChart.addLayer(blankTilesAzm);
             azmChart.addLayer(azmOverlay);
             
+            appState.chartBaseBounds = [[29.5, 34.166667], [33.333333, 35.833333]];
+            appState.chartOverlays = {
+                'Air Nav Chart': airNavOverlay,
+                'AZM Chart': azmOverlay
+            };
+
+            // Apply any saved chart map shift
+            if (typeof applyChartMapShift === 'function') {
+                applyChartMapShift('Air Nav Chart');
+                applyChartMapShift('AZM Chart');
+            }
+
             // Start with OpenStreetMap as default
             osm.addTo(appState.map);
             appState.currentMapName = 'OpenStreetMap';
@@ -350,12 +362,12 @@
             appState.map.on('baselayerchange', function(e) {
                 // Track current map name for waypoint grouping
                 appState.currentMapName = e.name;
-                // Pre-load calibration transform for chart maps
-                if (e.name === 'Air Nav Chart' || e.name === 'AZM Chart') {
-                    getCalibTransform(e.name);
+                if (typeof applyChartMapShift === 'function' && (e.name === 'Air Nav Chart' || e.name === 'AZM Chart')) {
+                    applyChartMapShift(e.name);
                 }
-                // Refresh overlay markers for new map projection
-                setTimeout(function() { if (typeof refreshOverlayMarkers === 'function') refreshOverlayMarkers(e.name); }, 200);
+                if (typeof updateAlignButtonUI === 'function') {
+                    updateAlignButtonUI();
+                }
 
                 // Recompute displayLat/displayLng for all waypoints based on new map
                 appState.waypoints.forEach(function(wp) {
@@ -409,6 +421,10 @@
                         tb.setLatLng(dispLL);
                     }
                 });
+
+                if (typeof updateAlignButtonUI === 'function') {
+                    updateAlignButtonUI();
+                }
 
                 // Show AZM-specific warning (once per session)
                 var isChartLayer = (e.name === 'Air Nav Chart' || e.name === 'AZM Chart');
@@ -563,6 +579,10 @@
                 
                 showPreview(e.latlng);
             });
+
+            if (typeof updateAlignButtonUI === 'function') {
+                updateAlignButtonUI();
+            }
         }
 
         function initAirspaceZones() {

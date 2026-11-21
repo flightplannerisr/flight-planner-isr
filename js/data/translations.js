@@ -63,7 +63,10 @@
                 airNavChartMode: "Switch to Air Nav Chart",
                 exitAirNavMode: "Switch to Street Map",
                 showCoordinates: "Show Coords",
-                hideCoordinates: "Hide Coords"
+                hideCoordinates: "Hide Coords",
+                alignRishon: "🎯 Align Map (Rishon Point)",
+                alignRishonActive: "🎯 Calibrating... (Click to Cancel)",
+                alignRishonAligned: "🎯 Re-align Rishon (Aligned ✓)"
             },
             he: {
                 title: "🛩️ מתכנן טיסה ישראל",
@@ -129,6 +132,9 @@
                 airNavChartMode: "עבור למפת ניווט אווירית",
                 exitAirNavMode: "עבור למפת רחוב",
                 showCoordinates: "הצג קו׳",
-                hideCoordinates: "הסתר קו׳"
+                hideCoordinates: "הסתר קו׳",
+                alignRishon: "🎯 כיול מפה (נקודת ראשון)",
+                alignRishonActive: "🎯 מבצע כיול... (לחץ לביטול)",
+                alignRishonAligned: "🎯 כיול מחדש (מכויל ✓)"
             }
         };
