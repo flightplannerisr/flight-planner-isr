@@ -362,9 +362,19 @@
             appState.map.on('baselayerchange', function(e) {
                 // Track current map name for waypoint grouping
                 appState.currentMapName = e.name;
-                if (typeof applyChartMapShift === 'function' && (e.name === 'Air Nav Chart' || e.name === 'AZM Chart')) {
-                    applyChartMapShift(e.name);
+                if (e.name === 'Air Nav Chart' || e.name === 'AZM Chart') {
+                    if (typeof getCalibTransform === 'function') {
+                        getCalibTransform(e.name);
+                    }
+                    if (typeof applyChartMapShift === 'function') {
+                        applyChartMapShift(e.name);
+                    }
                 }
+                setTimeout(function() {
+                    if (typeof refreshOverlayMarkers === 'function') {
+                        refreshOverlayMarkers(e.name);
+                    }
+                }, 150);
                 if (typeof updateAlignButtonUI === 'function') {
                     updateAlignButtonUI();
                 }
