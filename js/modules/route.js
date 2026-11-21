@@ -2044,6 +2044,11 @@
                 });
                 appState.textBoxes = [];
             }
+
+            // Clear all highlight circles
+            if (typeof clearAllHighlightCircles === 'function') {
+                clearAllHighlightCircles();
+            }
             
             updateWaypointsList();
             updateStats();

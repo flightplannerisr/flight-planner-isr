@@ -64,6 +64,30 @@
                 document.getElementById('circleOpacityValue').textContent = e.target.value;
                 updateAllCircles();
             });
+
+            var hcRadiusInput = document.getElementById('highlightCircleRadius');
+            if (hcRadiusInput) {
+                hcRadiusInput.addEventListener('input', function(e) {
+                    var val = parseFloat(e.target.value) * 0.1;
+                    appState.highlightCircleRadius = val;
+                    document.getElementById('highlightRadiusValue').textContent = val.toFixed(1);
+                    if (typeof updateAllHighlightCircles === 'function') {
+                        updateAllHighlightCircles(val);
+                    }
+                });
+            }
+
+            var hcOpacityInput = document.getElementById('highlightCircleOpacity');
+            if (hcOpacityInput) {
+                hcOpacityInput.addEventListener('input', function(e) {
+                    var val = parseFloat(e.target.value) / 100;
+                    appState.highlightCircleOpacity = val;
+                    document.getElementById('highlightOpacityValue').textContent = e.target.value;
+                    if (typeof updateAllHighlightCircles === 'function') {
+                        updateAllHighlightCircles(undefined, val);
+                    }
+                });
+            }
             
             document.getElementById('cruiseSpeed').addEventListener('input', function(e) {
                 appState.cruiseSpeed = parseFloat(e.target.value);

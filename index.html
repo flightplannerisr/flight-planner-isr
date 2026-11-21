@@ -65,11 +65,14 @@
                 </div>
                 <div class="button-group">
                     <button class="btn-secondary" id="addTextBoxBtn2">Add Text Box</button>
-                    <button class="btn-secondary" id="reverseRouteBtn">Reverse Route</button>
+                    <button class="btn-secondary" id="addHighlightCircleBtn" onclick="startAddingHighlightCircle()" style="font-weight: 600;"><span class="translate" data-key="addHighlightCircle">🔴 Add Red Circle</span></button>
                 </div>
                 <div class="button-group">
+                    <button class="btn-secondary" id="reverseRouteBtn">Reverse Route</button>
                     <button class="btn-secondary" id="coordModeBtn" onclick="toggleCoordDisplayMode()"><span class="translate" data-key="showCoordinates">Show Coords</span></button>
-                    <button class="btn-secondary" id="addCoordBtn">Add by Coords</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn-secondary" id="addCoordBtn" style="width: 100%;">Add by Coords</button>
                 </div>
                 <div class="button-group">
                     <button class="btn-secondary" id="toggleDirectionBtn" style="display: none;">Show Return</button>
@@ -174,6 +177,30 @@
                                 Waypoint Circle Opacity: <strong><span id="circleOpacityValue">20</span>%</strong>
                             </label>
                             <input type="range" id="circleOpacity" min="0" max="100" value="20" step="5"
+                                   style="width: 100%; cursor: pointer;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
+                                <span>0%</span>
+                                <span>50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="highlightCircleRadius" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
+                                <span class="translate" data-key="highlightCircleRadius">Highlight Circle Radius</span>: <strong><span id="highlightRadiusValue">0.5</span> nm</strong>
+                            </label>
+                            <input type="range" id="highlightCircleRadius" min="1" max="50" value="5" step="1" 
+                                   style="width: 100%; cursor: pointer;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
+                                <span>0.1 nm</span>
+                                <span>2.5 nm</span>
+                                <span>5.0 nm</span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="highlightCircleOpacity" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
+                                <span class="translate" data-key="highlightCircleOpacity">Highlight Circle Opacity</span>: <strong><span id="highlightOpacityValue">25</span>%</strong>
+                            </label>
+                            <input type="range" id="highlightCircleOpacity" min="0" max="100" value="25" step="5"
                                    style="width: 100%; cursor: pointer;">
                             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
                                 <span>0%</span>
@@ -453,28 +480,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Application State -->
-    <script src="js/state.js?v=20261121t"></script>
+    <script src="js/state.js?v=20261121u"></script>
 
     <!-- Navigation & Aeronautical Data -->
-    <script src="js/data/reporting-points.js?v=20261121t"></script>
-    <script src="js/data/frequencies.js?v=20261121t"></script>
-    <script src="js/data/airstrips.js?v=20261121t"></script>
-    <script src="js/data/cvfr-points.js?v=20261121t"></script>
-    <script src="js/data/lsa-points.js?v=20261121t"></script>
-    <script src="js/data/special-airspace.js?v=20261121t"></script>
-    <script src="js/data/ctr-zones.js?v=20261121t"></script>
-    <script src="js/data/translations.js?v=20261121t"></script>
+    <script src="js/data/reporting-points.js?v=20261121u"></script>
+    <script src="js/data/frequencies.js?v=20261121u"></script>
+    <script src="js/data/airstrips.js?v=20261121u"></script>
+    <script src="js/data/cvfr-points.js?v=20261121u"></script>
+    <script src="js/data/lsa-points.js?v=20261121u"></script>
+    <script src="js/data/special-airspace.js?v=20261121u"></script>
+    <script src="js/data/ctr-zones.js?v=20261121u"></script>
+    <script src="js/data/translations.js?v=20261121u"></script>
 
     <!-- Core Modules -->
-    <script src="js/modules/calibration.js?v=20261121t"></script>
-    <script src="js/modules/storage.js?v=20261121t"></script>
-    <script src="js/modules/map.js?v=20261121t"></script>
-    <script src="js/modules/textbox.js?v=20261121t"></script>
-    <script src="js/modules/route.js?v=20261121t"></script>
-    <script src="js/modules/export-print.js?v=20261121t"></script>
-    <script src="js/modules/contact.js?v=20261121t"></script>
+    <script src="js/modules/calibration.js?v=20261121u"></script>
+    <script src="js/modules/storage.js?v=20261121u"></script>
+    <script src="js/modules/map.js?v=20261121u"></script>
+    <script src="js/modules/textbox.js?v=20261121u"></script>
+    <script src="js/modules/highlight-circles.js?v=20261121u"></script>
+    <script src="js/modules/route.js?v=20261121u"></script>
+    <script src="js/modules/export-print.js?v=20261121u"></script>
+    <script src="js/modules/contact.js?v=20261121u"></script>
 
     <!-- Application Entry Point -->
-    <script src="js/app.js?v=20261121t"></script>
+    <script src="js/app.js?v=20261121u"></script>
 </body>
 </html>

@@ -437,6 +437,11 @@
                     }
                 });
 
+                // Reposition highlight circles
+                if (typeof repositionHighlightCircles === 'function') {
+                    repositionHighlightCircles();
+                }
+
                 if (typeof updateAlignButtonUI === 'function') {
                     updateAlignButtonUI();
                 }

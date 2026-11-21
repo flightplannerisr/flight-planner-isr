@@ -199,7 +199,9 @@
             driftWidth:           2,
             arrivalLabelFontSize: 9,
             waypointLabelFontSize:11,
-            lsaClipToCircles:     false
+            lsaClipToCircles:     false,
+            highlightCircleRadius:0.5,
+            highlightCircleOpacity:0.25
         };
 
         function collectSettings() {
@@ -224,6 +226,8 @@
                 arrivalLabelFontSize: appState.arrivalLabelFontSize,
                 waypointLabelFontSize:appState.waypointLabelFontSize,
                 lsaClipToCircles:     appState.lsaClipToCircles,
+                highlightCircleRadius:appState.highlightCircleRadius,
+                highlightCircleOpacity:appState.highlightCircleOpacity,
                 miniWaypoints:        appState.miniWaypoints
             };
         }
@@ -245,6 +249,10 @@
             setText('radiusValue', appState.circleRadius.toFixed(1));
             setVal('circleOpacity', Math.round(appState.circleOpacity * 100));
             setText('circleOpacityValue', Math.round(appState.circleOpacity * 100));
+            setVal('highlightCircleRadius', Math.round((appState.highlightCircleRadius || 0.5) * 10));
+            setText('highlightRadiusValue', (appState.highlightCircleRadius || 0.5).toFixed(1));
+            setVal('highlightCircleOpacity', Math.round((appState.highlightCircleOpacity !== undefined ? appState.highlightCircleOpacity : 0.25) * 100));
+            setText('highlightOpacityValue', Math.round((appState.highlightCircleOpacity !== undefined ? appState.highlightCircleOpacity : 0.25) * 100));
             setVal('lineWidth', appState.lineWidth);
             setText('lineWidthValue', appState.lineWidth);
             setVal('labelFontSize', appState.labelFontSize);
@@ -295,11 +303,16 @@
             appState.arrivalLabelFontSize = s.arrivalLabelFontSize !== undefined ? s.arrivalLabelFontSize : DEFAULT_SETTINGS.arrivalLabelFontSize;
             appState.waypointLabelFontSize= s.waypointLabelFontSize!== undefined ? s.waypointLabelFontSize: DEFAULT_SETTINGS.waypointLabelFontSize;
             appState.lsaClipToCircles     = s.lsaClipToCircles     !== undefined ? !!s.lsaClipToCircles   : DEFAULT_SETTINGS.lsaClipToCircles;
+            appState.highlightCircleRadius= s.highlightCircleRadius!== undefined ? s.highlightCircleRadius: DEFAULT_SETTINGS.highlightCircleRadius;
+            appState.highlightCircleOpacity= s.highlightCircleOpacity!== undefined ? s.highlightCircleOpacity: DEFAULT_SETTINGS.highlightCircleOpacity;
 
             // Sync all UI controls
             syncDisplaySettingsUI();
 
             updateAllCircles();
+            if (typeof updateAllHighlightCircles === 'function') {
+                updateAllHighlightCircles();
+            }
             updateRoute();
             updateStats();
         }
@@ -372,6 +385,22 @@
                     realLng: (d._realLng !== undefined ? d._realLng : realLL.lng)
                 };
             });
+            var highlightCirclesData = (appState.highlightCircles || []).map(function(c) {
+                var latlng = c.getLatLng();
+                var realLL = (typeof calibrateDisplayToReal === 'function')
+                    ? calibrateDisplayToReal(latlng)
+                    : latlng;
+                return {
+                    lat: latlng.lat,
+                    lng: latlng.lng,
+                    realLat: (c._realLat !== undefined ? c._realLat : realLL.lat),
+                    realLng: (c._realLng !== undefined ? c._realLng : realLL.lng),
+                    radius: c._radiusNm || appState.highlightCircleRadius || 0.5,
+                    label: c._label || '',
+                    color: c._color || '#dc3545',
+                    opacity: c._opacity !== undefined ? c._opacity : appState.highlightCircleOpacity
+                };
+            });
             return {
                 name: planName,
                 date: new Date().toISOString(),
@@ -379,6 +408,9 @@
                 mapName: appState.currentMapName,
                 waypoints: appState.waypoints,
                 textBoxes: textBoxesData,
+                highlightCircles: highlightCirclesData,
+                highlightCircleRadius: appState.highlightCircleRadius,
+                highlightCircleOpacity: appState.highlightCircleOpacity,
                 waypointLabelOffsets: appState.waypointLabelOffsets,
                 waypointLabelOffsetsReverse: appState.waypointLabelOffsetsReverse,
                 waypointLabelStyles: appState.waypointLabelStyles,
@@ -662,6 +694,8 @@
             appState.textBoxFontSize = plan.textBoxFontSize !== undefined ? plan.textBoxFontSize : 14;
             appState.miniWpLabelOpacity = plan.miniWpLabelOpacity !== undefined ? plan.miniWpLabelOpacity : 0.70;
             appState.lsaClipToCircles = plan.lsaClipToCircles !== undefined ? !!plan.lsaClipToCircles : false;
+            if (plan.highlightCircleRadius !== undefined) appState.highlightCircleRadius = plan.highlightCircleRadius;
+            if (plan.highlightCircleOpacity !== undefined) appState.highlightCircleOpacity = plan.highlightCircleOpacity;
 
             // Sync all sliders and input controls
             syncDisplaySettingsUI();
@@ -802,6 +836,25 @@
                         }
                         createTextBoxMarker(displayLL, tb.text,
                             tb.textColor || 'black', tb.fillColor || 'orange', tb.rotation || 0, tb.fontSize || plan.textBoxFontSize || appState.textBoxFontSize);
+                    });
+                }, 100);
+            }
+
+            if (plan.highlightCircles && plan.highlightCircles.length > 0) {
+                var hcsToLoad = plan.highlightCircles.slice();
+                setTimeout(function() {
+                    hcsToLoad.forEach(function(hc) {
+                        var displayLL;
+                        if (hc.realLat !== undefined && typeof toDisplayLatLng === 'function') {
+                            displayLL = toDisplayLatLng(L.latLng(hc.realLat, hc.realLng));
+                        } else if (hc.realLat !== undefined) {
+                            displayLL = L.latLng(hc.realLat, hc.realLng);
+                        } else {
+                            displayLL = L.latLng(hc.lat, hc.lng);
+                        }
+                        if (typeof createHighlightCircle === 'function') {
+                            createHighlightCircle(displayLL, hc.radius, hc.label, hc.color, hc.opacity);
+                        }
                     });
                 }, 100);
             }
