@@ -1987,7 +1987,9 @@
             }
             appState.waypointLabels = [];
             appState.waypointLabelOffsets = {};
+            appState.waypointLabelOffsetsReverse = {};
             appState.waypointLabelStyles = {};
+            appState.waypointLabelStylesReverse = {};
             if (appState.driftLines) {
                 appState.driftLines.forEach(function(l) { appState.map.removeLayer(l); });
             }
@@ -2000,7 +2002,9 @@
                 appState.legLabels.forEach(function(label) { appState.map.removeLayer(label); });
             }
             appState.legLabels = [];
+            appState.legLabelDraggedPositions = {};
             appState.arrivalLabelPositions = {};
+            appState.miniWaypoints = {};
             appState.legAltitudes = {};
             if (appState.routeLine) {
                 removeRouteLine();

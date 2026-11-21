@@ -119,16 +119,14 @@
             document.getElementById('textBoxFontSize').addEventListener('input', function(e) {
                 appState.textBoxFontSize = parseFloat(e.target.value);
                 document.getElementById('textBoxFontSizeValue').textContent = appState.textBoxFontSize;
-                // Update all existing text boxes
-                appState.textBoxes.forEach(function(marker) {
+                // Update all existing text boxes safely
+                var existingBoxes = appState.textBoxes.slice();
+                appState.textBoxes = [];
+                existingBoxes.forEach(function(marker) {
                     var latlng = marker.getLatLng();
                     var data = marker.textBoxData;
                     if (marker.remove) marker.remove(); else appState.map.removeLayer(marker);
-                    var index = appState.textBoxes.indexOf(marker);
-                    if (index > -1) {
-                        appState.textBoxes.splice(index, 1);
-                    }
-                    createTextBoxMarker(latlng, data.text, data.textColor, data.fillColor, data.rotation);
+                    createTextBoxMarker(latlng, data.text, data.textColor, data.fillColor, data.rotation, appState.textBoxFontSize);
                 });
             });
             
