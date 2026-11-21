@@ -415,7 +415,7 @@
                 btn.style.borderColor = '#dd6b20';
                 btn.style.color = '#c05621';
             } else if (hasShift) {
-                btn.textContent = isHebrew ? '🎯 כייל מפה מחדש (מכויל ✓)' : '🎯 Re-align Map (Aligned ✓)';
+                btn.textContent = isHebrew ? '🎯 כייל מפה מחדש (LLRS ✓)' : '🎯 Re-align Map (LLRS ✓)';
                 btn.style.background = '#e8f8ec';
                 btn.style.borderColor = '#28a745';
                 btn.style.color = '#1e7e34';
@@ -423,11 +423,11 @@
                     ' (ΔLat: ' + (curShift.lat >= 0 ? '+' : '') + curShift.lat.toFixed(5) + '°, ΔLng: ' +
                     (curShift.lng >= 0 ? '+' : '') + curShift.lng.toFixed(5) + '°)';
             } else {
-                btn.textContent = isHebrew ? '🎯 כייל מפה (נקודת ראשון)' : '🎯 Align Map (Rishon Point)';
+                btn.textContent = isHebrew ? '🎯 כייל מפה (ראשון LLRS)' : '🎯 Align Map (Rishon LLRS)';
                 btn.style.background = '#f0f7ff';
                 btn.style.borderColor = '#0066cc';
                 btn.style.color = '#0066cc';
-                btn.title = isHebrew ? 'לחץ להזזת המפה כך שנקודת ראשון תתיישר במדויק' : 'Click to move map image so Rishon LeZion point aligns';
+                btn.title = isHebrew ? 'לחץ להזזת המפה כך שנקודת ראשון לציון (LLRS) תתיישר במדויק' : 'Click to move map image so Rishon LeZion (LLRS) point aligns';
             }
         };
 
@@ -487,29 +487,42 @@
                 toggleDrawing();
             }
 
-            // Find Rishon LeZion reporting point
+            // Find Rishon LeZion reporting point (LLRS at 31.9675°N, 34.7536°E)
             var rishonData = null;
-            if (typeof reportingPointsData !== 'undefined' && Array.isArray(reportingPointsData)) {
-                for (var i = 0; i < reportingPointsData.length; i++) {
-                    if (reportingPointsData[i].name === "RISHON LEZION") {
-                        rishonData = reportingPointsData[i];
+            var searchPools = [];
+            if (typeof lsaPointsData !== 'undefined' && Array.isArray(lsaPointsData)) searchPools.push(lsaPointsData);
+            if (typeof cvfrPointsData !== 'undefined' && Array.isArray(cvfrPointsData)) searchPools.push(cvfrPointsData);
+            if (typeof reportingPointsData !== 'undefined' && Array.isArray(reportingPointsData)) searchPools.push(reportingPointsData);
+
+            for (var p = 0; p < searchPools.length && !rishonData; p++) {
+                var pool = searchPools[p];
+                for (var i = 0; i < pool.length; i++) {
+                    var pt = pool[i];
+                    if (pt.name === "LLRS" || pt.name_he === "ראשון לציון" || (pt.name && pt.name.indexOf("RISHON") !== -1)) {
+                        rishonData = pt;
                         break;
                     }
                 }
             }
+
             if (!rishonData) {
-                rishonData = { name: "RISHON LEZION", lat: 31.9667, lng: 34.8000, type: "VFR" };
+                rishonData = { name: "LLRS", name_he: "ראשון לציון", lat: 31.9675000, lng: 34.7536111, type: "on-request" };
             }
 
-            // Ensure reporting points are visible
-            if (!appState.reportingPointsVisible && typeof toggleReportingPoints === 'function') {
-                toggleReportingPoints();
+            // Ensure LSA and CVFR points are visible so LLRS marker is shown
+            if (!appState.lsaPointsVisible && typeof toggleLSAPoints === 'function') {
+                toggleLSAPoints();
+            }
+            if (!appState.cvfrPointsVisible && typeof toggleCVFRPoints === 'function') {
+                toggleCVFRPoints();
             }
 
             var rishonNominal = L.latLng(rishonData.lat, rishonData.lng);
 
-            // Pan to Rishon if off screen
-            if (!map.getBounds().contains(rishonNominal)) {
+            // Pan and zoom to Rishon LLRS if zoomed out or off-screen
+            if (map.getZoom() < 12) {
+                map.setView(rishonNominal, 12, { animate: true });
+            } else if (!map.getBounds().contains(rishonNominal)) {
                 map.panTo(rishonNominal, { animate: true });
             }
 
@@ -524,8 +537,8 @@
                 '  <div style="width:26px;height:26px;border:3px solid #e74c3c;border-radius:50%;background:rgba(231,76,60,0.3);box-shadow:0 0 14px #e74c3c;animation:rishonPulse 1.2s infinite alternate;"></div>' +
                 '  <div style="position:absolute;top:30px;background:rgba(0,0,0,0.85);color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);border:1px solid #e74c3c;text-align:center;">' +
                 (isHebrew
-                    ? '📍 נקודת ראשון לציון<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">לחץ על המפה במקום בו מודפסת הנקודה</span>'
-                    : '📍 Rishon reporting point<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">Click where it is printed on the map image</span>') +
+                    ? '📍 ראשון לציון (LLRS)<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">לחץ על המפה במקום בו מודפסת הנקודה</span>'
+                    : '📍 Rishon LeZion (LLRS)<br><span style="font-size:10px;font-weight:normal;color:#ffcccc;">Click where LLRS is printed on the map</span>') +
                 '  </div>' +
                 '</div>';
 
@@ -560,8 +573,8 @@
                 'font-size:13px;font-weight:600;display:flex;align-items:center;gap:14px;border:1px solid #2b6cb0;';
 
             var promptText = isHebrew
-                ? '🎯 הזזת המפה: לחץ על המפה במקום בו מודפסת נקודת ראשון לציון'
-                : '🎯 Move Map: Click on the map image where Rishon LeZion point is printed';
+                ? '🎯 הזזת המפה: לחץ על המפה במקום בו מודפסת נקודת ראשון לציון (LLRS - 31.9675°N, 34.7536°E)'
+                : '🎯 Move Map: Click on the map image where Rishon LeZion (LLRS - 31.9675°N, 34.7536°E) is printed';
 
             var resetBtnHtml = hasShift
                 ? '<button onclick="window.resetRishonAlignment()" style="padding:5px 12px;background:#e2e8f0;color:#2d3748;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">' +
@@ -597,8 +610,8 @@
                 window.cancelRishonAlignment(true);
 
                 window.showToast(isHebrew
-                    ? '✅ מפת הרקע הוזזה והותאמה לנקודת ראשון לציון!'
-                    : '✅ Map image moved and aligned to Rishon LeZion reporting point!');
+                    ? '✅ מפת הרקע הוזזה והותאמה לנקודת ראשון לציון (LLRS)!'
+                    : '✅ Map image moved and aligned to Rishon LeZion (LLRS) point!');
             };
 
             // Attach click listener after short timeout
