@@ -302,15 +302,16 @@
                 attribution: '© Google Maps'
             });
             
-            // Shared bounds for both chart overlays (North + South combined)
-            var chartBounds = [[29.5, 34.166667], [33.333333, 35.833333]];
+            // Shared bounds for chart overlays
+            var airNavBounds = [[29.275572, 34.088468], [33.434501, 36.001476]];
+            var azmCombinedBounds = [[29.132052, 34.079728], [33.425105, 35.998189]];
 
             // Air Nav Chart layer (image overlay on blank base)
             var airNavChart = L.layerGroup();
             var blankTilesAirNav = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel AIP Air Navigation Chart'
             });
-            var airNavOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned.jpg', chartBounds, {
+            var airNavOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned.jpg', airNavBounds, {
                 opacity: 1.0,
                 interactive: false
             });
@@ -322,7 +323,6 @@
             var blankTilesAzm = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel Civil Aviation Authority – AZM Low Level Chart'
             });
-            var azmCombinedBounds = [[29.122654, 34.080706], [33.423870, 35.997210]];
             var azmOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned_AZM.jpg', azmCombinedBounds, {
                 opacity: 1.0,
                 interactive: false
@@ -330,9 +330,11 @@
             azmChart.addLayer(blankTilesAzm);
             azmChart.addLayer(azmOverlay);
             
+            appState.airNavBounds = airNavBounds;
+            appState.airNavMapOverlay = airNavOverlay;
             appState.azmCombinedBounds = azmCombinedBounds;
             appState.azmMapOverlay = azmOverlay;
-            appState.chartBaseBounds = [[29.5, 34.166667], [33.333333, 35.833333]];
+            appState.chartBaseBounds = airNavBounds;
             appState.chartOverlays = {
                 'Air Nav Chart': airNavOverlay,
                 'AZM Chart': azmOverlay

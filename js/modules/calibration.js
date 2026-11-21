@@ -132,9 +132,13 @@
         try {
             var savedShifts = localStorage.getItem('flightplanner_chart_map_shifts');
             if (savedShifts) chartMapShifts = JSON.parse(savedShifts);
-            // Clear any stale legacy AZM Chart shift from prior sessions when new calibration is applied
-            if (chartMapShifts && chartMapShifts['AZM Chart'] && !chartMapShifts['AZM Chart'].qgis_final) {
+            // Clear any stale legacy chart shifts from prior sessions when new calibration is applied
+            if (chartMapShifts && chartMapShifts['AZM Chart'] && !chartMapShifts['AZM Chart'].qgis_final_v2) {
                 delete chartMapShifts['AZM Chart'];
+                localStorage.setItem('flightplanner_chart_map_shifts', JSON.stringify(chartMapShifts));
+            }
+            if (chartMapShifts && chartMapShifts['Air Nav Chart'] && !chartMapShifts['Air Nav Chart'].qgis_final_v2) {
+                delete chartMapShifts['Air Nav Chart'];
                 localStorage.setItem('flightplanner_chart_map_shifts', JSON.stringify(chartMapShifts));
             }
         } catch(e) {}
@@ -166,7 +170,9 @@
             if (typeof appState === 'undefined') return;
             mapName = mapName || appState.currentMapName;
             var shift = window.getChartMapShift(mapName);
-            var base = (mapName === 'AZM Chart' && appState.azmCombinedBounds) ? appState.azmCombinedBounds : (appState.chartBaseBounds || [[29.5, 34.166667], [33.333333, 35.833333]]);
+            var base = (mapName === 'AZM Chart' && appState.azmCombinedBounds) ? appState.azmCombinedBounds :
+                       (mapName === 'Air Nav Chart' && appState.airNavBounds) ? appState.airNavBounds :
+                       (appState.chartBaseBounds || [[29.275572, 34.088468], [33.434501, 36.001476]]);
             var shiftedBounds = [
                 [base[0][0] + shift.lat, base[0][1] + shift.lng],
                 [base[1][0] + shift.lat, base[1][1] + shift.lng]
@@ -268,7 +274,7 @@
         }
 
         var calibTransforms = {
-            'Air Nav Chart': fitAffineTransform(EMBEDDED_CALIBRATION['Air Nav Chart']),
+            'Air Nav Chart': null,
             'AZM Chart': null
         };
 
