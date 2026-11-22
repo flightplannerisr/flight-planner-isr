@@ -227,6 +227,17 @@
                 appState._drawClickCapture = function(e) {
                     if (!appState.isDrawing) return;
 
+                    // Ignore clicks on HUD toolbars, popovers, controls, or sidebar
+                    if (e.target && (
+                        e.target.closest('#mapHudToolbar') ||
+                        e.target.closest('#mapLayersPopover') ||
+                        e.target.closest('#topNavbar') ||
+                        e.target.closest('.sidebar') ||
+                        e.target.closest('.leaflet-control-container')
+                    )) {
+                        return;
+                    }
+
                     // Ignore if the press was an actual pan/drag (>600ms or moved >15px)
                     if (appState._drawDownTime) {
                         var elapsed = Date.now() - appState._drawDownTime;

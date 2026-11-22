@@ -563,6 +563,16 @@
                 if (!appState.isDrawing) return;
                 if (appState._drawClickHandled) { appState._drawClickHandled = false; return; }
 
+                // Ignore if clicked on floating toolbar or controls
+                if (e.originalEvent && e.originalEvent.target && (
+                    e.originalEvent.target.closest('#mapHudToolbar') ||
+                    e.originalEvent.target.closest('#mapLayersPopover') ||
+                    e.originalEvent.target.closest('#topNavbar') ||
+                    e.originalEvent.target.closest('.sidebar')
+                )) {
+                    return;
+                }
+
                 var clickPt = appState.map.latLngToContainerPoint(e.latlng);
                 var navPoint = (typeof findNearbyNavPoint === 'function') ? findNearbyNavPoint(clickPt, e.originalEvent) : null;
                 if (navPoint) {
@@ -603,6 +613,20 @@
             if (typeof updateAlignButtonUI === 'function') {
                 updateAlignButtonUI();
             }
+
+            // Prevent clicks and touch events on floating HUD overlays from bubbling to the map
+            var hudElements = ['mapHudToolbar', 'mapLayersPopover'];
+            hudElements.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) {
+                    L.DomEvent.disableClickPropagation(el);
+                    L.DomEvent.disableScrollPropagation(el);
+                    el.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+                    el.addEventListener('click', function(e) { e.stopPropagation(); });
+                    el.addEventListener('touchstart', function(e) { e.stopPropagation(); });
+                    el.addEventListener('touchend', function(e) { e.stopPropagation(); });
+                }
+            });
         }
 
         function initAirspaceZones() {
