@@ -1,6 +1,4 @@
 docker-compose.override.yml
-*.geojson
-israel_reporting_points.json
 .DS_Store
 *.swp
 *~
