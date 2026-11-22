@@ -3,18 +3,309 @@
         .projection-warning-visible .leaflet-top { margin-top: 42px !important; }
         .azm-warning-visible .leaflet-top { margin-top: 42px !important; }
         .leaflet-top { transition: margin-top 0.2s; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100vh; background: #f5f5f5; }
-        .container { display: flex; height: 100vh; overflow: hidden; }
-        #map { flex: 1; height: 100%; touch-action: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100vh; background: #f5f5f5; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Sidebar */
-        .sidebar { width: 350px; background: white; box-shadow: -2px 0 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow-y: auto; }
-        .panel { padding: 1.5rem; border-bottom: 1px solid #e0e0e0; }
-        .panel h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #333; }
+        /* ── Top Navigation Bar ─────────────────────────────────────────── */
+        .top-navbar {
+            height: 48px;
+            background: #1a252f;
+            color: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            z-index: 1050;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            flex-shrink: 0;
+            gap: 12px;
+        }
+        .top-navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            color: #fff;
+            white-space: nowrap;
+        }
+        .top-navbar-brand span.ver {
+            font-size: 10px;
+            opacity: 0.65;
+            background: rgba(255,255,255,0.15);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .top-navbar-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            max-width: 420px;
+        }
+        .top-navbar-plan-name {
+            width: 100%;
+            height: 32px;
+            background: #2c3e50;
+            border: 1px solid #4a627a;
+            border-radius: 5px;
+            color: #fff;
+            padding: 0 10px;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .top-navbar-plan-name:focus {
+            border-color: #3498db;
+            background: #283747;
+        }
+        .top-navbar-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.08);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .top-navbar-stats .stat-item {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
+        .top-navbar-stats .stat-item strong {
+            color: #5bc0de;
+            font-size: 13px;
+        }
+        .top-navbar-stats .sep {
+            opacity: 0.35;
+        }
+        .top-navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .top-btn {
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 5px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .top-btn-primary { background: #28a745; color: #fff; }
+        .top-btn-primary:hover { background: #218838; }
+        .top-btn-info { background: #0066cc; color: #fff; }
+        .top-btn-info:hover { background: #0052a3; }
+        .top-btn-subtle { background: rgba(255,255,255,0.12); color: #ecf0f1; border: 1px solid rgba(255,255,255,0.2); }
+        .top-btn-subtle:hover { background: rgba(255,255,255,0.22); color: #fff; }
+        .top-btn-icon-only { padding: 0 9px; }
+
+        .container { display: flex; flex: 1; height: calc(100vh - 48px); overflow: hidden; position: relative; }
+        #map { flex: 1; height: 100%; touch-action: none; position: relative; }
+        
+        /* ── Floating Map HUDs ─────────────────────────────────────────── */
+        .map-hud-toolbar {
+            position: absolute;
+            top: 12px;
+            left: 55px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(4px);
+            padding: 5px 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+            border: 1px solid rgba(0,0,0,0.12);
+        }
+        .map-hud-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #d0d7de;
+            background: #fff;
+            color: #24292f;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+        .map-hud-btn:hover {
+            background: #f3f4f6;
+            border-color: #bbb;
+        }
+        .map-hud-btn.active {
+            background: #0066cc;
+            color: #fff;
+            border-color: #0052a3;
+        }
+        .map-hud-divider {
+            width: 1px;
+            height: 20px;
+            background: #e1e4e8;
+            margin: 0 2px;
+        }
+
+        /* Map Layers Popover */
+        .map-layers-popover {
+            display: none;
+            position: absolute;
+            top: 52px;
+            left: 55px;
+            z-index: 1001;
+            background: #fff;
+            width: 290px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border: 1px solid #d0d7de;
+            padding: 12px 14px;
+        }
+        .map-layers-popover.open { display: block; }
+        .map-layers-popover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #eaecef;
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+        }
+        .map-layers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        /* ── Sidebar (Tabbed) ─────────────────────────────────────────── */
+        .sidebar {
+            width: 380px;
+            background: #ffffff;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            position: relative;
+            flex-shrink: 0;
+            transition: transform 0.2s ease, width 0.2s ease;
+        }
+        .sidebar.collapsed {
+            display: none !important;
+        }
+        
+        /* Tab Bar */
+        .sidebar-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            flex-shrink: 0;
+        }
+        .sidebar-tab {
+            flex: 1;
+            padding: 10px 4px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        .sidebar-tab:hover {
+            color: #0066cc;
+            background: #f1f3f5;
+        }
+        .sidebar-tab.active {
+            color: #0066cc;
+            background: #fff;
+            border-bottom-color: #0066cc;
+        }
+        .sidebar-tab .tab-icon {
+            font-size: 15px;
+        }
+
+        /* Tab Content Area */
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        .tab-page {
+            display: none;
+            padding: 14px;
+        }
+        .tab-page.active {
+            display: block;
+        }
+
+        /* Accordions in Display Tab */
+        .sub-accordion {
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .sub-accordion-header {
+            padding: 9px 12px;
+            background: #f6f8fa;
+            font-size: 12px;
+            font-weight: 700;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .sub-accordion-header:hover {
+            background: #edf0f3;
+        }
+        .sub-accordion-body {
+            padding: 12px;
+            display: none;
+            background: #fff;
+            border-top: 1px solid #e1e4e8;
+        }
+        .sub-accordion.open .sub-accordion-body {
+            display: block;
+        }
+        .sub-accordion-arrow {
+            font-size: 10px;
+            transition: transform 0.2s ease;
+        }
+        .sub-accordion.open .sub-accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .panel { padding: 1.25rem 0.5rem; border-bottom: 1px solid #e0e0e0; }
+        .panel:last-child { border-bottom: none; }
+        .panel h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.85rem; color: #333; }
         
         /* Buttons */
-        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
-        button { padding: 0.625rem 1rem; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; }
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.85rem; }
+        button { padding: 0.55rem 0.85rem; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; }
         .btn-primary { background: #0066cc; color: white; }
         .btn-primary:hover { background: #0052a3; }
         .btn-secondary { background: #f0f0f0; color: #333; }
