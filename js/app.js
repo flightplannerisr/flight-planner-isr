@@ -227,6 +227,17 @@
                 appState._drawClickCapture = function(e) {
                     if (!appState.isDrawing) return;
 
+                    // Ignore clicks on HUD toolbars, popovers, controls, or sidebar
+                    if (e.target && (
+                        e.target.closest('#mapHudToolbar') ||
+                        e.target.closest('#mapLayersPopover') ||
+                        e.target.closest('#topNavbar') ||
+                        e.target.closest('.sidebar') ||
+                        e.target.closest('.leaflet-control-container')
+                    )) {
+                        return;
+                    }
+
                     // Ignore if the press was an actual pan/drag (>600ms or moved >15px)
                     if (appState._drawDownTime) {
                         var elapsed = Date.now() - appState._drawDownTime;
@@ -371,29 +382,90 @@
             }
         }
         
+        function switchSidebarTab(tabId) {
+            var tabs = document.querySelectorAll('.sidebar-tab');
+            var pages = document.querySelectorAll('.tab-page');
+            tabs.forEach(function(t) {
+                if (t.getAttribute('data-tab') === tabId) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            pages.forEach(function(p) {
+                if (p.id === tabId) {
+                    p.classList.add('active');
+                } else {
+                    p.classList.remove('active');
+                }
+            });
+            // Ensure sidebar is visible when switching tabs
+            var sidebar = document.querySelector('.sidebar');
+            if (sidebar && sidebar.classList.contains('collapsed')) {
+                toggleSidebar();
+            }
+        }
+        window.switchSidebarTab = switchSidebarTab;
+
+        function toggleSubAccordion(accId) {
+            var el = document.getElementById(accId);
+            if (el) {
+                el.classList.toggle('open');
+            }
+        }
+        window.toggleSubAccordion = toggleSubAccordion;
+
+        function toggleLayersPopover(forceState) {
+            var popover = document.getElementById('mapLayersPopover');
+            var btn = document.getElementById('mapLayersDropdownBtn');
+            if (!popover) return;
+            var shouldOpen = (forceState !== undefined) ? forceState : (popover.style.display !== 'block');
+            popover.style.display = shouldOpen ? 'block' : 'none';
+            if (btn) {
+                if (shouldOpen) btn.classList.add('active');
+                else btn.classList.remove('active');
+            }
+        }
+        window.toggleLayersPopover = toggleLayersPopover;
+
+        // Close layers popover if clicking outside
+        document.addEventListener('click', function(e) {
+            var popover = document.getElementById('mapLayersPopover');
+            var btn = document.getElementById('mapLayersDropdownBtn');
+            if (popover && popover.style.display === 'block') {
+                if (!popover.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                    popover.style.display = 'none';
+                    if (btn) btn.classList.remove('active');
+                }
+            }
+        });
+
         function toggleSidebar() {
             var sidebar = document.querySelector('.sidebar');
             var showBtn = document.getElementById('showSidebarBtn');
+            if (!sidebar) return;
             
-            if (sidebar.style.display === 'none') {
-                // Show sidebar
+            var isHidden = sidebar.style.display === 'none' || sidebar.classList.contains('collapsed');
+            if (isHidden) {
                 sidebar.style.display = 'flex';
+                sidebar.classList.remove('collapsed');
                 if (showBtn) showBtn.style.display = 'none';
             } else {
-                // Hide sidebar
                 sidebar.style.display = 'none';
-                
-                // Create or show the "Show Menu" button
+                sidebar.classList.add('collapsed');
                 if (!showBtn) {
                     showBtn = document.createElement('button');
                     showBtn.id = 'showSidebarBtn';
                     showBtn.textContent = 'Show Menu (M)';
                     showBtn.onclick = toggleSidebar;
-                    showBtn.style.cssText = 'position: fixed; top: 10px; left: 10px; z-index: 1000; padding: 10px 15px; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3);';
+                    showBtn.style.cssText = 'position: fixed; top: 58px; right: 12px; z-index: 1000; padding: 8px 14px; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-size: 12px;';
                     document.body.appendChild(showBtn);
                 } else {
                     showBtn.style.display = 'block';
                 }
+            }
+            if (appState.map) {
+                setTimeout(function() { appState.map.invalidateSize({ animate: false }); }, 150);
             }
         }
         
@@ -491,9 +563,9 @@
             var fuelLabel = document.querySelector('label[for="fuelFlow"]');
             if (fuelLabel) fuelLabel.textContent = t.fuelFlow;
             
-            // Update Display Settings panel
+            // Update Display Settings panel if present
             var displaySettingsBtn = document.getElementById('toggleDisplaySettingsBtn');
-            if (displaySettingsBtn) {
+            if (displaySettingsBtn && document.getElementById('displaySettingsArrow')) {
                 var arrow = document.getElementById('displaySettingsArrow').textContent;
                 displaySettingsBtn.innerHTML = '<span>⚙️ ' + t.displaySettings + '</span><span id="displaySettingsArrow">' + arrow + '</span>';
             }

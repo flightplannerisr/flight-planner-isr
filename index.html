@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 
     <!-- Application Styles -->
-    <link rel="stylesheet" href="css/styles.css?v=20261122c" />
+    <link rel="stylesheet" href="css/styles.css?v=20261122h" />
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y00XWHR1MD"></script>
@@ -22,9 +22,77 @@
     </script>
 </head>
 <body>
+    <!-- Top Global Command & Navigation Bar -->
+    <header class="top-navbar" id="topNavbar">
+        <div class="top-navbar-brand">
+            <span style="font-size: 18px;">🛩️</span>
+            <span>Israel Flight Planner</span>
+            <span class="ver">v3.8</span>
+        </div>
+
+        <div class="top-navbar-center">
+            <input type="text" id="plan-name" class="top-navbar-plan-name" placeholder="Enter flight plan name..." title="Flight Plan Name">
+            <div class="top-navbar-stats" id="topStatsBar" title="Route Summary">
+                <div class="stat-item"><span style="opacity:0.75;">Dist:</span> <strong id="topStatDist">0.0 nm</strong></div>
+                <span class="sep">|</span>
+                <div class="stat-item"><span style="opacity:0.75;">ETE:</span> <strong id="topStatTime">0h 0m</strong></div>
+                <span class="sep">|</span>
+                <div class="stat-item"><span style="opacity:0.75;">Fuel:</span> <strong id="topStatFuel">0.0 L</strong></div>
+            </div>
+        </div>
+
+        <div class="top-navbar-actions">
+            <button class="top-btn top-btn-primary" id="saveBtn" title="Save Flight Plan to Local Storage / Folder">💾 <span class="btn-txt">Save</span></button>
+            <button class="top-btn top-btn-info" id="screenshotBtn" title="Print or Export Flight Map (A4 / A3 / A5 / Rotated / Multi-Page)">🖨️ <span class="btn-txt">Print / PDF</span></button>
+            <button class="top-btn top-btn-subtle" id="languageToggleBtn" onclick="toggleLanguage()" title="Switch Language (English / Hebrew)">EN / עב</button>
+            <button class="top-btn top-btn-subtle top-btn-icon-only" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle Sidebar (M)">◨</button>
+        </div>
+    </header>
+
     <div class="container">
+        <!-- Floating Map Actions HUD -->
+        <div class="map-hud-toolbar" id="mapHudToolbar">
+            <button class="map-hud-btn" id="toggleDrawBtn" title="Click to start drawing flight route (ESC to stop)">✏️ Start Drawing</button>
+            <button class="map-hud-btn" id="addHighlightCircleBtn" onclick="startAddingHighlightCircle()" title="Add standalone red highlight circle">🔴 Circle</button>
+            <button class="map-hud-btn" id="addTextBoxBtn2" title="Add customizable text label box on map">🔤 Text Box</button>
+            <div class="map-hud-divider"></div>
+            <button class="map-hud-btn" id="reverseRouteBtn" title="Reverse entire route direction">⟲ Reverse</button>
+            <button class="map-hud-btn" id="coordModeBtn" onclick="toggleCoordDisplayMode()" title="Toggle cursor coordinate inspection">🧭 Coords</button>
+            <div class="map-hud-divider"></div>
+            <button class="map-hud-btn" id="mapLayersDropdownBtn" onclick="toggleLayersPopover()" title="Toggle airspace, reporting points, airstrips, etc.">🗺️ Layers ▾</button>
+            <button class="map-hud-btn" id="clearBtn" style="color:#c53030;" title="Clear entire route and waypoints">✕ Clear</button>
+        </div>
+
+        <!-- Floating Map Layers Popover Menu -->
+        <div class="map-layers-popover" id="mapLayersPopover">
+            <div class="map-layers-popover-header">
+                <span>🗺️ Map Overlays & Layers</span>
+                <span onclick="toggleLayersPopover(false)" style="cursor:pointer;opacity:0.6;font-size:16px;">✕</span>
+            </div>
+            <div class="map-layers-grid">
+                <button class="btn-secondary" id="airspaceToggleBtn" style="font-size:11px;padding:6px 7px;">Show Airspace</button>
+                <button class="btn-secondary" id="ctrToggleBtn" style="font-size:11px;padding:6px 7px;">Show CTRs</button>
+                <button class="btn-primary"   id="lsaPointsToggleBtn" onclick="toggleLSAPoints()" style="font-size:11px;padding:6px 7px;">Hide LSA</button>
+                <button class="btn-secondary" id="cvfrPointsToggleBtn" onclick="toggleCVFRPoints()" style="font-size:11px;padding:6px 7px;">Show CVFR</button>
+                <button class="btn-secondary" id="reportingPointsToggleBtn" onclick="toggleReportingPoints()" style="font-size:11px;padding:6px 7px;">Show Reporting</button>
+                <button class="btn-secondary" id="frequenciesToggleBtn" onclick="toggleFrequencies()" style="font-size:11px;padding:6px 7px;">Show Frequencies</button>
+                <button class="btn-primary"   id="waypointLabelsToggleBtn" onclick="toggleWaypointLabels()" style="font-size:11px;padding:6px 7px;">Hide WP Labels</button>
+                <button class="btn-secondary" id="driftLinesToggleBtn" onclick="toggleDriftLines()" style="font-size:11px;padding:6px 7px;">Show Drift Lines</button>
+                <button class="btn-secondary" id="legDistanceToggleBtn" onclick="toggleLegDistance()" style="font-size:11px;padding:6px 7px;">Show Distance (NM)</button>
+                <button class="btn-primary"   id="airstripsToggleBtn" onclick="toggleAirstrips()" style="font-size:11px;padding:6px 7px;">Hide Airstrips</button>
+            </div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;display:flex;gap:6px;">
+                <button class="btn-secondary" id="alignRishonBtn" onclick="toggleRishonAlignmentMode()" style="flex:1.5;font-size:10px;padding:6px 4px;background:#f0f7ff;border:1px solid #0066cc;color:#0066cc;font-weight:600;">🎯 Align Map</button>
+                <button class="btn-secondary" id="resetAlignBtn" onclick="resetRishonAlignment()" style="flex:1;font-size:10px;padding:6px 4px;background:#fff5f5;border:1px solid #e53e3e;color:#c53030;font-weight:600;" title="Reset map alignment to default">↩ Reset</button>
+            </div>
+            <div id="airspaceNotice" style="display:none;margin-top:8px;padding:5px 7px;background:#fff8e1;border:1px solid #ffe082;border-radius:4px;font-size:10px;line-height:1.3;color:#5d4037;">
+                ⚠️ <span id="airspaceNoticeText">Restricted & prohibited areas valid for AIP 26A. Check official sources.</span>
+            </div>
+        </div>
+
         <div id="map"></div>
-        <div id="azmWarning" style="display:none; position:fixed; top:0; left:0; right:0; z-index:10001; background:#c0392b; color:white; font-weight:600; font-size:13px; text-align:center; padding:8px 40px 8px 16px; box-shadow:0 2px 6px rgba(0,0,0,0.4);">
+
+        <div id="azmWarning" style="display:none; position:fixed; top:48px; left:0; right:0; z-index:10001; background:#c0392b; color:white; font-weight:600; font-size:13px; text-align:center; padding:8px 40px 8px 16px; box-shadow:0 2px 6px rgba(0,0,0,0.4);">
             ⚠️ AZM Map Notice: Route distances and headings are currently inaccurate due to projection differences — fix in progress.
             <span onclick="window._azmWarningDismissed=true; document.getElementById('azmWarning').style.display='none'; document.getElementById('map').classList.remove('azm-warning-visible');" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:18px; line-height:1; opacity:0.85;">✕</span>
         </div>
@@ -34,421 +102,296 @@
             <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:8px;font-weight:600;color:#0066cc;letter-spacing:0.2px;opacity:0.8;">ISR Flight Planner - by Yossi Hadad</span>
         </div>
         
-        <div class="sidebar">
-            <div class="panel" style="background: linear-gradient(135deg, #0066cc 0%, #004999 100%); color: white; text-align: center; padding: 1.5rem; position: relative;">
-                <h1 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; color: white;">🛩️ Israel Flight Planner <span style="font-size: 0.9rem; opacity: 0.8;">v3.7</span></h1>
-                <p style="margin: 0; font-size: 0.875rem; opacity: 0.95;">Click on map to add waypoints</p>
-            </div>
-            
-            <div class="panel">
-                <h2>Flight Controls</h2>
-                <div class="button-group">
-                    <button class="btn-primary" id="toggleDrawBtn">Start Drawing</button>
-                    <button class="btn-secondary" id="clearBtn">Clear Route</button>
-                </div>
-                <div class="button-group">
-                    <button class="btn-secondary" id="addTextBoxBtn2">Add Text Box</button>
-                    <button class="btn-secondary" id="addHighlightCircleBtn" onclick="startAddingHighlightCircle()" style="font-weight: 600;"><span class="translate" data-key="addHighlightCircle">🔴 Add Red Circle</span></button>
-                </div>
-                <div class="button-group">
-                    <button class="btn-secondary" id="reverseRouteBtn">Reverse Route</button>
-                    <button class="btn-secondary" id="coordModeBtn" onclick="toggleCoordDisplayMode()"><span class="translate" data-key="showCoordinates">Show Coords</span></button>
-                </div>
-                <div class="button-group">
-                    <button class="btn-secondary" id="addCoordBtn" style="width: 100%;">Add by Coords</button>
-                </div>
-                <div class="button-group">
-                    <button class="btn-secondary" id="toggleDirectionBtn" style="display: none;">Show Return</button>
-                </div>
-                
-                <!-- Map Layers Subsection - Compact Layout -->
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                    <h3 style="font-size: 13px; margin: 0 0 8px 0; color: #666; font-weight: 600;">Map Layers</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                        <button class="btn-secondary" id="airspaceToggleBtn" style="font-size: 11px; padding: 6px 8px;">Show Airspace</button>
-                        <button class="btn-secondary" id="ctrToggleBtn" style="font-size: 11px; padding: 6px 8px;">Show CTRs</button>
-                        <button class="btn-primary"   id="lsaPointsToggleBtn" onclick="toggleLSAPoints()" style="font-size: 11px; padding: 6px 8px;">Hide LSA</button>
-                        <button class="btn-secondary" id="cvfrPointsToggleBtn" onclick="toggleCVFRPoints()" style="font-size: 11px; padding: 6px 8px;">Show CVFR</button>
-                        <button class="btn-secondary" id="reportingPointsToggleBtn" onclick="toggleReportingPoints()" style="font-size: 11px; padding: 6px 8px;">Show Reporting</button>
-                        <button class="btn-secondary" id="frequenciesToggleBtn" onclick="toggleFrequencies()" style="font-size: 11px; padding: 6px 8px;">Show Frequencies</button>
-                        <button class="btn-primary"   id="waypointLabelsToggleBtn" onclick="toggleWaypointLabels()" style="font-size: 11px; padding: 6px 8px;">Hide WP Labels</button>
-                        <button class="btn-secondary"  id="driftLinesToggleBtn" onclick="toggleDriftLines()" style="font-size: 11px; padding: 6px 8px;">Show Drift Lines</button>
-                        <button class="btn-secondary" id="legDistanceToggleBtn" onclick="toggleLegDistance()" style="font-size: 11px; padding: 6px 8px;">Show Distance (NM)</button>
-                        <button class="btn-primary"   id="airstripsToggleBtn" onclick="toggleAirstrips()" style="font-size: 11px; padding: 6px 8px;">Hide Airstrips</button>
-                        <div style="grid-column: 1 / -1; display: flex; gap: 6px;">
-                            <button class="btn-secondary" id="alignRishonBtn" onclick="toggleRishonAlignmentMode()" style="flex: 1.5; font-size: 11px; padding: 7px 6px; background: #f0f7ff; border: 1px solid #0066cc; color: #0066cc; font-weight: 600;">🎯 Align Map (LLRS / BOVED / NSHRM)</button>
-                            <button class="btn-secondary" id="resetAlignBtn" onclick="resetRishonAlignment()" style="flex: 1; font-size: 11px; padding: 7px 6px; background: #fff5f5; border: 1px solid #e53e3e; color: #c53030; font-weight: 600;" title="Reset map alignment to default">↩ Reset Alignment</button>
-                        </div>
-                    </div>
-                    <div id="airspaceNotice" style="display: none; margin-top: 8px; padding: 6px 9px; background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px; font-size: 11px; line-height: 1.35; color: #5d4037;">
-                        <span style="margin-inline-end: 4px;">⚠️</span><span id="airspaceNoticeText">Restricted and prohibited area coordinates are valid for AIP 26A. If a newer AIP is published, please double-check with official sources.</span>
-                    </div>
-                </div>
-                
-                <!-- Export Subsection -->
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                    <h3 style="font-size: 13px; margin: 0 0 8px 0; color: #666; font-weight: 600;">Export</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-                        <button class="btn-secondary" id="screenshotBtn" style="font-size: 11px; padding: 6px 8px;">Save Map Image</button>
-                        <button class="btn-secondary" id="printDetailsBtn" style="font-size: 11px; padding: 6px 8px;">Print Route Info</button>
-                        <button class="btn-secondary" id="exportGPXBtn" style="font-size: 11px; padding: 6px 8px; grid-column: 1 / -1;">Export GPX</button>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label for="cruiseSpeed" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                        Cruise Speed (knots)
-                    </label>
-                    <input type="number" id="cruiseSpeed" min="50" max="500" value="90" step="5" 
-                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.875rem;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="defaultAltitude" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                        Default Altitude (ft)
-                    </label>
-                    <input type="number" id="defaultAltitude" min="0" max="50000" value="400" step="100"
-                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.875rem;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="fuelFlow" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                        Fuel Flow (L/hr)
-                    </label>
-                    <input type="number" id="fuelFlow" min="1" max="200" value="17" step="1" 
-                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.875rem;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="magVar" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                        Magnetic Variation (°)
-                    </label>
-                    <input type="number" id="magVar" min="-30" max="30" value="-5" step="0.5"
-                           style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.875rem;">
-                </div>
-                
-                <!-- Collapsible Display Settings -->
-                <div style="margin-top: 1.5rem; border-top: 1px solid #e0e0e0; padding-top: 1rem;">
-                    <button id="toggleDisplaySettingsBtn" onclick="toggleDisplaySettings()" style="width: 100%; padding: 10px; background: #f0f0f0; color: #333; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-align: left; display: flex; justify-content: space-between; align-items: center;">
-                        <span>⚙️ Display Settings</span>
-                        <span id="displaySettingsArrow">▼</span>
-                    </button>
-                    <div id="displaySettingsPanel" style="display: none; margin-top: 1rem;">
-                        <div style="margin-bottom: 1rem;">
-                            <label for="lineWidth" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Line Width: <strong><span id="lineWidthValue">4</span>px</strong>
-                            </label>
-                            <input type="range" id="lineWidth" min="1" max="10" value="4" step="1" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>1px</span>
-                                <span>5px</span>
-                                <span>10px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="circleRadius" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Waypoint Circle Radius: <strong><span id="radiusValue">0.3</span> nm</strong>
-                            </label>
-                            <input type="range" id="circleRadius" min="0" max="50" value="3" step="1" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>0 nm</span>
-                                <span>2.5 nm</span>
-                                <span>5 nm</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="circleOpacity" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Waypoint Circle Opacity: <strong><span id="circleOpacityValue">20</span>%</strong>
-                            </label>
-                            <input type="range" id="circleOpacity" min="0" max="100" value="20" step="5"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>0%</span>
-                                <span>50%</span>
-                                <span>100%</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="highlightCircleRadius" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                <span class="translate" data-key="highlightCircleRadius">Highlight Circle Radius</span>: <strong><span id="highlightRadiusValue">0.5</span> nm</strong>
-                            </label>
-                            <input type="range" id="highlightCircleRadius" min="1" max="50" value="5" step="1" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>0.1 nm</span>
-                                <span>2.5 nm</span>
-                                <span>5.0 nm</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="highlightCircleOpacity" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                <span class="translate" data-key="highlightCircleOpacity">Highlight Circle Opacity</span>: <strong><span id="highlightOpacityValue">25</span>%</strong>
-                            </label>
-                            <input type="range" id="highlightCircleOpacity" min="0" max="100" value="25" step="5"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>0%</span>
-                                <span>50%</span>
-                                <span>100%</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="labelFontSize" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Time Label Font Size: <strong><span id="fontSizeValue">15</span>px</strong>
-                            </label>
-                            <input type="range" id="labelFontSize" min="8" max="20" value="15" step="1" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>8px</span>
-                                <span>14px</span>
-                                <span>20px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="tickInterval" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Time Tick Interval: <strong>every <span id="tickIntervalValue">1</span> min</strong>
-                            </label>
-                            <input type="range" id="tickInterval" min="1" max="10" value="1" step="1"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>1 min</span>
-                                <span>5 min</span>
-                                <span>10 min</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="labelInterval" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Time Label Interval: <strong>every <span id="labelIntervalValue">1</span> min</strong>
-                            </label>
-                            <input type="range" id="labelInterval" min="1" max="10" value="1" step="1"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>1 min</span>
-                                <span>5 min</span>
-                                <span>10 min</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="arrivalLabelFontSize" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Leg Time Font Size: <strong><span id="arrivalLabelFontSizeValue">9</span>px</strong>
-                            </label>
-                            <input type="range" id="arrivalLabelFontSize" min="6" max="18" value="9" step="1"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>6px</span>
-                                <span>12px</span>
-                                <span>18px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="waypointLabelFontSize" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Waypoint Name Font Size: <strong><span id="waypointLabelFontSizeValue">11</span>px</strong>
-                            </label>
-                            <input type="range" id="waypointLabelFontSize" min="6" max="24" value="11" step="1"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>6px</span>
-                                <span>15px</span>
-                                <span>24px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="infoBoxFontSize" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Route Info Font Size: <strong><span id="infoBoxFontSizeValue">18</span>px</strong>
-                            </label>
-                            <input type="range" id="infoBoxFontSize" min="6" max="24" value="18" step="1" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>6px</span>
-                                <span>15px</span>
-                                <span>24px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="infoBoxSize" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Route Info Box Size: <strong><span id="infoBoxSizeValue">120</span>%</strong>
-                            </label>
-                            <input type="range" id="infoBoxSize" min="50" max="200" value="120" step="5" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>50%</span>
-                                <span>125%</span>
-                                <span>200%</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="textBoxFontSize" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Text Box Font Size: <strong><span id="textBoxFontSizeValue">14</span>px</strong>
-                            </label>
-                            <input type="range" id="textBoxFontSize" min="8" max="32" value="14" step="1" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>8px</span>
-                                <span>20px</span>
-                                <span>32px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="infoBoxOpacity" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Info Box Opacity: <strong><span id="opacityValue">70</span>%</strong>
-                            </label>
-                            <input type="range" id="infoBoxOpacity" min="0" max="100" value="70" step="5" 
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>0%</span>
-                                <span>50%</span>
-                                <span>100%</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="miniWpLabelOpacity" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Mini WP Label Opacity: <strong><span id="miniWpOpacityValue">70</span>%</strong>
-                            </label>
-                            <input type="range" id="miniWpLabelOpacity" min="0" max="100" value="70" step="5"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>0%</span>
-                                <span>50%</span>
-                                <span>100%</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="driftColor" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Drift Line Color
-                            </label>
-                            <input type="color" id="driftColor" value="#cc6600"
-                                   style="width: 100%; height: 32px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; padding: 2px;">
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="driftWidth" style="display: block; font-size: 0.875rem; color: #666; margin-bottom: 0.5rem;">
-                                Drift Line Width: <strong><span id="driftWidthValue">2</span>px</strong>
-                            </label>
-                            <input type="range" id="driftWidth" min="1" max="8" value="2" step="1"
-                                   style="width: 100%; cursor: pointer;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #999; margin-top: 0.25rem;">
-                                <span>1px</span>
-                                <span>4px</span>
-                                <span>8px</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 0.5rem;">
-                            <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;color:#666;cursor:pointer;">
-                                <input type="checkbox" id="lsaClipToCircles" style="cursor:pointer;">
-                                Hide LSA points inside waypoint circles
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="info-box">
-                    Click "Start Drawing", then click on the map to add waypoints. After first waypoint, move cursor to preview next leg.
-                </div>
-            </div>
-            
-            <div class="panel">
-                <h2 style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>Waypoints (<span id="waypoint-count">0</span>)</span>
-                    <button id="toggleWaypointsBtn" style="padding: 4px 12px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Show</button>
-                </h2>
-                <div class="waypoints-list" id="waypoints-list" style="display: none;">
-                    <div style="text-align: center; color: #999; padding: 1rem;">
-                        No waypoints yet. Click on the map to start.
-                    </div>
-                </div>
-                <button onclick="openImportWaypointDialog()" class="btn-secondary" style="width:100%;margin-top:8px;font-size:12px;padding:6px 8px;">📍 Add from Saved Waypoints</button>
-            </div>
-            
-            <div class="panel">
-                <h2>Flight Statistics</h2>
-                <div class="stats" id="stats">
-                    <div class="stat-card">
-                        <div class="stat-label">Total Distance</div>
-                        <div class="stat-value">0.0 nm</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Time</div>
-                        <div class="stat-value">0h 0m</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Fuel Required</div>
-                        <div class="stat-value" id="fuel-required">0.0 L</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Number of Legs</div>
-                        <div class="stat-value">0</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="panel save-panel">
-                <h2>Display Settings File</h2>
-                <div style="display:flex;gap:6px;margin-bottom:6px;">
-                    <button class="btn-primary"   style="font-size:11px;padding:5px 8px;flex:1;" onclick="saveSettingsFile()">💾 Save Settings</button>
-                    <button class="btn-secondary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="loadSettingsFile()">📂 Load Settings</button>
-                </div>
-                <button class="btn-secondary" style="font-size:11px;padding:5px 8px;width:100%;" onclick="revertSettings()">↩️ Revert to Defaults</button>
-                <div id="settingsStatusMsg" style="margin-top:6px;font-size:11px;color:#28a745;display:none;"></div>
+        <!-- Categorized Tabbed Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- 4 Modern Workflow Tabs -->
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="tab-route" onclick="switchSidebarTab('tab-route')">
+                    <span class="tab-icon">✈️</span>
+                    <span>Route</span>
+                </button>
+                <button class="sidebar-tab" data-tab="tab-aircraft" onclick="switchSidebarTab('tab-aircraft')">
+                    <span class="tab-icon">🛩️</span>
+                    <span>Aircraft</span>
+                </button>
+                <button class="sidebar-tab" data-tab="tab-display" onclick="switchSidebarTab('tab-display')">
+                    <span class="tab-icon">🎨</span>
+                    <span>Display</span>
+                </button>
+                <button class="sidebar-tab" data-tab="tab-plans" onclick="switchSidebarTab('tab-plans')">
+                    <span class="tab-icon">📁</span>
+                    <span>Plans</span>
+                </button>
             </div>
 
-            <div class="panel save-panel">
-                <h2>Save Flight Plan</h2>
-                <div id="folderPathDisplay" style="font-size:11px;color:#666;margin-bottom:8px;padding:5px 8px;background:#f0f4ff;border-radius:4px;border:1px solid #cce;display:none;">
-                    📁 <span id="folderPathText"></span>
-                </div>
-                <div style="display:flex;gap:6px;margin-bottom:8px;">
-                    <button class="btn-secondary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="selectWorkingFolder()">📂 Set Folder</button>
-                    <button class="btn-secondary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="loadPlansFromFolder()">🔄 Refresh</button>
-                </div>
-                <input type="text" id="plan-name" placeholder="Enter flight plan name...">
-                <button class="btn-primary" style="width: 100%;" id="saveBtn">💾 Save Plan</button>
-                <div style="display:flex;gap:6px;margin-top:6px;">
-                    <button class="btn-secondary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="exportPlanFile()" title="Download flight plan as a .json file">⬇️ Export File</button>
-                    <button class="btn-secondary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="importPlanFile()" title="Load flight plan from a .json file">⬆️ Import File</button>
-                </div>
-                <input type="file" id="importPlanFileInput" accept=".json" style="display:none;" onchange="handleImportPlanFile(this)">
-                <div class="saved-plans" id="saved-plans"></div>
-            </div>
-            
-            <div class="panel" style="background: #f8f9fa; border-top: 2px solid #0066cc;">
-                <h3 style="margin: 0 0 1rem 0; font-size: 0.875rem; color: #333; font-weight: 600;">⌨️ Keyboard Shortcuts</h3>
-                <div style="font-size: 0.75rem; color: #666; line-height: 1.8;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span><strong>ESC</strong></span>
-                        <span>Stop Drawing</span>
+            <!-- Tab Content Area -->
+            <div class="sidebar-content">
+                <!-- 1. ROUTE TAB -->
+                <div class="tab-page active" id="tab-route">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <h2 style="margin:0;font-size:14px;font-weight:700;color:#333;">Waypoints (<span id="waypoint-count">0</span>)</h2>
+                        <button id="toggleWaypointsBtn" style="padding:3px 10px;background:#0066cc;color:white;border:none;border-radius:4px;cursor:pointer;font-size:11px;">Show</button>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span><strong>L</strong></span>
-                        <span>Plane Animation</span>
+
+                    <div class="waypoints-list" id="waypoints-list" style="display:none;margin-bottom:10px;max-height:260px;">
+                        <div style="text-align:center;color:#999;padding:1rem;">No waypoints yet. Click "Start Drawing" on map to begin.</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span><strong>M</strong></span>
-                        <span>Hide/Show Menu</span>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
+                        <button class="btn-secondary" id="addCoordBtn" style="font-size:11px;padding:6px 8px;">📍 Add by Coords</button>
+                        <button onclick="openImportWaypointDialog()" class="btn-secondary" style="font-size:11px;padding:6px 8px;">📍 Saved Fixes</button>
                     </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span><strong>P</strong></span>
-                        <span>Screenshot (Portrait)</span>
+
+                    <div class="button-group" style="margin-bottom:14px;">
+                        <button class="btn-secondary" id="toggleDirectionBtn" style="display:none;width:100%;">Show Return</button>
+                    </div>
+
+                    <h2 style="font-size:13px;font-weight:700;color:#333;margin-bottom:8px;">Flight Statistics</h2>
+                    <div class="stats" id="stats">
+                        <div class="stat-card"><div class="stat-label">Total Distance</div><div class="stat-value">0.0 nm</div></div>
+                        <div class="stat-card"><div class="stat-label">Total Time</div><div class="stat-value">0h 0m</div></div>
+                        <div class="stat-card"><div class="stat-label">Fuel Required</div><div class="stat-value" id="fuel-required">0.0 L</div></div>
+                        <div class="stat-card"><div class="stat-label">Number of Legs</div><div class="stat-value">0</div></div>
+                    </div>
+
+                    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
+                        <h3 style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;">Export Options</h3>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                            <button class="btn-secondary" id="printDetailsBtn" style="font-size:11px;padding:6px 8px;">📋 Route NavLog</button>
+                            <button class="btn-secondary" id="exportGPXBtn" style="font-size:11px;padding:6px 8px;">🧭 Export GPX</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="panel" style="background: #e8f4f8; border-top: 2px solid #0066cc; padding: 0.75rem;">
-                <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 8px;">
-                    <button id="debugToggleBtn" onclick="toggleDebugMode()" style="padding: 6px 12px; background: #f0f0f0; color: #333; border: 1px solid #999; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 11px;">
-                        Debug
-                    </button>
-                    <button onclick="showWhatsNewIfNeeded(true)" style="padding: 6px 12px; background: #f0f0f0; color: #0066cc; border: 1px solid #0066cc; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 11px;">
-                        🆕 What's New
-                    </button>
-                    <button id="languageToggleBtn" onclick="toggleLanguage()" style="padding: 6px 12px; background: #f0f0f0; color: #333; border: 1px solid #0066cc; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 11px;">
-                        EN / עב
-                    </button>
+
+                <!-- 2. AIRCRAFT TAB -->
+                <div class="tab-page" id="tab-aircraft">
+                    <h2 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;">Aircraft & Cruise Profile</h2>
+                    
+                    <div style="margin-bottom:1rem;">
+                        <label for="cruiseSpeed" style="display:block;font-size:0.875rem;color:#555;margin-bottom:0.4rem;font-weight:500;">
+                            Cruise Speed (knots)
+                        </label>
+                        <input type="number" id="cruiseSpeed" min="50" max="500" value="90" step="5" 
+                               style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.875rem;">
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <label for="defaultAltitude" style="display:block;font-size:0.875rem;color:#555;margin-bottom:0.4rem;font-weight:500;">
+                            Default Altitude (ft)
+                        </label>
+                        <input type="number" id="defaultAltitude" min="0" max="50000" value="400" step="100"
+                               style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.875rem;">
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <label for="fuelFlow" style="display:block;font-size:0.875rem;color:#555;margin-bottom:0.4rem;font-weight:500;">
+                            Fuel Flow (L/hr)
+                        </label>
+                        <input type="number" id="fuelFlow" min="1" max="200" value="17" step="1" 
+                               style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.875rem;">
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <label for="magVar" style="display:block;font-size:0.875rem;color:#555;margin-bottom:0.4rem;font-weight:500;">
+                            Magnetic Variation (°)
+                        </label>
+                        <input type="number" id="magVar" min="-30" max="30" value="-5" step="0.5"
+                               style="width:100%;padding:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.875rem;">
+                    </div>
+
+                    <div class="info-box" style="margin-top:15px;">
+                        Speed, Altitude, and Fuel Flow are used in real-time to compute leg headings, ground speed estimates, ETE and fuel burn.
+                    </div>
                 </div>
-                <button onclick="openContactForm()" style="width:100%; padding: 7px; background: transparent; color: #0066cc; border: 1px solid #0066cc; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: 0.3px;">
-                    ✉️ Contact Developer
-                </button>
+
+                <!-- 3. DISPLAY & STYLING TAB -->
+                <div class="tab-page" id="tab-display">
+                    <!-- Section 1: Route & Waypoint Geometry -->
+                    <div class="sub-accordion open" id="accRouteGeo">
+                        <div class="sub-accordion-header" onclick="toggleSubAccordion('accRouteGeo')">
+                            <span>📐 Route & Waypoint Circles</span>
+                            <span class="sub-accordion-arrow">▼</span>
+                        </div>
+                        <div class="sub-accordion-body">
+                            <div style="margin-bottom:1rem;">
+                                <label for="lineWidth" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Line Width: <strong><span id="lineWidthValue">4</span>px</strong>
+                                </label>
+                                <input type="range" id="lineWidth" min="1" max="10" value="4" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="circleRadius" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Waypoint Circle Radius: <strong><span id="radiusValue">0.3</span> nm</strong>
+                                </label>
+                                <input type="range" id="circleRadius" min="0" max="50" value="3" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="circleOpacity" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Waypoint Circle Opacity: <strong><span id="circleOpacityValue">20</span>%</strong>
+                                </label>
+                                <input type="range" id="circleOpacity" min="0" max="100" value="20" step="5" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="highlightCircleRadius" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    <span class="translate" data-key="highlightCircleRadius">Highlight Circle Radius</span>: <strong><span id="highlightRadiusValue">0.5</span> nm</strong>
+                                </label>
+                                <input type="range" id="highlightCircleRadius" min="1" max="50" value="5" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:0.5rem;">
+                                <label for="highlightCircleOpacity" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    <span class="translate" data-key="highlightCircleOpacity">Highlight Circle Opacity</span>: <strong><span id="highlightOpacityValue">25</span>%</strong>
+                                </label>
+                                <input type="range" id="highlightCircleOpacity" min="0" max="100" value="25" step="5" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-top:0.5rem;">
+                                <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:#555;cursor:pointer;">
+                                    <input type="checkbox" id="lsaClipToCircles" style="cursor:pointer;">
+                                    Hide LSA points inside circles
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Time Ticks & Drift Lines -->
+                    <div class="sub-accordion" id="accTimeDrift">
+                        <div class="sub-accordion-header" onclick="toggleSubAccordion('accTimeDrift')">
+                            <span>⏱️ Timing Ticks & Drift Lines</span>
+                            <span class="sub-accordion-arrow">▼</span>
+                        </div>
+                        <div class="sub-accordion-body">
+                            <div style="margin-bottom:1rem;">
+                                <label for="labelFontSize" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Time Label Font Size: <strong><span id="fontSizeValue">15</span>px</strong>
+                                </label>
+                                <input type="range" id="labelFontSize" min="8" max="20" value="15" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="tickInterval" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Time Tick Interval: <strong>every <span id="tickIntervalValue">1</span> min</strong>
+                                </label>
+                                <input type="range" id="tickInterval" min="1" max="10" value="1" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="labelInterval" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Time Label Interval: <strong>every <span id="labelIntervalValue">1</span> min</strong>
+                                </label>
+                                <input type="range" id="labelInterval" min="1" max="10" value="1" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="driftColor" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Drift Line Color
+                                </label>
+                                <input type="color" id="driftColor" value="#cc6600" style="width:100%;height:30px;border:1px solid #ddd;border-radius:5px;cursor:pointer;padding:2px;">
+                            </div>
+                            <div style="margin-bottom:0.5rem;">
+                                <label for="driftWidth" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Drift Line Width: <strong><span id="driftWidthValue">2</span>px</strong>
+                                </label>
+                                <input type="range" id="driftWidth" min="1" max="8" value="2" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Labels & Text Boxes -->
+                    <div class="sub-accordion" id="accLabels">
+                        <div class="sub-accordion-header" onclick="toggleSubAccordion('accLabels')">
+                            <span>🏷️ Labels & Info Boxes</span>
+                            <span class="sub-accordion-arrow">▼</span>
+                        </div>
+                        <div class="sub-accordion-body">
+                            <div style="margin-bottom:1rem;">
+                                <label for="arrivalLabelFontSize" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Leg Time Font Size: <strong><span id="arrivalLabelFontSizeValue">9</span>px</strong>
+                                </label>
+                                <input type="range" id="arrivalLabelFontSize" min="6" max="18" value="9" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="waypointLabelFontSize" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Waypoint Name Font Size: <strong><span id="waypointLabelFontSizeValue">11</span>px</strong>
+                                </label>
+                                <input type="range" id="waypointLabelFontSize" min="6" max="24" value="11" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="infoBoxFontSize" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Route Info Font Size: <strong><span id="infoBoxFontSizeValue">18</span>px</strong>
+                                </label>
+                                <input type="range" id="infoBoxFontSize" min="6" max="24" value="18" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="infoBoxSize" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Route Info Box Size: <strong><span id="infoBoxSizeValue">120</span>%</strong>
+                                </label>
+                                <input type="range" id="infoBoxSize" min="50" max="200" value="120" step="5" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="textBoxFontSize" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Text Box Font Size: <strong><span id="textBoxFontSizeValue">14</span>px</strong>
+                                </label>
+                                <input type="range" id="textBoxFontSize" min="8" max="32" value="14" step="1" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:1rem;">
+                                <label for="infoBoxOpacity" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Info Box Opacity: <strong><span id="opacityValue">70</span>%</strong>
+                                </label>
+                                <input type="range" id="infoBoxOpacity" min="0" max="100" value="70" step="5" style="width:100%;cursor:pointer;">
+                            </div>
+                            <div style="margin-bottom:0.5rem;">
+                                <label for="miniWpLabelOpacity" style="display:block;font-size:0.8rem;color:#555;margin-bottom:0.35rem;">
+                                    Mini WP Label Opacity: <strong><span id="miniWpOpacityValue">70</span>%</strong>
+                                </label>
+                                <input type="range" id="miniWpLabelOpacity" min="0" max="100" value="70" step="5" style="width:100%;cursor:pointer;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
+                        <h3 style="font-size:12px;font-weight:700;color:#555;margin-bottom:8px;">Display Settings File</h3>
+                        <div style="display:flex;gap:6px;margin-bottom:6px;">
+                            <button class="btn-primary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="saveSettingsFile()">💾 Save</button>
+                            <button class="btn-secondary" style="font-size:11px;padding:5px 8px;flex:1;" onclick="loadSettingsFile()">📂 Load</button>
+                        </div>
+                        <button class="btn-secondary" style="font-size:11px;padding:5px 8px;width:100%;" onclick="revertSettings()">↩️ Defaults</button>
+                        <div id="settingsStatusMsg" style="margin-top:6px;font-size:11px;color:#28a745;display:none;"></div>
+                    </div>
+                </div>
+
+                <!-- 4. PLANS TAB -->
+                <div class="tab-page" id="tab-plans">
+                    <h2 style="font-size:14px;font-weight:700;color:#333;margin-bottom:10px;">Saved Flight Plans</h2>
+                    
+                    <div id="folderPathDisplay" style="font-size:11px;color:#666;margin-bottom:8px;padding:5px 8px;background:#f0f4ff;border-radius:4px;border:1px solid #cce;display:none;">
+                        📁 <span id="folderPathText"></span>
+                    </div>
+
+                    <div style="display:flex;gap:6px;margin-bottom:10px;">
+                        <button class="btn-secondary" style="font-size:11px;padding:6px 8px;flex:1;" onclick="selectWorkingFolder()">📂 Set Folder</button>
+                        <button class="btn-secondary" style="font-size:11px;padding:6px 8px;flex:1;" onclick="loadPlansFromFolder()">🔄 Refresh</button>
+                    </div>
+
+                    <div style="display:flex;gap:6px;margin-bottom:12px;">
+                        <button class="btn-secondary" style="font-size:11px;padding:6px 8px;flex:1;" onclick="exportPlanFile()" title="Download flight plan as a .json file">⬇️ Export File</button>
+                        <button class="btn-secondary" style="font-size:11px;padding:6px 8px;flex:1;" onclick="importPlanFile()" title="Load flight plan from a .json file">⬆️ Import File</button>
+                    </div>
+                    <input type="file" id="importPlanFileInput" accept=".json" style="display:none;" onchange="handleImportPlanFile(this)">
+
+                    <div class="saved-plans" id="saved-plans" style="margin-top:6px;"></div>
+
+                    <div style="margin-top:20px;padding-top:14px;border-top:1px solid #eee;">
+                        <h3 style="margin:0 0 8px 0;font-size:12px;color:#333;font-weight:700;">⌨️ Shortcuts</h3>
+                        <div style="font-size:11px;color:#666;line-height:1.7;">
+                            <div style="display:flex;justify-content:space-between;"><span><strong>ESC</strong></span><span>Stop Drawing</span></div>
+                            <div style="display:flex;justify-content:space-between;"><span><strong>M</strong></span><span>Toggle Sidebar</span></div>
+                            <div style="display:flex;justify-content:space-between;"><span><strong>L</strong></span><span>Plane Sim</span></div>
+                            <div style="display:flex;justify-content:space-between;"><span><strong>P</strong></span><span>Quick Print</span></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:15px;padding-top:10px;border-top:1px solid #eee;display:flex;gap:6px;justify-content:center;">
+                        <button id="debugToggleBtn" onclick="toggleDebugMode()" style="padding:4px 8px;background:#f0f0f0;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;font-size:11px;">Debug</button>
+                        <button onclick="showWhatsNewIfNeeded(true)" style="padding:4px 8px;background:#f0f0f0;color:#0066cc;border:1px solid #0066cc;border-radius:4px;cursor:pointer;font-size:11px;">🆕 What's New</button>
+                    </div>
+                    <button onclick="openContactForm()" style="width:100%;margin-top:8px;padding:6px;background:transparent;color:#0066cc;border:1px solid #0066cc;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;">✉️ Contact Developer</button>
+                </div>
             </div>
         </div>
     </div>
-
     <!-- Hidden print content -->
     <div id="print-info" style="display:none !important; visibility:hidden !important; height:0 !important; overflow:hidden !important;">
         <h1>Flight Plan</h1>
@@ -476,16 +419,16 @@
     <script src="js/data/translations.js?v=20261122c"></script>
 
     <!-- Core Modules -->
-    <script src="js/modules/calibration.js?v=20261122c"></script>
-    <script src="js/modules/storage.js?v=20261122c"></script>
-    <script src="js/modules/map.js?v=20261122c"></script>
-    <script src="js/modules/textbox.js?v=20261122c"></script>
-    <script src="js/modules/highlight-circles.js?v=20261122c"></script>
-    <script src="js/modules/route.js?v=20261122c"></script>
-    <script src="js/modules/export-print.js?v=20261122c"></script>
-    <script src="js/modules/contact.js?v=20261122c"></script>
+    <script src="js/modules/calibration.js?v=20261122h"></script>
+    <script src="js/modules/storage.js?v=20261122h"></script>
+    <script src="js/modules/map.js?v=20261122h"></script>
+    <script src="js/modules/textbox.js?v=20261122h"></script>
+    <script src="js/modules/highlight-circles.js?v=20261122h"></script>
+    <script src="js/modules/route.js?v=20261122h"></script>
+    <script src="js/modules/export-print.js?v=20261122h"></script>
+    <script src="js/modules/contact.js?v=20261122h"></script>
 
     <!-- Application Entry Point -->
-    <script src="js/app.js?v=20261122c"></script>
+    <script src="js/app.js?v=20261122h"></script>
 </body>
 </html>

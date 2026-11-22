@@ -1848,7 +1848,16 @@
             statsHTML += '<div class="stat-card"><div class="stat-label">' + t.fuelRequired + '</div><div class="stat-value">' + fuelRequired.toFixed(1) + ' L</div></div>';
             statsHTML += '<div class="stat-card"><div class="stat-label">' + t.numberOfLegs + '</div><div class="stat-value">' + Math.max(0, appState.waypoints.length - 1) + '</div></div>';
             
-            document.getElementById('stats').innerHTML = statsHTML;
+            var statsEl = document.getElementById('stats');
+            if (statsEl) statsEl.innerHTML = statsHTML;
+
+            // Also update Top Navigation Bar summary pill
+            var topDist = document.getElementById('topStatDist');
+            var topTime = document.getElementById('topStatTime');
+            var topFuel = document.getElementById('topStatFuel');
+            if (topDist) topDist.textContent = totalDistance.toFixed(1) + ' nm';
+            if (topTime) topTime.textContent = hours + 'h ' + minutes + 'm';
+            if (topFuel) topFuel.textContent = fuelRequired.toFixed(1) + ' L';
         }
         
         function updateWaypointsList() {
