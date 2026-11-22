@@ -79,20 +79,31 @@
 
             // Create modal for screenshot options
             var modal = document.createElement('div');
-            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.75); backdrop-filter: blur(4px); z-index: 10000; display: flex; align-items: center; justify-content: center;';
             
             var dialog = document.createElement('div');
-            dialog.style.cssText = 'background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%;';
+            dialog.style.cssText = 'background: white; padding: 24px 28px; border-radius: 14px; max-width: 480px; width: 92%; box-shadow: 0 20px 45px rgba(0,0,0,0.3); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;';
             
-            dialog.innerHTML = '<h2 style="margin: 0 0 20px 0;">Save Map Image</h2>' +
-                '<p style="font-size: 14px; color: #666; margin-bottom: 15px;">Choose a capture method.</p>' +
+            dialog.innerHTML = '<h2 style="margin: 0 0 6px 0; font-size: 19px; color: #0f172a; display: flex; align-items: center; gap: 8px;">🖨️ Print & Export Chart</h2>' +
+                '<p style="font-size: 13px; color: #64748b; margin: 0 0 18px 0;">Select paper format for high-resolution chart printing or PDF export:</p>' +
                 
-                '<div style="display: flex; flex-direction: column; gap: 10px;">' +
-                '<button onclick="captureManualSelection()" style="padding: 12px; background: #0066cc; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Select Area Manually</button>' +
-                '<button onclick="captureA4Area()" style="padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ Print / Save A4</button>' +
-                '<button onclick="captureA3Area()" style="padding: 12px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ Print / Save A3</button>' +
-                '<button onclick="captureA5Area()" style="padding: 12px; background: #6f42c1; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🖨️ Print / Save A5 (Kneeboard)</button>' +
-                '<button onclick="closeScreenshotModal()" style="padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cancel</button>' +
+                '<div style="display: flex; flex-direction: column; gap: 8px;">' +
+                '<button onclick="captureA4Area(\'A4\')" style="padding: 12px 16px; background: linear-gradient(135deg, #16a34a, #15803d); color: white; border: none; border-radius: 8px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(22,163,74,0.3); transition: transform 0.15s ease;">' +
+                    '<div><strong style="font-size: 14px; display: block;">🖨️ A4 Aviation Chart (Standard)</strong><span style="font-size: 11px; opacity: 0.9;">210 × 297 mm • 1:250k Chart Scale • Multi-page ready</span></div>' +
+                    '<span style="font-size: 16px; font-weight: bold;">➔</span>' +
+                '</button>' +
+                '<button onclick="captureA3Area()" style="padding: 11px 16px; background: #0284c7; color: white; border: none; border-radius: 8px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;">' +
+                    '<div><strong style="font-size: 13px; display: block;">📐 A3 Chart (Cockpit Wide)</strong><span style="font-size: 11px; opacity: 0.9;">297 × 420 mm • Double width format</span></div>' +
+                    '<span style="font-size: 15px;">➔</span>' +
+                '</button>' +
+                '<button onclick="captureA5Area()" style="padding: 11px 16px; background: #7c3aed; color: white; border: none; border-radius: 8px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center;">' +
+                    '<div><strong style="font-size: 13px; display: block;">📋 A5 Kneeboard Sheet</strong><span style="font-size: 11px; opacity: 0.9;">148 × 210 mm • Pilot kneeboard clip</span></div>' +
+                    '<span style="font-size: 15px;">➔</span>' +
+                '</button>' +
+                '<button onclick="captureManualSelection()" style="padding: 10px 16px; background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; text-align: left; font-size: 12px; font-weight: 600;">' +
+                    '✂️ Select Custom Area Manually' +
+                '</button>' +
+                '<button onclick="closeScreenshotModal()" style="margin-top: 4px; padding: 8px 16px; background: transparent; color: #64748b; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;">Cancel</button>' +
                 '</div>';
             
             modal.appendChild(dialog);
@@ -383,39 +394,36 @@
             // ── Print rectangle ───────────────────────────────────────────────
             var rect = document.createElement('div');
             rect.id = 'a4Rect';
-            rect.style.cssText = [
-                'position:absolute',
-                'border:2px dashed #fff',
-                'box-shadow:0 0 0 1px #0066cc, inset 0 0 0 1px #0066cc',
-                'cursor:move',
-                'z-index:2001',
-                'box-sizing:border-box',
-                'transform-origin:center center'
-            ].join(';');
+            rect.className = 'print-frame-box';
             mapContainer.appendChild(rect);
 
-            // Corner label
+            // Primary corner badge (Page, Paper, Scale)
             var label = document.createElement('div');
-            label.style.cssText = 'position:absolute;top:4px;left:4px;background:rgba(0,102,204,0.85);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;';
+            label.className = 'print-frame-badge print-frame-badge-top-left';
             rect.appendChild(label);
+
+            // Coverage badge (km & NM)
+            var coverageLabel = document.createElement('div');
+            coverageLabel.className = 'print-frame-badge print-frame-badge-bottom-left';
+            rect.appendChild(coverageLabel);
 
             // Top indicator
             var topIndicator = document.createElement('div');
             topIndicator.id = 'a4TopIndicator';
-            topIndicator.style.cssText = 'position:absolute;top:4px;left:50%;transform:translateX(-50%);background:rgba(0,102,204,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;pointer-events:none;white-space:nowrap;letter-spacing:0.5px;box-shadow:0 1px 3px rgba(0,0,0,0.3);';
+            topIndicator.className = 'print-frame-top-indicator';
             topIndicator.innerHTML = '⬆ TOP · <span id="a4TopAngle">000° (N)</span>';
             rect.appendChild(topIndicator);
 
             // Interactive rotation handle at top of rect
             var rotStem = document.createElement('div');
-            rotStem.style.cssText = 'position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:2px;height:16px;background:#0066cc;pointer-events:none;';
+            rotStem.className = 'print-frame-rot-stem';
             rect.appendChild(rotStem);
 
             var rotHandle = document.createElement('div');
             rotHandle.id = 'a4RotHandle';
-            rotHandle.style.cssText = 'position:absolute;top:-34px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:#0066cc;border:2px solid #fff;border-radius:50%;cursor:grab;box-shadow:0 2px 6px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2005;user-select:none;';
-            rotHandle.title = 'Drag to rotate print orientation (Hold Shift for smooth angle)';
-            rotHandle.innerHTML = '<span style="font-size:12px;color:#fff;line-height:1;pointer-events:none;user-select:none;">⟳</span>';
+            rotHandle.className = 'print-frame-rot-handle';
+            rotHandle.title = 'Drag to rotate print frame (Hold Shift for smooth angle)';
+            rotHandle.innerHTML = '<span style="font-size:14px;color:#fff;line-height:1;pointer-events:none;user-select:none;font-weight:bold;">⟳</span>';
             rect.appendChild(rotHandle);
 
             // Preview scale bar at bottom-right of primary rect
@@ -493,31 +501,38 @@
 
             function updateLabel() {
                 var sizeText = paperSize + (isLandscape ? ' Landscape' : ' Portrait');
-                var rotText = (printRotation !== 0) ? ' · Rot: ' + (printRotation < 10 ? '00' : (printRotation < 100 ? '0' : '')) + printRotation + '°' : '';
+                var rotText = (printRotation !== 0) ? ' · ' + (printRotation < 10 ? '00' : (printRotation < 100 ? '0' : '')) + printRotation + '°' : '';
                 var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
                 var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
+                var effectiveScale, kmW, kmH, scaleText;
+
                 if (selectedScale === 'auto') {
                     var latRad = (rectGeoCenter ? rectGeoCenter.lat : 31.5) * Math.PI / 180.0;
                     var zoom = appState.map.getZoom();
                     var metersPerPx = (40075016.686 * Math.cos(latRad)) / (256.0 * Math.pow(2, zoom));
                     var groundWidthM = rectW * metersPerPx;
-                    var effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
-                    var scaleText = '1:' + (effectiveScale >= 1000 ? Math.round(effectiveScale / 1000) + 'k' : effectiveScale);
-                    var kmW = (groundWidthM / 1000).toFixed(1);
-                    var kmH = ((rectH * metersPerPx) / 1000).toFixed(1);
-                    var nmW = (kmW * 0.539957).toFixed(1);
-                    var nmH = (kmH * 0.539957).toFixed(1);
-                    var cmText = (effectiveScale / 100000).toFixed(2) + ' km';
-                    label.textContent = sizeText + rotText + ' · ' + scaleText + ' (Auto: 1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
+                    effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
+                    scaleText = '1:' + (effectiveScale >= 1000 ? Math.round(effectiveScale / 1000) + 'k' : effectiveScale);
+                    kmW = (groundWidthM / 1000).toFixed(1);
+                    kmH = ((rectH * metersPerPx) / 1000).toFixed(1);
                 } else {
-                    var scaleNum = parseInt(selectedScale, 10);
-                    var scaleText = '1:' + (scaleNum >= 1000 ? (scaleNum / 1000) + 'k' : scaleNum);
-                    var kmW = (widthMm * scaleNum / 1000000).toFixed(1);
-                    var kmH = (heightMm * scaleNum / 1000000).toFixed(1);
-                    var nmW = (kmW * 0.539957).toFixed(1);
-                    var nmH = (kmH * 0.539957).toFixed(1);
-                    var cmText = (scaleNum / 100000) + ' km';
-                    label.textContent = sizeText + rotText + ' · ' + scaleText + ' (1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
+                    effectiveScale = parseInt(selectedScale, 10);
+                    scaleText = '1:' + (effectiveScale >= 1000 ? (effectiveScale / 1000) + 'k' : effectiveScale);
+                    kmW = (widthMm * effectiveScale / 1000000).toFixed(1);
+                    kmH = (heightMm * effectiveScale / 1000000).toFixed(1);
+                }
+                var nmW = (kmW * 0.539957).toFixed(1);
+                var nmH = (kmH * 0.539957).toFixed(1);
+
+                if (label) {
+                    label.textContent = '📄 Page 1 · ' + sizeText + rotText + ' · ' + scaleText;
+                }
+                if (coverageLabel) {
+                    coverageLabel.textContent = '📏 ' + kmW + ' × ' + kmH + ' km (' + nmW + ' × ' + nmH + ' NM)';
+                }
+                var hintCov = document.getElementById('a4CoverageHint');
+                if (hintCov) {
+                    hintCov.textContent = kmW + ' × ' + kmH + ' km (' + nmW + ' × ' + nmH + ' NM)';
                 }
                 updatePreviewScaleBar(previewScaleBar, selectedScale, rectGeoCenter ? rectGeoCenter.lat : 31.5, rectW, rectH, isLandscape);
             }
@@ -724,84 +739,168 @@
                 }
             });
 
-            // ── Toolbar ────────────────────────────────────────────────────
+            // ── Print Studio Toolbar (Structured Glassmorphism HUD) ───────────────
             var toolbar = document.createElement('div');
             toolbar.id = 'a4Toolbar';
-            toolbar.style.cssText = [
-                'position:fixed;bottom:20px;left:50%;transform:translateX(-50%)',
-                'background:rgba(0,0,0,0.85);color:#fff;border-radius:10px',
-                'padding:8px 14px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px',
-                'z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,0.4);font-size:13px;font-weight:600;max-width:96vw'
-            ].join(';');
+            toolbar.className = 'print-studio-toolbar';
             toolbar.innerHTML =
-                '<span style="opacity:.7;font-size:12px;">Drag rect · scroll zoom</span>' +
-                '<button id="a4Portrait"  style="padding:5px 10px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;">📱 Port</button>' +
-                '<button id="a4Landscape" style="padding:5px 10px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;">📐 Land</button>' +
-                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Rot:</span>' +
-                '<select id="a4Rotation" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;" title="Print rotation orientation">' +
-                    '<option value="0" selected>⬆ 0° (North)</option>' +
-                    '<option value="90">➡ 90° (East)</option>' +
-                    '<option value="180">⬇ 180° (South)</option>' +
-                    '<option value="270">⬅ 270° (West)</option>' +
-                    '<option value="route">✈️ Route Track</option>' +
-                    '<option value="custom">⚙️ Custom...</option>' +
-                '</select>' +
-                '<button id="a4RotCCW" title="Rotate counter-clockwise 15°" style="padding:5px 8px;background:#333;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;font-weight:700;">⟲ -15°</button>' +
-                '<span id="a4RotVal" style="font-size:12px;min-width:34px;text-align:center;font-weight:700;color:#5bc0de;">000°</span>' +
-                '<button id="a4RotCW" title="Rotate clockwise 15°" style="padding:5px 8px;background:#333;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;font-weight:700;">⟳ +15°</button>' +
-                '<input id="a4RotSlider" type="range" min="0" max="355" value="0" step="5" style="width:65px;cursor:pointer;accent-color:#0066cc;" title="Rotation angle">' +
-                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Scale:</span>' +
-                '<select id="a4ScaleRatio" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
-                    '<option value="250000" selected>1:250,000 (Chart)</option>' +
-                    '<option value="150000">1:150,000</option>' +
-                    '<option value="125000">1:125,000</option>' +
-                    '<option value="100000">1:100,000 (Detailed)</option>' +
-                    '<option value="500000">1:500,000 (Regional)</option>' +
-                    '<option value="auto">Fit View (Auto)</option>' +
-                '</select>' +
-                '<button id="a4ZoomToScale" style="padding:5px 10px;background:#17a2b8;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:12px;" title="Set screen zoom to match print scale exactly (1cm on screen = 1cm on chart)">🔍 1:1 View</button>' +
-                '<button id="a4ZoomIn"   style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">+</button>' +
-                '<button id="a4ZoomOut"  style="padding:5px 10px;background:#0066cc;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:14px;">−</button>' +
-                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Side:</span>' +
-                '<select id="a4ScaleSide" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
-                    '<option value="right" selected>Right ↘</option>' +
-                    '<option value="left">Left ↙</option>' +
-                    '<option value="center">Center ⬇</option>' +
-                    '<option value="none">Off ✕</option>' +
-                '</select>' +
-                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Size:</span>' +
-                '<select id="a4ScaleBarSize" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
-                    '<option value="0.5">50% (Tiny)</option>' +
-                    '<option value="0.75">75% (Small)</option>' +
-                    '<option value="1" selected>100% (Normal)</option>' +
-                    '<option value="1.25">125% (Large)</option>' +
-                    '<option value="1.5">150% (XL)</option>' +
-                    '<option value="2">200% (2x)</option>' +
-                '</select>' +
-                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Pages:</span>' +
-                '<select id="a4PageCount" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>' +
-                '<button id="a4LayoutStacked"  style="padding:5px 8px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;" title="Pages stacked vertically">⬇ Stack</button>' +
-                '<button id="a4LayoutSideBySide" style="padding:5px 8px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;" title="Pages side by side">➡ Side</button>' +
-                '<span style="opacity:.7;font-size:12px;">Overlap: <span id="a4OverlapLabel">0</span>%</span>' +
-                '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:70px;cursor:pointer;accent-color:#0066cc;">' +
-                '<label id="a4CombineLabel" style="display:none;align-items:center;gap:4px;font-size:12px;cursor:pointer;background:rgba(255,255,255,0.15);padding:4px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.3);margin-left:2px;" title="Combine all pages into one single PDF print document">' +
-                    '<input type="checkbox" id="a4CombinePdf" checked style="cursor:pointer;accent-color:#28a745;width:14px;height:14px;">' +
-                    '<span>📄 1 PDF</span>' +
-                '</label>' +
-                '<button id="a4Print"    style="padding:6px 14px;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">🖨️ Print / Save</button>' +
-                '<button id="a4Cancel"   style="padding:6px 10px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>';
+                '<div class="print-studio-main-row">' +
+                    '<!-- Sheet & Orientation -->' +
+                    '<div class="print-studio-group">' +
+                        '<span class="print-studio-label">Sheet</span>' +
+                        '<select id="a4PaperSizeSelect" class="print-studio-select" title="Paper Size">' +
+                            '<option value="A4">A4 (210×297)</option>' +
+                            '<option value="A3">A3 (297×420)</option>' +
+                            '<option value="A5">A5 Kneeboard</option>' +
+                        '</select>' +
+                        '<div class="print-studio-segmented">' +
+                            '<button type="button" id="a4Portrait" class="active" title="Portrait orientation">📱 Port</button>' +
+                            '<button type="button" id="a4Landscape" title="Landscape orientation">📐 Land</button>' +
+                        '</div>' +
+                    '</div>' +
+
+                    '<div class="print-studio-divider"></div>' +
+
+                    '<!-- Scale -->' +
+                    '<div class="print-studio-group">' +
+                        '<span class="print-studio-label">Scale</span>' +
+                        '<select id="a4ScaleRatio" class="print-studio-select" title="Aeronautical Chart Scale">' +
+                            '<option value="250000" selected>1:250,000 (VFR Chart)</option>' +
+                            '<option value="150000">1:150,000</option>' +
+                            '<option value="125000">1:125,000</option>' +
+                            '<option value="100000">1:100,000 (Detailed)</option>' +
+                            '<option value="500000">1:500,000 (Regional)</option>' +
+                            '<option value="auto">Fit View (Auto)</option>' +
+                        '</select>' +
+                        '<button type="button" id="a4ZoomToScale" class="print-studio-btn-secondary" title="Match screen zoom to 1:1 print scale">🔍 1:1 View</button>' +
+                        '<button id="a4ZoomIn" style="display:none;"></button>' +
+                        '<button id="a4ZoomOut" style="display:none;"></button>' +
+                    '</div>' +
+
+                    '<div class="print-studio-divider"></div>' +
+
+                    '<!-- Heading / Rotation -->' +
+                    '<div class="print-studio-group">' +
+                        '<span class="print-studio-label">Heading</span>' +
+                        '<select id="a4Rotation" class="print-studio-select" title="Sheet orientation angle">' +
+                            '<option value="0" selected>⬆ 000° (North Up)</option>' +
+                            '<option value="route">✈️ Align with Track</option>' +
+                            '<option value="90">➡ 090° (East)</option>' +
+                            '<option value="180">⬇ 180° (South)</option>' +
+                            '<option value="270">⬅ 270° (West)</option>' +
+                            '<option value="custom">⚙️ Custom...</option>' +
+                        '</select>' +
+                        '<div class="print-studio-stepper">' +
+                            '<button type="button" id="a4RotCCW" title="Rotate counter-clockwise 15°">⟲ -15°</button>' +
+                            '<span id="a4RotVal" class="print-studio-rot-val">000°</span>' +
+                            '<button type="button" id="a4RotCW" title="Rotate clockwise 15°">⟳ +15°</button>' +
+                        '</div>' +
+                        '<input id="a4RotSlider" type="range" min="0" max="355" value="0" step="5" class="print-studio-slider" title="Rotate angle slider">' +
+                    '</div>' +
+
+                    '<div class="print-studio-divider"></div>' +
+
+                    '<!-- Pages -->' +
+                    '<div class="print-studio-group">' +
+                        '<span class="print-studio-label">Pages</span>' +
+                        '<select id="a4PageCount" class="print-studio-select" title="Number of print sheets">' +
+                            '<option value="1" selected>1 Page</option>' +
+                            '<option value="2">2 Pages</option>' +
+                            '<option value="3">3 Pages</option>' +
+                            '<option value="4">4 Pages</option>' +
+                        '</select>' +
+                    '</div>' +
+
+                    '<div class="print-studio-divider"></div>' +
+
+                    '<!-- Scale Bar Placement -->' +
+                    '<div class="print-studio-group">' +
+                        '<span class="print-studio-label">Scale Bar</span>' +
+                        '<select id="a4ScaleSide" class="print-studio-select" title="Scale bar placement on sheet">' +
+                            '<option value="right" selected>Bottom-Right ↘</option>' +
+                            '<option value="left">Bottom-Left ↙</option>' +
+                            '<option value="center">Bottom-Center ⬇</option>' +
+                            '<option value="none">Hidden ✕</option>' +
+                        '</select>' +
+                        '<select id="a4ScaleBarSize" class="print-studio-select" title="Scale bar size multiplier">' +
+                            '<option value="0.75">Small (75%)</option>' +
+                            '<option value="1" selected>Normal (100%)</option>' +
+                            '<option value="1.25">Large (125%)</option>' +
+                            '<option value="1.5">XL (150%)</option>' +
+                        '</select>' +
+                    '</div>' +
+
+                    '<div class="print-studio-divider"></div>' +
+
+                    '<!-- Primary Actions -->' +
+                    '<div class="print-studio-actions">' +
+                        '<button type="button" id="a4Cancel" class="print-studio-btn-cancel">✕ Cancel</button>' +
+                        '<button type="button" id="a4Print" class="print-studio-btn-primary">🖨️ Print / Save PDF</button>' +
+                    '</div>' +
+                '</div>' +
+
+                '<!-- Multi-Page Options Strip (Shown only when Pages > 1) -->' +
+                '<div id="a4MultiPageStrip" class="print-studio-sub-row" style="display:none;">' +
+                    '<div class="print-studio-sub-item">' +
+                        '<span class="print-studio-sub-label">Layout:</span>' +
+                        '<div class="print-studio-segmented">' +
+                            '<button type="button" id="a4LayoutSideBySide" class="active" title="Pages arranged horizontally side by side">➡ Side-by-Side</button>' +
+                            '<button type="button" id="a4LayoutStacked" title="Pages stacked vertically">⬇ Stacked</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="print-studio-sub-item">' +
+                        '<span class="print-studio-sub-label">Overlap: <strong id="a4OverlapLabel">0</strong>%</span>' +
+                        '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:80px;cursor:pointer;accent-color:#0066cc;">' +
+                    '</div>' +
+                    '<label id="a4CombineLabel" class="print-studio-checkbox-label" title="Combine all pages into one single multi-page PDF document">' +
+                        '<input type="checkbox" id="a4CombinePdf" checked style="cursor:pointer;accent-color:#28a745;width:14px;height:14px;">' +
+                        '<span>📄 Combine into 1 PDF</span>' +
+                    '</label>' +
+                    '<span style="font-size:11px;color:#94a3b8;margin-left:auto;">💡 Drag each page frame on map to customize its position</span>' +
+                '</div>' +
+
+                '<!-- Tips & Live Coverage Line -->' +
+                '<div class="print-studio-hint-row">' +
+                    '<span class="print-hint-text">💡 <strong>Tip:</strong> Drag the frame to reposition • Drag top ⟳ handle to rotate • Scroll or pinch map to zoom</span>' +
+                    '<span id="a4CoverageHint" class="print-coverage-text">Coverage: -- × -- km</span>' +
+                '</div>';
+
             document.body.appendChild(toolbar);
             positionRect(startX, startY); // Safe — toolbar is now in DOM
+
+            // Paper Size dynamic switcher
+            var paperSelect = document.getElementById('a4PaperSizeSelect');
+            if (paperSelect) {
+                paperSelect.value = paperSize;
+                paperSelect.addEventListener('change', function() {
+                    paperSize = this.value;
+                    paperSpec = PAPER_SPECS[paperSize] || PAPER_SPECS['A4'];
+                    var dims = calculateRectDimensions(isLandscape, selectedScale, rectGeoCenter.lat);
+                    rectW = dims.w;
+                    rectH = dims.h;
+                    var curCenter = rectGeoCenter || appState.map.getCenter();
+                    var pt = appState.map.latLngToContainerPoint(curCenter);
+                    positionRect(Math.round(pt.x - rectW / 2), Math.round(pt.y - rectH / 2));
+                    updateLabel();
+                    if (typeof updateExtraRects === 'function') updateExtraRects();
+                });
+            }
 
             // Page layout direction: portrait defaults to side-by-side, landscape to stacked
             var pagesHorizontal = !isLandscape;
 
             function setPagesLayout(horizontal) {
                 pagesHorizontal = horizontal;
-                document.getElementById('a4LayoutStacked').style.background     = horizontal ? 'transparent' : '#0066cc';
-                document.getElementById('a4LayoutStacked').style.borderColor    = horizontal ? 'rgba(255,255,255,0.3)' : '#fff';
-                document.getElementById('a4LayoutSideBySide').style.background  = horizontal ? '#0066cc' : 'transparent';
-                document.getElementById('a4LayoutSideBySide').style.borderColor = horizontal ? '#fff' : 'rgba(255,255,255,0.3)';
+                var stackBtn = document.getElementById('a4LayoutStacked');
+                var sideBtn = document.getElementById('a4LayoutSideBySide');
+                if (stackBtn) {
+                    if (!horizontal) stackBtn.classList.add('active');
+                    else stackBtn.classList.remove('active');
+                }
+                if (sideBtn) {
+                    if (horizontal) sideBtn.classList.add('active');
+                    else sideBtn.classList.remove('active');
+                }
                 updateExtraRects();
             }
 
@@ -842,7 +941,7 @@
                     var pw = pDims.w;
                     var ph = pDims.h;
                     var er = document.createElement('div');
-                    er.style.cssText = 'position:absolute;border:2px dashed rgba(255,255,255,0.5);box-shadow:0 0 0 1px rgba(0,102,204,0.5);z-index:2001;box-sizing:border-box;transform-origin:center center;';
+                    er.className = 'print-frame-extra-box';
                     er.style.transform = 'rotate(' + printRotation + 'deg)';
                     var ex, ey;
                     if (extraGeocenters[p]) {
@@ -857,16 +956,20 @@
                     er.style.left = ex + 'px';
                     er.style.top  = ey + 'px';
                     er.style.width = pw + 'px'; er.style.height = ph + 'px';
+
                     // Label + orientation toggle button
                     var pl = document.createElement('div');
-                    pl.style.cssText = 'position:absolute;top:4px;left:4px;display:flex;align-items:center;gap:4px;';
+                    pl.className = 'print-frame-badge print-frame-badge-top-left';
+                    pl.style.pointerEvents = 'auto';
+                    pl.style.display = 'flex';
+                    pl.style.alignItems = 'center';
+                    pl.style.gap = '6px';
                     var lbl = document.createElement('span');
-                    lbl.style.cssText = 'background:rgba(0,102,204,0.7);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;';
-                    lbl.textContent = 'Page ' + (p + 1);
+                    lbl.textContent = '📄 Page ' + (p + 1);
                     var rotBtn = document.createElement('button');
-                    rotBtn.style.cssText = 'background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.5);border-radius:3px;font-size:10px;padding:2px 5px;cursor:pointer;';
-                    rotBtn.textContent = pageLandscape ? '⬛ Land' : '📱 Port';
-                    rotBtn.title = 'Toggle orientation for this page';
+                    rotBtn.style.cssText = 'background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:4px;font-size:10px;font-weight:600;padding:2px 6px;cursor:pointer;';
+                    rotBtn.textContent = pageLandscape ? '📐 Land' : '📱 Port';
+                    rotBtn.title = 'Toggle orientation for Page ' + (p + 1);
                     (function(idx, btn) {
                         btn.addEventListener('click', function(e) {
                             e.stopPropagation();
@@ -878,6 +981,29 @@
                     pl.appendChild(rotBtn);
                     er.appendChild(pl);
 
+                    // Coverage badge for extra page
+                    var extraCov = document.createElement('div');
+                    extraCov.className = 'print-frame-badge print-frame-badge-bottom-left';
+                    var extraLat = extraGeocenters[p] ? extraGeocenters[p].lat : (rectGeoCenter ? rectGeoCenter.lat : 31.5);
+                    var extraWidthMm = pageLandscape ? paperSpec.longMm : paperSpec.shortMm;
+                    var extraHeightMm = pageLandscape ? paperSpec.shortMm : paperSpec.longMm;
+                    var exKmW, exKmH;
+                    if (selectedScale === 'auto') {
+                        var extraLatRad = extraLat * Math.PI / 180.0;
+                        var extraZoom = appState.map.getZoom();
+                        var extraMPerPx = (40075016.686 * Math.cos(extraLatRad)) / (256.0 * Math.pow(2, extraZoom));
+                        exKmW = ((pw * extraMPerPx) / 1000).toFixed(1);
+                        exKmH = ((ph * extraMPerPx) / 1000).toFixed(1);
+                    } else {
+                        var exScaleNum = parseInt(selectedScale, 10);
+                        exKmW = (extraWidthMm * exScaleNum / 1000000).toFixed(1);
+                        exKmH = (extraHeightMm * exScaleNum / 1000000).toFixed(1);
+                    }
+                    var exNmW = (exKmW * 0.539957).toFixed(1);
+                    var exNmH = (exKmH * 0.539957).toFixed(1);
+                    extraCov.textContent = '📏 ' + exKmW + ' × ' + exKmH + ' km (' + exNmW + ' × ' + exNmH + ' NM)';
+                    er.appendChild(extraCov);
+
                     var extraSb = document.createElement('div');
                     extraSb.className = 'a4-extra-preview-scalebar';
                     extraSb.style.cssText =
@@ -885,7 +1011,6 @@
                         'background:rgba(255,255,255,0.88);border:1px solid rgba(0,0,0,0.45);' +
                         'border-radius:4px;padding:3px 8px 4px 8px;box-shadow:0 1px 4px rgba(0,0,0,0.18);z-index:2002;';
                     er.appendChild(extraSb);
-                    var extraLat = extraGeocenters[p] ? extraGeocenters[p].lat : (rectGeoCenter ? rectGeoCenter.lat : 31.5);
                     updatePreviewScaleBar(extraSb, selectedScale, extraLat, pw, ph, pageLandscape);
 
                     mapContainer.appendChild(er);
@@ -929,9 +1054,14 @@
             // Page count change and combine PDF checkbox listeners
             function updatePrintButtonState() {
                 var pCount = parseInt(document.getElementById('a4PageCount').value) || 1;
+                var multiStrip = document.getElementById('a4MultiPageStrip');
                 var combineLabel = document.getElementById('a4CombineLabel');
                 var combineCheck = document.getElementById('a4CombinePdf');
                 var printBtn = document.getElementById('a4Print');
+
+                if (multiStrip) {
+                    multiStrip.style.display = (pCount > 1) ? 'flex' : 'none';
+                }
                 if (pCount > 1) {
                     if (combineLabel) combineLabel.style.display = 'inline-flex';
                     if (combineCheck && combineCheck.checked) {
@@ -943,7 +1073,7 @@
                     }
                 } else {
                     if (combineLabel) combineLabel.style.display = 'none';
-                    printBtn.innerHTML = '🖨️ Print / Save';
+                    printBtn.innerHTML = '🖨️ Print / Save PDF';
                     printBtn.title = 'Print or save current page as PDF';
                 }
             }
@@ -1025,10 +1155,16 @@
                 isLandscape = landscape;
                 window.captureOrientation = landscape ? 'landscape' : 'portrait';
                 // Update button styles
-                document.getElementById('a4Portrait').style.background  = landscape ? 'transparent' : '#0066cc';
-                document.getElementById('a4Portrait').style.borderColor  = landscape ? 'rgba(255,255,255,0.3)' : '#fff';
-                document.getElementById('a4Landscape').style.background = landscape ? '#0066cc' : 'transparent';
-                document.getElementById('a4Landscape').style.borderColor = landscape ? '#fff' : 'rgba(255,255,255,0.3)';
+                var portBtn = document.getElementById('a4Portrait');
+                var landBtn = document.getElementById('a4Landscape');
+                if (portBtn) {
+                    if (!landscape) portBtn.classList.add('active');
+                    else portBtn.classList.remove('active');
+                }
+                if (landBtn) {
+                    if (landscape) landBtn.classList.add('active');
+                    else landBtn.classList.remove('active');
+                }
                 // Rebuild rect dimensions
                 var dims = calculateRectDimensions(landscape, selectedScale, rectGeoCenter.lat);
                 rectW = dims.w;
@@ -1221,23 +1357,28 @@
                             'border-radius:3px;padding:2px 6px;pointer-events:none;' + best.style;
                     })();
 
+                    var singleTopOffset = Math.round((printH - H_cover) / 2);
+                    var singleLeftOffset = Math.round((printW - W_cover) / 2);
+                    var singleTransform = (savedPrintRotation === 0) ? 'none' : ('rotate(' + (-savedPrintRotation) + 'deg)');
+
                     var printStyle = document.createElement('style');
                     printStyle.id = 'a4PrintStyle';
                     printStyle.textContent =
                         '@media print {' +
+                        '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                         '  #showSidebarBtn { display:none !important; }' +
-                        '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                        '  .sidebar, .zoom-indicator, #azmWarning, #projectionWarning, #noFolderWarning, #mapWatermark { display:none !important; }' +
                         '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                         '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                         '  html, body { margin:0 !important; padding:0 !important;' +
                         '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
-                        '    overflow:hidden !important; }' +
+                        '    overflow:hidden !important; display:block !important; background:transparent !important; }' +
                         '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
                         '    position:relative !important; width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    overflow:hidden !important; }' +
-                        '  #map { position:absolute !important; top:50% !important; left:50% !important;' +
+                        '  #map { position:absolute !important; top:' + singleTopOffset + 'px !important; left:' + singleLeftOffset + 'px !important;' +
                         '    width:' + W_cover + 'px !important; height:' + H_cover + 'px !important;' +
-                        '    transform: translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg) !important;' +
+                        '    transform: ' + singleTransform + ' !important;' +
                         '    transform-origin: center center !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
@@ -1339,7 +1480,9 @@
                                 multiPrintStyle.id = 'a4PrintStyle';
                                 multiPrintStyle.textContent =
                                     '@media print {' +
-                                    '  #showSidebarBtn, .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                                    '  body > *:not(#printPagesContainer) { display:none !important; }' +
+                                    '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
+                                    '  #showSidebarBtn, .sidebar, .zoom-indicator, #azmWarning, #projectionWarning, #noFolderWarning, #mapWatermark, #a4Watermark, #a4ScaleBar { display:none !important; }' +
                                     '  .container { display:none !important; }' +
                                     '  #printPagesContainer { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; }' +
                                     '  .print-page-sheet { display:block !important; position:relative !important; overflow:hidden !important;' +
@@ -1347,7 +1490,7 @@
                                     '    margin:0 !important; padding:0 !important; }' +
                                     '  .print-page-sheet:last-child { page-break-after:auto !important; break-after:auto !important; }' +
                                     '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
-                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; }' +
+                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; height:auto !important; display:block !important; background:transparent !important; }' +
                                     '  @page { size:' + singleCssPageSize + '; margin:0; }' +
                                     '}';
                                 document.head.appendChild(multiPrintStyle);
@@ -1409,13 +1552,19 @@
                                 // Clone rendered map element
                                 var clonedMap = deepCloneWithCanvas(mapDiv);
                                 clonedMap.id = 'map_page_' + renderPageIndex;
+                                var topOffset = Math.round((pgH - pgH_cover) / 2);
+                                var leftOffset = Math.round((pgW - pgW_cover) / 2);
                                 clonedMap.style.position = 'absolute';
-                                clonedMap.style.top = '50%';
-                                clonedMap.style.left = '50%';
+                                clonedMap.style.top = topOffset + 'px';
+                                clonedMap.style.left = leftOffset + 'px';
                                 clonedMap.style.width = pgW_cover + 'px';
                                 clonedMap.style.height = pgH_cover + 'px';
-                                clonedMap.style.transform = 'translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg)';
-                                clonedMap.style.transformOrigin = 'center center';
+                                if (savedPrintRotation === 0) {
+                                    clonedMap.style.transform = 'none';
+                                } else {
+                                    clonedMap.style.transform = 'rotate(' + (-savedPrintRotation) + 'deg)';
+                                    clonedMap.style.transformOrigin = 'center center';
+                                }
                                 clonedMap.style.margin = '0';
                                 clonedMap.style.padding = '0';
 
@@ -1505,23 +1654,28 @@
                             // Recreate print style with correct dimensions for this page
                             var oldPs = document.getElementById('a4PrintStyle');
                             if (oldPs) oldPs.parentNode.removeChild(oldPs);
+                            var pageTopOffset = Math.round((pgH - pgH_cover) / 2);
+                            var pageLeftOffset = Math.round((pgW - pgW_cover) / 2);
+                            var pageTransform = (savedPrintRotation === 0) ? 'none' : ('rotate(' + (-savedPrintRotation) + 'deg)');
+
                             var ps = document.createElement('style');
                             ps.id = 'a4PrintStyle';
                             ps.textContent =
                                 '@media print {' +
+                                '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                                 '  #showSidebarBtn { display:none !important; }' +
-                                '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                                '  .sidebar, .zoom-indicator, #azmWarning, #projectionWarning, #noFolderWarning, #mapWatermark { display:none !important; }' +
                                 '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                                 '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                                 '  html, body { margin:0 !important; padding:0 !important;' +
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
-                                '    overflow:hidden !important; }' +
+                                '    overflow:hidden !important; display:block !important; background:transparent !important; }' +
                                 '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
                                 '    position:relative !important; width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    overflow:hidden !important; }' +
-                                '  #map { position:absolute !important; top:50% !important; left:50% !important;' +
+                                '  #map { position:absolute !important; top:' + pageTopOffset + 'px !important; left:' + pageLeftOffset + 'px !important;' +
                                 '    width:' + pgW_cover + 'px !important; height:' + pgH_cover + 'px !important;' +
-                                '    transform: translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg) !important;' +
+                                '    transform: ' + pageTransform + ' !important;' +
                                 '    transform-origin: center center !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +
@@ -1663,12 +1817,13 @@
                 printStyle.id = '_selPrintStyle';
                 printStyle.textContent =
                     '@media print {' +
+                    '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                     '  #showSidebarBtn, .sidebar, .zoom-indicator,' +
                     '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                     '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                     '  @page { margin:0; size:' + viewW + 'px ' + viewH + 'px; }' +
                     '  html, body { margin:0!important;padding:0!important;' +
-                    '    width:' + viewW + 'px!important;height:' + viewH + 'px!important;overflow:hidden!important; }' +
+                    '    width:' + viewW + 'px!important;height:' + viewH + 'px!important;overflow:hidden!important; display:block!important; }' +
                     '  .container { display:block!important;margin:0!important;padding:0!important; }' +
                     '  #map { position:fixed!important;top:0!important;left:0!important;' +
                     '    width:' + viewW + 'px!important;height:' + viewH + 'px!important;' +

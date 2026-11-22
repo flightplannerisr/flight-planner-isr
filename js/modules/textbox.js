@@ -23,6 +23,14 @@
             instruction.appendChild(cancelBtn);
             
             var textBoxClickHandler = function(e) {
+                if (e.originalEvent && e.originalEvent.target && (
+                    e.originalEvent.target.closest('#mapHudToolbar') ||
+                    e.originalEvent.target.closest('#mapLayersPopover') ||
+                    e.originalEvent.target.closest('#topNavbar') ||
+                    e.originalEvent.target.closest('.sidebar')
+                )) {
+                    return;
+                }
                 createTextBox(e.latlng);
                 appState.addingTextBox = false;
                 btn.textContent = 'Add Text Box';

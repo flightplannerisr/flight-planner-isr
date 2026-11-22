@@ -38,6 +38,14 @@
             }
             
             var mapClickHandler = function(e) {
+                if (e.originalEvent && e.originalEvent.target && (
+                    e.originalEvent.target.closest('#mapHudToolbar') ||
+                    e.originalEvent.target.closest('#mapLayersPopover') ||
+                    e.originalEvent.target.closest('#topNavbar') ||
+                    e.originalEvent.target.closest('.sidebar')
+                )) {
+                    return;
+                }
                 createHighlightCircle(e.latlng);
                 cleanup();
             };
