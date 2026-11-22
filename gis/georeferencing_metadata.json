@@ -1,0 +1,66 @@
+{
+  "air_nav_combined_aligned": {
+    "description": "Israel AIP Air Navigation Chart (Combined North + South)",
+    "dimensions": {
+      "width_px": 4154,
+      "height_px": 10315
+    },
+    "crs": "EPSG:3857 (Web Mercator)",
+    "wgs84_bounds": {
+      "south": 29.505837,
+      "north": 33.425343,
+      "west": 34.08753,
+      "east": 35.938721
+    },
+    "epsg3857_bounds": {
+      "min_x": 3794606.4814722235,
+      "max_x": 4000680.1209246283,
+      "min_y": 3440186.640757824,
+      "max_y": 3951898.1817792235
+    },
+    "resolution_m_per_px": {
+      "x": 49.608483257680504,
+      "y": 49.608486768919015
+    },
+    "world_file_params": {
+      "pixel_x_size": 49.608483257680504,
+      "rotation_y": 0.0,
+      "rotation_x": 0.0,
+      "pixel_y_size_negative": -49.608486768919015,
+      "top_left_center_x": 3794631.2857138524,
+      "top_left_center_y": 3951873.377535839
+    }
+  },
+  "air_nav_combined_aligned_AZM": {
+    "description": "Israel CAA AZM Low Level Chart (Combined North + South)",
+    "dimensions": {
+      "width_px": 4164,
+      "height_px": 10292
+    },
+    "crs": "EPSG:3857 (Web Mercator)",
+    "wgs84_bounds": {
+      "south": 29.507471,
+      "north": 33.424702,
+      "west": 34.079555,
+      "east": 35.938279
+    },
+    "epsg3857_bounds": {
+      "min_x": 3793718.7085332703,
+      "max_x": 4000630.917709705,
+      "min_y": 3440395.6449642484,
+      "max_y": 3951812.6855378402
+    },
+    "resolution_m_per_px": {
+      "x": 49.690732270997756,
+      "y": 49.69073460683947
+    },
+    "world_file_params": {
+      "pixel_x_size": 49.690732270997756,
+      "rotation_y": 0.0,
+      "rotation_x": 0.0,
+      "pixel_y_size_negative": -49.69073460683947,
+      "top_left_center_x": 3793743.553899406,
+      "top_left_center_y": 3951787.8401705367
+    }
+  }
+}
