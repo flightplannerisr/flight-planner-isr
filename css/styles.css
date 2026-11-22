@@ -365,6 +365,30 @@
             .leaflet-tile {
                 image-rendering: -webkit-optimize-contrast !important;
             }
+
+            /* Completely hide all UI bars, toolbars, headers in print mode */
+            .top-navbar,
+            #topNavbar,
+            .map-hud-toolbar,
+            #mapHudToolbar,
+            .map-layers-popover,
+            #mapLayersPopover,
+            .sidebar,
+            #sidebar,
+            #showSidebarBtn,
+            .zoom-indicator,
+            #azmWarning,
+            #mapWatermark {
+                display: none !important;
+            }
+
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
         }
         
         #print-info { display: none; }

@@ -1225,13 +1225,14 @@
                     printStyle.id = 'a4PrintStyle';
                     printStyle.textContent =
                         '@media print {' +
+                        '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                         '  #showSidebarBtn { display:none !important; }' +
                         '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
                         '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                         '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                         '  html, body { margin:0 !important; padding:0 !important;' +
                         '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
-                        '    overflow:hidden !important; }' +
+                        '    overflow:hidden !important; display:block !important; }' +
                         '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
                         '    position:relative !important; width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    overflow:hidden !important; }' +
@@ -1339,6 +1340,7 @@
                                 multiPrintStyle.id = 'a4PrintStyle';
                                 multiPrintStyle.textContent =
                                     '@media print {' +
+                                    '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                                     '  #showSidebarBtn, .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
                                     '  .container { display:none !important; }' +
                                     '  #printPagesContainer { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; }' +
@@ -1347,7 +1349,7 @@
                                     '    margin:0 !important; padding:0 !important; }' +
                                     '  .print-page-sheet:last-child { page-break-after:auto !important; break-after:auto !important; }' +
                                     '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
-                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; }' +
+                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; height:auto !important; display:block !important; }' +
                                     '  @page { size:' + singleCssPageSize + '; margin:0; }' +
                                     '}';
                                 document.head.appendChild(multiPrintStyle);
@@ -1509,13 +1511,14 @@
                             ps.id = 'a4PrintStyle';
                             ps.textContent =
                                 '@media print {' +
+                                '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                                 '  #showSidebarBtn { display:none !important; }' +
                                 '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
                                 '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                                 '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                                 '  html, body { margin:0 !important; padding:0 !important;' +
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
-                                '    overflow:hidden !important; }' +
+                                '    overflow:hidden !important; display:block !important; }' +
                                 '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
                                 '    position:relative !important; width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    overflow:hidden !important; }' +
@@ -1663,12 +1666,13 @@
                 printStyle.id = '_selPrintStyle';
                 printStyle.textContent =
                     '@media print {' +
+                    '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                     '  #showSidebarBtn, .sidebar, .zoom-indicator,' +
                     '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                     '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                     '  @page { margin:0; size:' + viewW + 'px ' + viewH + 'px; }' +
                     '  html, body { margin:0!important;padding:0!important;' +
-                    '    width:' + viewW + 'px!important;height:' + viewH + 'px!important;overflow:hidden!important; }' +
+                    '    width:' + viewW + 'px!important;height:' + viewH + 'px!important;overflow:hidden!important; display:block!important; }' +
                     '  .container { display:block!important;margin:0!important;padding:0!important; }' +
                     '  #map { position:fixed!important;top:0!important;left:0!important;' +
                     '    width:' + viewW + 'px!important;height:' + viewH + 'px!important;' +
