@@ -1,0 +1,130 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "notam_id": "C2439/26",
+        "type": "NOTAMN",
+        "q_code": "QAELC",
+        "start_time": "2611200345",
+        "end_time": "2611201000",
+        "schedule": "0345-0700 0745-1000",
+        "lower_limit": "GND",
+        "upper_limit": "FL090",
+        "text": "AN AREA AT KESHET/GOLAN-HEIGHTS BTN FLW PSN CLSD FM GND\n   UP TO 9,000FT AMSL, TO ALL FLT INCLUDING AGRICULTURE FLT:\n   325643N0355342E 325613N0354517E 330323N0354356E 330648N0354855E\n   330602N0355058E 325816N0355235E.\n   CTN ADZ.",
+        "source": "Item E explicit boundary"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.895,
+              32.945278
+            ],
+            [
+              35.754722,
+              32.936944
+            ],
+            [
+              35.732222,
+              33.056389
+            ],
+            [
+              35.815278,
+              33.113333
+            ],
+            [
+              35.849444,
+              33.100556
+            ],
+            [
+              35.876389,
+              32.971111
+            ],
+            [
+              35.895,
+              32.945278
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "notam_id": "A0512/26",
+        "type": "NOTAMN",
+        "q_code": "QWPLW",
+        "start_time": "2611210600",
+        "end_time": "2611211400",
+        "schedule": null,
+        "lower_limit": "GND G) 1500FT AMSL)",
+        "upper_limit": "1500FT AMSL)",
+        "text": "UNMANNED ACFT ACT WILL TAKE PLACE WI A RADIUS OF 2NM CENTRED ON\n   315320N0344415E (PALMAHIM).",
+        "source": "Item E explicit radius",
+        "radius_meters": 3704.0,
+        "radius_nm": 2.0,
+        "is_circle": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7375,
+          31.888889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "notam_id": "C1820/26",
+        "type": "NOTAMN",
+        "q_code": "QOBCE",
+        "start_time": "2611150500",
+        "end_time": "2612311600",
+        "schedule": null,
+        "lower_limit": "GND",
+        "upper_limit": "FL003",
+        "text": "TEMPORARY CRANE ERECTED AT PSN 320432N0344715E (TEL AVIV),\n   ELEVATION 280FT AMSL, HGT 120FT AGL. FLG AND LGTD.)",
+        "source": "Q-line influence radius",
+        "radius_meters": 1852.0,
+        "radius_nm": 1,
+        "is_circle": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.783333,
+          32.066667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "notam_id": "A0490/26",
+        "type": "NOTAMN",
+        "q_code": "QWLLW",
+        "start_time": "2611221700",
+        "end_time": "2611222100",
+        "schedule": null,
+        "lower_limit": "GND",
+        "upper_limit": "FL050",
+        "text": "LASER EMISSION WILL TAKE PLACE IN JERUSALEM AREA. CTN ADZ.)",
+        "source": "Q-line influence radius",
+        "radius_meters": 5556.0,
+        "radius_nm": 3,
+        "is_circle": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.216667,
+          31.766667
+        ]
+      }
+    }
+  ]
+}
