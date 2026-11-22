@@ -1221,24 +1221,28 @@
                             'border-radius:3px;padding:2px 6px;pointer-events:none;' + best.style;
                     })();
 
+                    var singleTopOffset = Math.round((printH - H_cover) / 2);
+                    var singleLeftOffset = Math.round((printW - W_cover) / 2);
+                    var singleTransform = (savedPrintRotation === 0) ? 'none' : ('rotate(' + (-savedPrintRotation) + 'deg)');
+
                     var printStyle = document.createElement('style');
                     printStyle.id = 'a4PrintStyle';
                     printStyle.textContent =
                         '@media print {' +
                         '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                         '  #showSidebarBtn { display:none !important; }' +
-                        '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                        '  .sidebar, .zoom-indicator, #azmWarning, #projectionWarning, #noFolderWarning, #mapWatermark { display:none !important; }' +
                         '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                         '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                         '  html, body { margin:0 !important; padding:0 !important;' +
                         '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
-                        '    overflow:hidden !important; display:block !important; }' +
+                        '    overflow:hidden !important; display:block !important; background:transparent !important; }' +
                         '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
                         '    position:relative !important; width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    overflow:hidden !important; }' +
-                        '  #map { position:absolute !important; top:50% !important; left:50% !important;' +
+                        '  #map { position:absolute !important; top:' + singleTopOffset + 'px !important; left:' + singleLeftOffset + 'px !important;' +
                         '    width:' + W_cover + 'px !important; height:' + H_cover + 'px !important;' +
-                        '    transform: translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg) !important;' +
+                        '    transform: ' + singleTransform + ' !important;' +
                         '    transform-origin: center center !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
@@ -1340,8 +1344,9 @@
                                 multiPrintStyle.id = 'a4PrintStyle';
                                 multiPrintStyle.textContent =
                                     '@media print {' +
+                                    '  body > *:not(#printPagesContainer) { display:none !important; }' +
                                     '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
-                                    '  #showSidebarBtn, .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                                    '  #showSidebarBtn, .sidebar, .zoom-indicator, #azmWarning, #projectionWarning, #noFolderWarning, #mapWatermark, #a4Watermark, #a4ScaleBar { display:none !important; }' +
                                     '  .container { display:none !important; }' +
                                     '  #printPagesContainer { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; }' +
                                     '  .print-page-sheet { display:block !important; position:relative !important; overflow:hidden !important;' +
@@ -1349,7 +1354,7 @@
                                     '    margin:0 !important; padding:0 !important; }' +
                                     '  .print-page-sheet:last-child { page-break-after:auto !important; break-after:auto !important; }' +
                                     '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
-                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; height:auto !important; display:block !important; }' +
+                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; height:auto !important; display:block !important; background:transparent !important; }' +
                                     '  @page { size:' + singleCssPageSize + '; margin:0; }' +
                                     '}';
                                 document.head.appendChild(multiPrintStyle);
@@ -1411,13 +1416,19 @@
                                 // Clone rendered map element
                                 var clonedMap = deepCloneWithCanvas(mapDiv);
                                 clonedMap.id = 'map_page_' + renderPageIndex;
+                                var topOffset = Math.round((pgH - pgH_cover) / 2);
+                                var leftOffset = Math.round((pgW - pgW_cover) / 2);
                                 clonedMap.style.position = 'absolute';
-                                clonedMap.style.top = '50%';
-                                clonedMap.style.left = '50%';
+                                clonedMap.style.top = topOffset + 'px';
+                                clonedMap.style.left = leftOffset + 'px';
                                 clonedMap.style.width = pgW_cover + 'px';
                                 clonedMap.style.height = pgH_cover + 'px';
-                                clonedMap.style.transform = 'translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg)';
-                                clonedMap.style.transformOrigin = 'center center';
+                                if (savedPrintRotation === 0) {
+                                    clonedMap.style.transform = 'none';
+                                } else {
+                                    clonedMap.style.transform = 'rotate(' + (-savedPrintRotation) + 'deg)';
+                                    clonedMap.style.transformOrigin = 'center center';
+                                }
                                 clonedMap.style.margin = '0';
                                 clonedMap.style.padding = '0';
 
@@ -1507,24 +1518,28 @@
                             // Recreate print style with correct dimensions for this page
                             var oldPs = document.getElementById('a4PrintStyle');
                             if (oldPs) oldPs.parentNode.removeChild(oldPs);
+                            var pageTopOffset = Math.round((pgH - pgH_cover) / 2);
+                            var pageLeftOffset = Math.round((pgW - pgW_cover) / 2);
+                            var pageTransform = (savedPrintRotation === 0) ? 'none' : ('rotate(' + (-savedPrintRotation) + 'deg)');
+
                             var ps = document.createElement('style');
                             ps.id = 'a4PrintStyle';
                             ps.textContent =
                                 '@media print {' +
                                 '  #topNavbar, .top-navbar, #mapHudToolbar, .map-hud-toolbar, #mapLayersPopover, .map-layers-popover { display:none !important; }' +
                                 '  #showSidebarBtn { display:none !important; }' +
-                                '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                                '  .sidebar, .zoom-indicator, #azmWarning, #projectionWarning, #noFolderWarning, #mapWatermark { display:none !important; }' +
                                 '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                                 '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                                 '  html, body { margin:0 !important; padding:0 !important;' +
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
-                                '    overflow:hidden !important; display:block !important; }' +
+                                '    overflow:hidden !important; display:block !important; background:transparent !important; }' +
                                 '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
                                 '    position:relative !important; width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    overflow:hidden !important; }' +
-                                '  #map { position:absolute !important; top:50% !important; left:50% !important;' +
+                                '  #map { position:absolute !important; top:' + pageTopOffset + 'px !important; left:' + pageLeftOffset + 'px !important;' +
                                 '    width:' + pgW_cover + 'px !important; height:' + pgH_cover + 'px !important;' +
-                                '    transform: translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg) !important;' +
+                                '    transform: ' + pageTransform + ' !important;' +
                                 '    transform-origin: center center !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +

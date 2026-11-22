@@ -378,6 +378,8 @@
             #showSidebarBtn,
             .zoom-indicator,
             #azmWarning,
+            #projectionWarning,
+            #noFolderWarning,
             #mapWatermark {
                 display: none !important;
             }
@@ -388,6 +390,7 @@
                 height: auto !important;
                 overflow: visible !important;
                 display: block !important;
+                background: transparent !important;
             }
         }
         
