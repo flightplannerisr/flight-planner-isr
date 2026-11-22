@@ -220,7 +220,7 @@
         window.captureA5Area = function() { window.captureA4Area('A5'); };
 
         // Helper to construct a graphic scale bar for printed maps
-        function buildScaleBarHtml(scaleNum, lat) {
+        function buildScaleBarHtml(scaleNum, lat, rotDeg) {
             // Standard CSS print resolution is 96 DPI: 1 inch = 25.4mm = 96px => 1px = 0.0254 / 96 meters
             var pxPerM = 96.0 / (0.0254 * scaleNum);
             var candidates = [0.5, 1, 2, 3, 4, 5, 10, 20, 50];
@@ -240,9 +240,18 @@
             var cmKm = +(scaleNum / 100000.0).toFixed(2);
             var halfNm = (bestNm % 2 === 0) ? (bestNm / 2) : +(bestNm / 2).toFixed(1);
             var halfKm = +(km / 2.0).toFixed(1);
+            var arrowRot = (rotDeg !== undefined) ? Math.round(-rotDeg) : 0;
 
             return '<div style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;font-size:8.5px;line-height:1.2;color:#111;text-align:center;">' +
-                '<div style="font-weight:700;letter-spacing:0.4px;font-size:9.5px;margin-bottom:1px;">SCALE ' + scaleStr + '</div>' +
+                '<div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:2px;">' +
+                '<svg width="15" height="15" viewBox="0 0 24 24" style="transform:rotate(' + arrowRot + 'deg);transform-origin:center center;display:inline-block;vertical-align:middle;filter:drop-shadow(0 1px 1px rgba(0,0,0,0.3));">' +
+                '<polygon points="12,2 16,11 12,9 8,11" fill="#c0392b" />' +
+                '<polygon points="12,22 16,13 12,15 8,13" fill="#555" />' +
+                '<circle cx="12" cy="12" r="1.5" fill="#222" />' +
+                '<text x="12" y="1" font-size="6" font-weight="900" fill="#c0392b" text-anchor="middle" dominant-baseline="bottom">N</text>' +
+                '</svg>' +
+                '<span style="font-weight:700;letter-spacing:0.4px;font-size:9.5px;">SCALE ' + scaleStr + '</span>' +
+                '</div>' +
                 '<div style="font-size:7.5px;color:#333;margin-bottom:2px;">1 cm = ' + cmKm + ' km</div>' +
                 '<div style="display:flex;justify-content:space-between;width:' + barW + 'px;font-size:7.5px;font-weight:600;margin:0 auto 1px;padding:0 1px;box-sizing:border-box;">' +
                 '<span>0</span><span>' + halfNm + '</span><span>' + bestNm + ' NM</span>' +
@@ -264,6 +273,7 @@
             var selectedScale = '250000'; // Default scale: 1:250,000
             var selectedScaleSide = 'right'; // Scale bar position: 'right', 'left', 'center', 'none'
             var selectedScaleBarSize = 1.0; // Scale bar size multiplier: 0.5 to 2.0
+            var printRotation = 0; // Rotation angle in degrees (0 - 359)
 
             // Close screenshot modal but keep sidebar hidden
             closeScreenshotModal(true);
@@ -274,6 +284,39 @@
 
             // Geographic center of primary rect — source of truth
             var rectGeoCenter = appState.map.getCenter();
+
+            function calcBearing(lat1, lng1, lat2, lng2) {
+                var dLng = (lng2 - lng1) * Math.PI / 180;
+                var lat1Rad = lat1 * Math.PI / 180;
+                var lat2Rad = lat2 * Math.PI / 180;
+                var y = Math.sin(dLng) * Math.cos(lat2Rad);
+                var x = Math.cos(lat1Rad) * Math.sin(lat2Rad) -
+                        Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLng);
+                var b = Math.atan2(y, x) * 180 / Math.PI;
+                return Math.round((b + 360) % 360);
+            }
+
+            function getRouteTrackHeading() {
+                if (!appState.waypoints || appState.waypoints.length < 2) return 0;
+                var centerLat = rectGeoCenter ? rectGeoCenter.lat : appState.map.getCenter().lat;
+                var centerLng = rectGeoCenter ? rectGeoCenter.lng : appState.map.getCenter().lng;
+                var bestDist = Infinity;
+                var bestHeading = 0;
+                for (var i = 0; i < appState.waypoints.length - 1; i++) {
+                    var wp1 = appState.waypoints[i];
+                    var wp2 = appState.waypoints[i + 1];
+                    var midLat = (wp1.lat + wp2.lat) / 2;
+                    var midLng = (wp1.lng + wp2.lng) / 2;
+                    var dLat = centerLat - midLat;
+                    var dLng = (centerLng - midLng) * Math.cos(midLat * Math.PI / 180);
+                    var distSq = dLat * dLat + dLng * dLng;
+                    if (distSq < bestDist) {
+                        bestDist = distSq;
+                        bestHeading = calcBearing(wp1.lat, wp1.lng, wp2.lat, wp2.lng);
+                    }
+                }
+                return bestHeading;
+            }
 
             function calculateRectDimensions(land, scaleVal, centerLat) {
                 var widthMm = land ? paperSpec.longMm : paperSpec.shortMm;
@@ -325,22 +368,17 @@
             var startX = Math.round(centerPt.x - rectW / 2);
             var startY = Math.round(centerPt.y - rectH / 2);
 
-            // ── Overlay dimming layer ──────────────────────────────────────
-            var overlay = document.createElement('div');
-            overlay.id = 'a4Overlay';
-            overlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:2000;pointer-events:none;';
+            // ── Overlay dimming layer (SVG cutout for arbitrary rotation) ────
+            var svgOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svgOverlay.id = 'a4OverlaySvg';
+            svgOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;z-index:2000;pointer-events:none;';
+            var overlayPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            overlayPath.setAttribute('fill', 'rgba(0,0,0,0.45)');
+            overlayPath.setAttribute('fill-rule', 'evenodd');
+            svgOverlay.appendChild(overlayPath);
             var origMapPosition = mapContainer.style.position;
             mapContainer.style.position = 'relative';
-            mapContainer.appendChild(overlay);
-
-            // Four dimming panels around the rect
-            var panels = {};
-            ['top','bottom','left','right'].forEach(function(side) {
-                var p = document.createElement('div');
-                p.style.cssText = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;';
-                overlay.appendChild(p);
-                panels[side] = p;
-            });
+            mapContainer.appendChild(svgOverlay);
 
             // ── Print rectangle ───────────────────────────────────────────────
             var rect = document.createElement('div');
@@ -351,7 +389,8 @@
                 'box-shadow:0 0 0 1px #0066cc, inset 0 0 0 1px #0066cc',
                 'cursor:move',
                 'z-index:2001',
-                'box-sizing:border-box'
+                'box-sizing:border-box',
+                'transform-origin:center center'
             ].join(';');
             mapContainer.appendChild(rect);
 
@@ -359,6 +398,25 @@
             var label = document.createElement('div');
             label.style.cssText = 'position:absolute;top:4px;left:4px;background:rgba(0,102,204,0.85);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;pointer-events:none;white-space:nowrap;';
             rect.appendChild(label);
+
+            // Top indicator
+            var topIndicator = document.createElement('div');
+            topIndicator.id = 'a4TopIndicator';
+            topIndicator.style.cssText = 'position:absolute;top:4px;left:50%;transform:translateX(-50%);background:rgba(0,102,204,0.9);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;pointer-events:none;white-space:nowrap;letter-spacing:0.5px;box-shadow:0 1px 3px rgba(0,0,0,0.3);';
+            topIndicator.innerHTML = '⬆ TOP · <span id="a4TopAngle">000° (N)</span>';
+            rect.appendChild(topIndicator);
+
+            // Interactive rotation handle at top of rect
+            var rotStem = document.createElement('div');
+            rotStem.style.cssText = 'position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:2px;height:16px;background:#0066cc;pointer-events:none;';
+            rect.appendChild(rotStem);
+
+            var rotHandle = document.createElement('div');
+            rotHandle.id = 'a4RotHandle';
+            rotHandle.style.cssText = 'position:absolute;top:-34px;left:50%;transform:translateX(-50%);width:22px;height:22px;background:#0066cc;border:2px solid #fff;border-radius:50%;cursor:grab;box-shadow:0 2px 6px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2005;user-select:none;';
+            rotHandle.title = 'Drag to rotate print orientation (Hold Shift for smooth angle)';
+            rotHandle.innerHTML = '<span style="font-size:12px;color:#fff;line-height:1;pointer-events:none;user-select:none;">⟳</span>';
+            rect.appendChild(rotHandle);
 
             // Preview scale bar at bottom-right of primary rect
             var previewScaleBar = document.createElement('div');
@@ -388,7 +446,7 @@
                     effectiveScale = Math.round(groundWidthM / (widthMm / 1000.0));
                 }
 
-                targetEl.innerHTML = buildScaleBarHtml(effectiveScale, centerLat);
+                targetEl.innerHTML = buildScaleBarHtml(effectiveScale, centerLat, printRotation);
 
                 if (boxW < 120 || boxH < 80) {
                     targetEl.style.display = 'none';
@@ -435,6 +493,7 @@
 
             function updateLabel() {
                 var sizeText = paperSize + (isLandscape ? ' Landscape' : ' Portrait');
+                var rotText = (printRotation !== 0) ? ' · Rot: ' + (printRotation < 10 ? '00' : (printRotation < 100 ? '0' : '')) + printRotation + '°' : '';
                 var widthMm = isLandscape ? paperSpec.longMm : paperSpec.shortMm;
                 var heightMm = isLandscape ? paperSpec.shortMm : paperSpec.longMm;
                 if (selectedScale === 'auto') {
@@ -449,7 +508,7 @@
                     var nmW = (kmW * 0.539957).toFixed(1);
                     var nmH = (kmH * 0.539957).toFixed(1);
                     var cmText = (effectiveScale / 100000).toFixed(2) + ' km';
-                    label.textContent = sizeText + ' · ' + scaleText + ' (Auto: 1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
+                    label.textContent = sizeText + rotText + ' · ' + scaleText + ' (Auto: 1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
                 } else {
                     var scaleNum = parseInt(selectedScale, 10);
                     var scaleText = '1:' + (scaleNum >= 1000 ? (scaleNum / 1000) + 'k' : scaleNum);
@@ -458,7 +517,7 @@
                     var nmW = (kmW * 0.539957).toFixed(1);
                     var nmH = (kmH * 0.539957).toFixed(1);
                     var cmText = (scaleNum / 100000) + ' km';
-                    label.textContent = sizeText + ' · ' + scaleText + ' (1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
+                    label.textContent = sizeText + rotText + ' · ' + scaleText + ' (1cm = ' + cmText + ') · ' + kmW + '×' + kmH + ' km (' + nmW + '×' + nmH + ' NM)';
                 }
                 updatePreviewScaleBar(previewScaleBar, selectedScale, rectGeoCenter ? rectGeoCenter.lat : 31.5, rectW, rectH, isLandscape);
             }
@@ -467,38 +526,105 @@
             // Declared early so positionRect can call updateExtraRects safely
             var extraRects = [];
 
+            function updateOverlay() {
+                var curMapW = mapContainer.offsetWidth;
+                var curMapH = mapContainer.offsetHeight;
+                svgOverlay.setAttribute('width', curMapW);
+                svgOverlay.setAttribute('height', curMapH);
+                var pathStr = 'M 0 0 L ' + curMapW + ' 0 L ' + curMapW + ' ' + curMapH + ' L 0 ' + curMapH + ' Z ';
+
+                function getBoxCorners(cx, cy, w, h, angleDeg) {
+                    var rad = angleDeg * Math.PI / 180;
+                    var cos = Math.cos(rad);
+                    var sin = Math.sin(rad);
+                    var hw = w / 2;
+                    var hh = h / 2;
+                    return [
+                        { x: Math.round(cx - hw * cos + hh * sin), y: Math.round(cy - hw * sin - hh * cos) },
+                        { x: Math.round(cx + hw * cos + hh * sin), y: Math.round(cy + hw * sin - hh * cos) },
+                        { x: Math.round(cx + hw * cos - hh * sin), y: Math.round(cy + hw * sin + hh * cos) },
+                        { x: Math.round(cx - hw * cos - hh * sin), y: Math.round(cy - hw * sin + hh * cos) }
+                    ];
+                }
+
+                if (window._a4Pos && rectGeoCenter) {
+                    var pc = appState.map.latLngToContainerPoint(rectGeoCenter);
+                    var c1 = getBoxCorners(pc.x, pc.y, rectW, rectH, printRotation);
+                    pathStr += 'M ' + c1[0].x + ' ' + c1[0].y +
+                               ' L ' + c1[1].x + ' ' + c1[1].y +
+                               ' L ' + c1[2].x + ' ' + c1[2].y +
+                               ' L ' + c1[3].x + ' ' + c1[3].y + ' Z ';
+                }
+
+                extraRects.forEach(function(er, idx) {
+                    var p = idx + 1;
+                    var gc = extraGeocenters[p];
+                    if (!gc) return;
+                    var ep = appState.map.latLngToContainerPoint(gc);
+                    var ew = parseInt(er.style.width) || rectW;
+                    var eh = parseInt(er.style.height) || rectH;
+                    var c = getBoxCorners(ep.x, ep.y, ew, eh, printRotation);
+                    pathStr += 'M ' + c[0].x + ' ' + c[0].y +
+                               ' L ' + c[1].x + ' ' + c[1].y +
+                               ' L ' + c[2].x + ' ' + c[2].y +
+                               ' L ' + c[3].x + ' ' + c[3].y + ' Z ';
+                });
+
+                overlayPath.setAttribute('d', pathStr);
+            }
+
             function positionRect(x, y) {
-                var minX = Math.min(0, mapW - rectW);
-                var maxX = Math.max(0, mapW - rectW);
-                var minY = Math.min(0, mapH - rectH);
-                var maxY = Math.max(0, mapH - rectH);
-                x = Math.max(minX, Math.min(maxX, x));
-                y = Math.max(minY, Math.min(maxY, y));
                 rect.style.left   = x + 'px';
                 rect.style.top    = y + 'px';
                 rect.style.width  = rectW + 'px';
                 rect.style.height = rectH + 'px';
-                updatePanels(x, y, rectW, rectH);
+                rect.style.transform = 'rotate(' + printRotation + 'deg)';
                 window._a4Pos = { x: x, y: y, w: rectW, h: rectH };
                 // Save geographic center
                 rectGeoCenter = appState.map.containerPointToLatLng(
                     L.point(x + rectW / 2, y + rectH / 2)
                 );
+                updateOverlay();
                 if (typeof updateExtraRects === 'function') updateExtraRects();
             }
 
-            function updatePanels(x, y, w, h) {
-                var topH = Math.max(0, y);
-                var botY = Math.max(0, y + h);
-                var botH = Math.max(0, mapH - botY);
-                var leftW = Math.max(0, x);
-                var rightX = Math.max(0, x + w);
-                var rightW = Math.max(0, mapW - rightX);
+            function setPrintRotation(deg, source) {
+                printRotation = ((Math.round(deg) % 360) + 360) % 360;
+                rect.style.transform = 'rotate(' + printRotation + 'deg)';
 
-                panels.top.style.cssText    = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:0;width:100%;height:' + topH + 'px;';
-                panels.bottom.style.cssText = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + botY + 'px;width:100%;height:' + botH + 'px;';
-                panels.left.style.cssText   = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:0;top:' + topH + 'px;width:' + leftW + 'px;height:' + Math.min(mapH - topH, Math.max(0, h)) + 'px;';
-                panels.right.style.cssText  = 'position:absolute;background:rgba(0,0,0,0.45);pointer-events:none;left:' + rightX + 'px;top:' + topH + 'px;width:' + rightW + 'px;height:' + Math.min(mapH - topH, Math.max(0, h)) + 'px;';
+                var topAngleEl = document.getElementById('a4TopAngle');
+                if (topAngleEl) {
+                    var card = '';
+                    if (printRotation === 0) card = ' (N)';
+                    else if (printRotation === 90) card = ' (E)';
+                    else if (printRotation === 180) card = ' (S)';
+                    else if (printRotation === 270) card = ' (W)';
+                    topAngleEl.textContent = (printRotation < 10 ? '00' : (printRotation < 100 ? '0' : '')) + printRotation + '°' + card;
+                }
+
+                var rotSelect = document.getElementById('a4Rotation');
+                if (rotSelect && source !== 'select') {
+                    if ([0, 90, 180, 270].indexOf(printRotation) !== -1) {
+                        rotSelect.value = String(printRotation);
+                    } else {
+                        rotSelect.value = 'custom';
+                    }
+                }
+                var rotSlider = document.getElementById('a4RotSlider');
+                if (rotSlider && source !== 'slider') {
+                    rotSlider.value = printRotation;
+                }
+                var rotValEl = document.getElementById('a4RotVal');
+                if (rotValEl) {
+                    rotValEl.textContent = (printRotation < 10 ? '00' : (printRotation < 100 ? '0' : '')) + printRotation + '°';
+                }
+
+                extraRects.forEach(function(er) {
+                    er.style.transform = 'rotate(' + printRotation + 'deg)';
+                });
+
+                updateOverlay();
+                updateLabel();
             }
 
             // Re-anchor rects to geo position when map moves/zooms
@@ -516,7 +642,7 @@
                 rect.style.top    = y + 'px';
                 rect.style.width  = rectW + 'px';
                 rect.style.height = rectH + 'px';
-                updatePanels(x, y, rectW, rectH);
+                rect.style.transform = 'rotate(' + printRotation + 'deg)';
                 window._a4Pos = { x: x, y: y, w: rectW, h: rectH };
                 // Reposition extra rects from their geo centers
                 extraRects.forEach(function(er, idx) {
@@ -532,33 +658,70 @@
                     er.style.top    = Math.round(ep.y - ph/2) + 'px';
                     er.style.width  = pw + 'px';
                     er.style.height = ph + 'px';
+                    er.style.transform = 'rotate(' + printRotation + 'deg)';
                     var exSb = er.querySelector('.a4-extra-preview-scalebar');
                     if (exSb) {
                         updatePreviewScaleBar(exSb, selectedScale, gc.lat, pw, ph, pageLandscape);
                     }
                 });
+                updateOverlay();
                 updateLabel();
             }
             appState.map.on('move zoom', refreshRectPositions);
 
-            // ── Drag logic ─────────────────────────────────────────────────
-            var dragging = false, dragOffX, dragOffY;
+            // ── Drag & Rotate logic ──────────────────────────────────────────
+            var dragging = false, rotDragging = false;
+            var dragStartX = 0, dragStartY = 0, initialPosX = 0, initialPosY = 0;
+
+            rotHandle.addEventListener('mousedown', function(e) {
+                rotDragging = true;
+                rotHandle.style.cursor = 'grabbing';
+                e.preventDefault();
+                e.stopPropagation();
+                appState.map.dragging.disable();
+            });
+
             rect.addEventListener('mousedown', function(e) {
+                if (e.target === rotHandle || e.target.closest('#a4RotHandle') || e.target.tagName === 'BUTTON') return;
                 dragging = true;
-                var r = rect.getBoundingClientRect();
-                var m = mapContainer.getBoundingClientRect();
-                dragOffX = e.clientX - (r.left - m.left);
-                dragOffY = e.clientY - (r.top  - m.top);
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                initialPosX = window._a4Pos ? window._a4Pos.x : (parseInt(rect.style.left) || 0);
+                initialPosY = window._a4Pos ? window._a4Pos.y : (parseInt(rect.style.top) || 0);
                 e.preventDefault();
                 appState.map.dragging.disable();
             });
+
             document.addEventListener('mousemove', function(e) {
-                if (!dragging) return;
-                var m = mapContainer.getBoundingClientRect();
-                positionRect(e.clientX - m.left - dragOffX, e.clientY - m.top - dragOffY);
+                if (rotDragging) {
+                    var center = appState.map.latLngToContainerPoint(rectGeoCenter);
+                    var mapR = mapContainer.getBoundingClientRect();
+                    var cx = mapR.left + center.x;
+                    var cy = mapR.top + center.y;
+                    var angleRad = Math.atan2(e.clientY - cy, e.clientX - cx);
+                    var angleDeg = Math.round(angleRad * 180 / Math.PI) + 90;
+                    var normalized = ((angleDeg % 360) + 360) % 360;
+                    var finalAngle = e.shiftKey ? normalized : Math.round(normalized / 5) * 5 % 360;
+                    setPrintRotation(finalAngle, 'handle');
+                    return;
+                }
+                if (dragging) {
+                    var nx = initialPosX + (e.clientX - dragStartX);
+                    var ny = initialPosY + (e.clientY - dragStartY);
+                    positionRect(nx, ny);
+                }
             });
+
             document.addEventListener('mouseup', function() {
-                if (dragging) { dragging = false; appState.map.dragging.enable(); }
+                if (dragging) {
+                    dragging = false;
+                    appState.map.dragging.enable();
+                }
+                if (rotDragging) {
+                    rotDragging = false;
+                    rotHandle.style.cursor = 'grab';
+                    appState.map.dragging.enable();
+                }
             });
 
             // ── Toolbar ────────────────────────────────────────────────────
@@ -568,12 +731,25 @@
                 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%)',
                 'background:rgba(0,0,0,0.85);color:#fff;border-radius:10px',
                 'padding:8px 14px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px',
-                'z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,0.4);font-size:13px;font-weight:600;max-width:95vw'
+                'z-index:3000;box-shadow:0 4px 16px rgba(0,0,0,0.4);font-size:13px;font-weight:600;max-width:96vw'
             ].join(';');
             toolbar.innerHTML =
-                '<span style="opacity:.7;font-size:12px;">Drag rect · scroll to zoom</span>' +
+                '<span style="opacity:.7;font-size:12px;">Drag rect · scroll zoom</span>' +
                 '<button id="a4Portrait"  style="padding:5px 10px;background:#0066cc;color:#fff;border:2px solid #fff;border-radius:5px;cursor:pointer;font-size:12px;">📱 Port</button>' +
                 '<button id="a4Landscape" style="padding:5px 10px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;">📐 Land</button>' +
+                '<span style="opacity:.7;font-size:12px;margin-left:4px;">Rot:</span>' +
+                '<select id="a4Rotation" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;" title="Print rotation orientation">' +
+                    '<option value="0" selected>⬆ 0° (North)</option>' +
+                    '<option value="90">➡ 90° (East)</option>' +
+                    '<option value="180">⬇ 180° (South)</option>' +
+                    '<option value="270">⬅ 270° (West)</option>' +
+                    '<option value="route">✈️ Route Track</option>' +
+                    '<option value="custom">⚙️ Custom...</option>' +
+                '</select>' +
+                '<button id="a4RotCCW" title="Rotate counter-clockwise 15°" style="padding:5px 8px;background:#333;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;font-weight:700;">⟲ -15°</button>' +
+                '<span id="a4RotVal" style="font-size:12px;min-width:34px;text-align:center;font-weight:700;color:#5bc0de;">000°</span>' +
+                '<button id="a4RotCW" title="Rotate clockwise 15°" style="padding:5px 8px;background:#333;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;font-weight:700;">⟳ +15°</button>' +
+                '<input id="a4RotSlider" type="range" min="0" max="355" value="0" step="5" style="width:65px;cursor:pointer;accent-color:#0066cc;" title="Rotation angle">' +
                 '<span style="opacity:.7;font-size:12px;margin-left:4px;">Scale:</span>' +
                 '<select id="a4ScaleRatio" style="padding:5px 8px;border-radius:5px;border:none;font-size:12px;font-weight:600;background:#fff;color:#333;cursor:pointer;">' +
                     '<option value="250000" selected>1:250,000 (Chart)</option>' +
@@ -649,7 +825,10 @@
                 extraRects = [];
                 var pageCount = parseInt(document.getElementById('a4PageCount').value) || 1;
                 var pos = window._a4Pos;
-                if (!pos || pageCount <= 1) return;
+                if (!pos || pageCount <= 1) {
+                    updateOverlay();
+                    return;
+                }
                 var overlap = getOverlapFraction();
                 var stepW = pagesHorizontal ? pos.w * (1 - overlap) : 0;
                 var stepH = pagesHorizontal ? 0 : pos.h * (1 - overlap);
@@ -659,7 +838,8 @@
                     var pw = pDims.w;
                     var ph = pDims.h;
                     var er = document.createElement('div');
-                    er.style.cssText = 'position:absolute;border:2px dashed rgba(255,255,255,0.5);box-shadow:0 0 0 1px rgba(0,102,204,0.5);z-index:2001;box-sizing:border-box;';
+                    er.style.cssText = 'position:absolute;border:2px dashed rgba(255,255,255,0.5);box-shadow:0 0 0 1px rgba(0,102,204,0.5);z-index:2001;box-sizing:border-box;transform-origin:center center;';
+                    er.style.transform = 'rotate(' + printRotation + 'deg)';
                     var ex, ey;
                     if (extraGeocenters[p]) {
                         var pt = appState.map.latLngToContainerPoint(extraGeocenters[p]);
@@ -709,23 +889,22 @@
 
                     // Make extra rect draggable
                     (function(erEl, pageIdx) {
-                        var erDragging = false, erOffX, erOffY;
+                        var erDragging = false, startMx = 0, startMy = 0, startEx = 0, startEy = 0;
                         erEl.style.cursor = 'move';
                         erEl.addEventListener('mousedown', function(e) {
                             if (e.target.tagName === 'BUTTON') return;
                             erDragging = true;
-                            var r = erEl.getBoundingClientRect();
-                            var m = mapContainer.getBoundingClientRect();
-                            erOffX = e.clientX - (r.left - m.left);
-                            erOffY = e.clientY - (r.top  - m.top);
+                            startMx = e.clientX;
+                            startMy = e.clientY;
+                            startEx = parseInt(erEl.style.left) || 0;
+                            startEy = parseInt(erEl.style.top) || 0;
                             e.preventDefault();
                             appState.map.dragging.disable();
                         });
                         document.addEventListener('mousemove', function(e) {
                             if (!erDragging) return;
-                            var m = mapContainer.getBoundingClientRect();
-                            var nx = e.clientX - m.left - erOffX;
-                            var ny = e.clientY - m.top  - erOffY;
+                            var nx = startEx + (e.clientX - startMx);
+                            var ny = startEy + (e.clientY - startMy);
                             erEl.style.left = nx + 'px';
                             erEl.style.top  = ny + 'px';
                             var pw = parseInt(erEl.style.width);
@@ -733,18 +912,41 @@
                             extraGeocenters[pageIdx] = appState.map.containerPointToLatLng(
                                 L.point(nx + pw/2, ny + ph/2)
                             );
+                            updateOverlay();
                         });
                         document.addEventListener('mouseup', function() {
                             if (erDragging) { erDragging = false; appState.map.dragging.enable(); }
                         });
                     })(er, p);
                 }
+                updateOverlay();
             }
 
             document.getElementById('a4PageCount').addEventListener('change', updateExtraRects);
 
             document.getElementById('a4ZoomIn').onclick  = function() { appState.map.zoomIn();  };
             document.getElementById('a4ZoomOut').onclick = function() { appState.map.zoomOut(); };
+
+            document.getElementById('a4Rotation').addEventListener('change', function() {
+                if (this.value === 'route') {
+                    var track = getRouteTrackHeading();
+                    setPrintRotation(track, 'select');
+                } else if (this.value !== 'custom') {
+                    setPrintRotation(parseInt(this.value, 10), 'select');
+                }
+            });
+
+            document.getElementById('a4RotCCW').onclick = function() {
+                setPrintRotation(printRotation - 15, 'button');
+            };
+
+            document.getElementById('a4RotCW').onclick = function() {
+                setPrintRotation(printRotation + 15, 'button');
+            };
+
+            document.getElementById('a4RotSlider').addEventListener('input', function() {
+                setPrintRotation(parseInt(this.value, 10), 'slider');
+            });
 
             document.getElementById('a4ScaleRatio').addEventListener('change', function() {
                 selectedScale = this.value;
@@ -823,8 +1025,6 @@
                 var mapRect = mapContainer.getBoundingClientRect();
 
                 // Convert rect corners to geographic bounds using container-relative coords
-                var nw = appState.map.containerPointToLatLng(L.point(pos.x,         pos.y));
-                var se = appState.map.containerPointToLatLng(L.point(pos.x + pos.w, pos.y + pos.h));
                 var primaryCenter = rectGeoCenter || appState.map.containerPointToLatLng(
                     L.point(pos.x + pos.w / 2, pos.y + pos.h / 2)
                 );
@@ -834,18 +1034,19 @@
                 var printH = isLandscape ? paperSpec.landH : paperSpec.portH;
                 var singleCssPageSize = isLandscape ? paperSpec.cssSizeLand : paperSpec.cssSizePort;
 
+                // Rotated map bounding box to cover the printed sheet completely
+                var savedPrintRotation = printRotation;
+                var rad = Math.abs(savedPrintRotation) * Math.PI / 180;
+                var W_cover = (savedPrintRotation === 0) ? printW : (Math.ceil(printW * Math.abs(Math.cos(rad)) + printH * Math.abs(Math.sin(rad))) + 8);
+                var H_cover = (savedPrintRotation === 0) ? printH : (Math.ceil(printW * Math.abs(Math.sin(rad)) + printH * Math.abs(Math.cos(rad))) + 8);
+
                 // Compute zoom for printing
                 var printZoom;
                 if (selectedScale !== 'auto') {
                     var scaleNum = parseInt(selectedScale, 10);
                     printZoom = computeScaleZoom(scaleNum, primaryCenter.lat);
                 } else {
-                    var lngSpan  = Math.abs(se.lng - nw.lng);
-                    var zoomByW  = Math.log2(printW * 360 / (256 * lngSpan));
-                    function mercY(lat) { var r = lat * Math.PI / 180; return Math.log(Math.tan(Math.PI/4 + r/2)); }
-                    var mercSpan = Math.abs(mercY(nw.lat) - mercY(se.lat));
-                    var zoomByH  = Math.log2(printH * 2 * Math.PI / (256 * mercSpan));
-                    printZoom = Math.min(zoomByW, zoomByH);
+                    printZoom = appState.map.getZoom();
                 }
 
                 // Compute center points for each page from geo centers
@@ -867,16 +1068,38 @@
                 var origW        = mapDiv.style.width;
                 var origH        = mapDiv.style.height;
                 var origFlex     = mapDiv.style.flex;
+                var origPos      = mapDiv.style.position;
+                var origLeft     = mapDiv.style.left;
+                var origTop      = mapDiv.style.top;
+                var origTf       = mapDiv.style.transform;
+                var origTfOrig   = mapDiv.style.transformOrigin;
+                var containerDiv = document.querySelector('.container');
+                var origContW    = containerDiv ? containerDiv.style.width : '';
+                var origContH    = containerDiv ? containerDiv.style.height : '';
+                var origContPos  = containerDiv ? containerDiv.style.position : '';
+                var origContOf   = containerDiv ? containerDiv.style.overflow : '';
                 var sidebar      = document.querySelector('.sidebar');
                 var zoomInd      = document.querySelector('.zoom-indicator');
 
                 // Allow exact floating-point zoom without snapping during print
                 appState.map.options.zoomSnap = 0;
 
-                // Resize map to exactly paper dimensions
+                if (containerDiv) {
+                    containerDiv.style.position = 'relative';
+                    containerDiv.style.width    = printW + 'px';
+                    containerDiv.style.height   = printH + 'px';
+                    containerDiv.style.overflow = 'hidden';
+                }
+
+                // Resize map to cover dimensions and center with rotation
                 mapDiv.style.flex   = 'none';
-                mapDiv.style.width  = printW + 'px';
-                mapDiv.style.height = printH + 'px';
+                mapDiv.style.width  = W_cover + 'px';
+                mapDiv.style.height = H_cover + 'px';
+                mapDiv.style.position = 'absolute';
+                mapDiv.style.left   = '50%';
+                mapDiv.style.top    = '50%';
+                mapDiv.style.transformOrigin = 'center center';
+                mapDiv.style.transform = 'translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg)';
                 if (sidebar) sidebar.style.display = 'none';
                 if (zoomInd) zoomInd.style.display = 'none';
 
@@ -896,14 +1119,14 @@
                         'ISR Flight Planner - by Yossi Hadad</span>';
                     document.body.appendChild(watermark);
 
-                    // Scale Bar — placed at selected side
+                    // Scale Bar — placed at selected side with True North indicator needle
                     var scaleBar = null;
                     if (selectedScaleSide !== 'none') {
                         scaleBar = document.createElement('div');
                         scaleBar.id = 'a4ScaleBar';
                         var effectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
                             Math.round(((40075016.686 * Math.cos((primaryCenter.lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, printZoom))) / (0.0254 / 96.0));
-                        scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat);
+                        scaleBar.innerHTML = buildScaleBarHtml(effectiveScale, primaryCenter.lat, savedPrintRotation);
                         var posStyle = 'bottom:8px;right:8px;transform-origin:bottom right;';
                         var tf = '';
                         if (selectedScaleSide === 'left') {
@@ -926,61 +1149,16 @@
                         document.body.appendChild(scaleBar);
                     }
 
-                    // Find corner with fewest overlapping drawn elements
+                    // Watermark position
                     (function positionWatermark() {
-                        var mr = document.getElementById('map').getBoundingClientRect();
-                        var ww = 160, wh = 28, margin = 8;
-
+                        var margin = 8;
                         var corners = [
                             { label: 'BL', style: 'bottom:'+margin+'px;left:'+margin+'px;' },
                             { label: 'BR', style: 'bottom:'+margin+'px;right:'+margin+'px;' },
                             { label: 'TL', style: 'top:'+margin+'px;left:'+margin+'px;' },
                             { label: 'TR', style: 'top:'+margin+'px;right:'+margin+'px;' }
                         ];
-
-                        // Compute screen rect for each corner
-                        function cornerRect(c) {
-                            var x = (c.label[1]==='L') ? mr.left+margin : mr.right-margin-ww;
-                            var y = (c.label[0]==='T') ? mr.top+margin : mr.bottom-margin-wh;
-                            return { left:x, top:y, right:x+ww, bottom:y+wh };
-                        }
-
-                        function overlaps(a, b) {
-                            return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-                        }
-
-                        // Collect rects of all visible drawn elements inside the map
-                        var drawn = [];
-                        if (scaleBar && document.body.contains(scaleBar)) {
-                            var sbr = scaleBar.getBoundingClientRect();
-                            if (sbr.width > 0 && sbr.height > 0) {
-                                drawn.push(sbr);
-                            }
-                        }
-                        var selectors = [
-                            '.leg-info-label', '.time-label', '.leaflet-marker-icon',
-                            '.wl-div', '.tb-div', '.al-div'
-                        ];
-                        selectors.forEach(function(sel) {
-                            document.querySelectorAll(sel).forEach(function(el) {
-                                var r = el.getBoundingClientRect();
-                                if (r.width > 0 && r.height > 0 &&
-                                    r.left < mr.right && r.right > mr.left &&
-                                    r.top < mr.bottom && r.bottom > mr.top) {
-                                    drawn.push(r);
-                                }
-                            });
-                        });
-
-                        // Pick corner with zero or fewest overlapping elements
-                        var best = corners[0], bestScore = Infinity;
-                        corners.forEach(function(c) {
-                            var cr = cornerRect(c);
-                            var score = 0;
-                            drawn.forEach(function(r) { if (overlaps(cr, r)) score++; });
-                            if (score < bestScore) { bestScore = score; best = c; }
-                        });
-
+                        var best = (selectedScaleSide === 'right') ? corners[0] : corners[1];
                         watermark.style.cssText =
                             'position:fixed;z-index:99999;display:flex;align-items:center;gap:4px;' +
                             'background:rgba(255,255,255,0.75);border:1px solid rgba(0,102,204,0.4);' +
@@ -992,15 +1170,19 @@
                     printStyle.textContent =
                         '@media print {' +
                         '  #showSidebarBtn { display:none !important; }' +
-                        '  .sidebar, .zoom-indicator { display:none !important; }' +
+                        '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
                         '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                         '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                         '  html, body { margin:0 !important; padding:0 !important;' +
                         '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
                         '    overflow:hidden !important; }' +
-                        '  .container { display:block !important; margin:0 !important; padding:0 !important; }' +
-                        '  #map { position:fixed !important; top:0 !important; left:0 !important;' +
-                        '    width:' + printW + 'px !important; height:' + printH + 'px !important;' +
+                        '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
+                        '    position:relative !important; width:' + printW + 'px !important; height:' + printH + 'px !important;' +
+                        '    overflow:hidden !important; }' +
+                        '  #map { position:absolute !important; top:50% !important; left:50% !important;' +
+                        '    width:' + W_cover + 'px !important; height:' + H_cover + 'px !important;' +
+                        '    transform: translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg) !important;' +
+                        '    transform-origin: center center !important;' +
                         '    margin:0 !important; padding:0 !important; }' +
                         '  #a4Watermark { display:flex !important; }' +
                         '  #a4ScaleBar { display:block !important; }' +
@@ -1013,9 +1195,20 @@
                             var el = document.getElementById(id);
                             if (el) el.parentNode.removeChild(el);
                         });
-                        mapDiv.style.flex   = origFlex;
-                        mapDiv.style.width  = origW;
-                        mapDiv.style.height = origH;
+                        if (containerDiv) {
+                            containerDiv.style.position = origContPos;
+                            containerDiv.style.width    = origContW;
+                            containerDiv.style.height   = origContH;
+                            containerDiv.style.overflow = origContOf;
+                        }
+                        mapDiv.style.flex            = origFlex;
+                        mapDiv.style.width           = origW;
+                        mapDiv.style.height          = origH;
+                        mapDiv.style.position        = origPos;
+                        mapDiv.style.left            = origLeft;
+                        mapDiv.style.top             = origTop;
+                        mapDiv.style.transform       = origTf;
+                        mapDiv.style.transformOrigin = origTfOrig;
                         if (sidebar) sidebar.style.display = '';
                         if (zoomInd) zoomInd.style.display = '';
                         appState.map.options.zoomSnap = origZoomSnap;
@@ -1046,12 +1239,20 @@
                             var pgW = pageLand ? paperSpec.landW : paperSpec.portW;
                             var pgH = pageLand ? paperSpec.landH : paperSpec.portH;
                             var pgCssSize = pageLand ? paperSpec.cssSizeLand : paperSpec.cssSizePort;
+                            var pgW_cover = (savedPrintRotation === 0) ? pgW : (Math.ceil(pgW * Math.abs(Math.cos(rad)) + pgH * Math.abs(Math.sin(rad))) + 8);
+                            var pgH_cover = (savedPrintRotation === 0) ? pgH : (Math.ceil(pgW * Math.abs(Math.sin(rad)) + pgH * Math.abs(Math.cos(rad))) + 8);
                             var pageZoom = (selectedScale !== 'auto') ?
                                 computeScaleZoom(parseInt(selectedScale, 10), pageCenters[currentPage].lat) :
                                 printZoom;
 
-                            mapDiv.style.width  = pgW + 'px';
-                            mapDiv.style.height = pgH + 'px';
+                            if (containerDiv) {
+                                containerDiv.style.width  = pgW + 'px';
+                                containerDiv.style.height = pgH + 'px';
+                            }
+                            mapDiv.style.width  = pgW_cover + 'px';
+                            mapDiv.style.height = pgH_cover + 'px';
+                            mapDiv.style.transform = 'translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg)';
+
                             // Recreate print style with correct dimensions for this page
                             var oldPs = document.getElementById('a4PrintStyle');
                             if (oldPs) oldPs.parentNode.removeChild(oldPs);
@@ -1060,15 +1261,19 @@
                             ps.textContent =
                                 '@media print {' +
                                 '  #showSidebarBtn { display:none !important; }' +
-                                '  .sidebar, .zoom-indicator { display:none !important; }' +
+                                '  .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
                                 '  .leaflet-control-zoom, .leaflet-control-layers, .leaflet-control-attribution { display:none !important; }' +
                                 '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
                                 '  html, body { margin:0 !important; padding:0 !important;' +
                                 '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
                                 '    overflow:hidden !important; }' +
-                                '  .container { display:block !important; margin:0 !important; padding:0 !important; }' +
-                                '  #map { position:fixed !important; top:0 !important; left:0 !important;' +
-                                '    width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
+                                '  .container { display:block !important; margin:0 !important; padding:0 !important;' +
+                                '    position:relative !important; width:' + pgW + 'px !important; height:' + pgH + 'px !important;' +
+                                '    overflow:hidden !important; }' +
+                                '  #map { position:absolute !important; top:50% !important; left:50% !important;' +
+                                '    width:' + pgW_cover + 'px !important; height:' + pgH_cover + 'px !important;' +
+                                '    transform: translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg) !important;' +
+                                '    transform-origin: center center !important;' +
                                 '    margin:0 !important; padding:0 !important; }' +
                                 '  #a4Watermark { display:flex !important; }' +
                                 '  #a4ScaleBar { display:block !important; }' +
@@ -1080,7 +1285,7 @@
                             if (oldSb && selectedScaleSide !== 'none') {
                                 var pgEffectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
                                     Math.round(((40075016.686 * Math.cos((pageCenters[currentPage].lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, pageZoom))) / (0.0254 / 96.0));
-                                oldSb.innerHTML = buildScaleBarHtml(pgEffectiveScale, pageCenters[currentPage].lat);
+                                oldSb.innerHTML = buildScaleBarHtml(pgEffectiveScale, pageCenters[currentPage].lat, savedPrintRotation);
                             }
 
                             appState.map.invalidateSize({ animate: false });
@@ -1102,9 +1307,9 @@
 
             function cleanupA4() {
                 appState.map.off('move zoom', refreshRectPositions);
-                if (overlay.parentNode)  overlay.parentNode.removeChild(overlay);
-                if (rect.parentNode)     rect.parentNode.removeChild(rect);
-                if (toolbar.parentNode)  toolbar.parentNode.removeChild(toolbar);
+                if (svgOverlay.parentNode)  svgOverlay.parentNode.removeChild(svgOverlay);
+                if (rect.parentNode)        rect.parentNode.removeChild(rect);
+                if (toolbar.parentNode)     toolbar.parentNode.removeChild(toolbar);
                 extraRects.forEach(function(r) { if (r.parentNode) r.parentNode.removeChild(r); });
                 extraRects = [];
                 mapContainer.style.position = origMapPosition;
