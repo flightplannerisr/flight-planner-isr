@@ -784,6 +784,10 @@
                 '<button id="a4LayoutSideBySide" style="padding:5px 8px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:5px;cursor:pointer;font-size:12px;" title="Pages side by side">➡ Side</button>' +
                 '<span style="opacity:.7;font-size:12px;">Overlap: <span id="a4OverlapLabel">0</span>%</span>' +
                 '<input id="a4Overlap" type="range" min="0" max="50" value="0" step="5" style="width:70px;cursor:pointer;accent-color:#0066cc;">' +
+                '<label id="a4CombineLabel" style="display:none;align-items:center;gap:4px;font-size:12px;cursor:pointer;background:rgba(255,255,255,0.15);padding:4px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.3);margin-left:2px;" title="Combine all pages into one single PDF print document">' +
+                    '<input type="checkbox" id="a4CombinePdf" checked style="cursor:pointer;accent-color:#28a745;width:14px;height:14px;">' +
+                    '<span>📄 1 PDF</span>' +
+                '</label>' +
                 '<button id="a4Print"    style="padding:6px 14px;background:#28a745;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">🖨️ Print / Save</button>' +
                 '<button id="a4Cancel"   style="padding:6px 10px;background:#dc3545;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">✕ Cancel</button>';
             document.body.appendChild(toolbar);
@@ -922,7 +926,38 @@
                 updateOverlay();
             }
 
-            document.getElementById('a4PageCount').addEventListener('change', updateExtraRects);
+            // Page count change and combine PDF checkbox listeners
+            function updatePrintButtonState() {
+                var pCount = parseInt(document.getElementById('a4PageCount').value) || 1;
+                var combineLabel = document.getElementById('a4CombineLabel');
+                var combineCheck = document.getElementById('a4CombinePdf');
+                var printBtn = document.getElementById('a4Print');
+                if (pCount > 1) {
+                    if (combineLabel) combineLabel.style.display = 'inline-flex';
+                    if (combineCheck && combineCheck.checked) {
+                        printBtn.innerHTML = '📄 Save ' + pCount + ' Pages (1 PDF)';
+                        printBtn.title = 'Render and combine all ' + pCount + ' pages into one single PDF document';
+                    } else {
+                        printBtn.innerHTML = '🖨️ Print ' + pCount + ' Pages (1 by 1)';
+                        printBtn.title = 'Print each page sequentially one by one';
+                    }
+                } else {
+                    if (combineLabel) combineLabel.style.display = 'none';
+                    printBtn.innerHTML = '🖨️ Print / Save';
+                    printBtn.title = 'Print or save current page as PDF';
+                }
+            }
+
+            document.getElementById('a4PageCount').addEventListener('change', function() {
+                updateExtraRects();
+                updatePrintButtonState();
+            });
+
+            var combinePdfEl = document.getElementById('a4CombinePdf');
+            if (combinePdfEl) {
+                combinePdfEl.addEventListener('change', updatePrintButtonState);
+            }
+            updatePrintButtonState();
 
             document.getElementById('a4ZoomIn').onclick  = function() { appState.map.zoomIn();  };
             document.getElementById('a4ZoomOut').onclick = function() { appState.map.zoomOut(); };
@@ -1008,6 +1043,27 @@
 
             document.getElementById('a4Portrait').onclick  = function() { setA4Orientation(false); };
             document.getElementById('a4Landscape').onclick = function() { setA4Orientation(true);  };
+
+            // Deep clone DOM element including canvas bitmap data
+            function deepCloneWithCanvas(node) {
+                var clone = node.cloneNode(true);
+                var origCanvases = node.querySelectorAll ? node.querySelectorAll('canvas') : [];
+                var cloneCanvases = clone.querySelectorAll ? clone.querySelectorAll('canvas') : [];
+                for (var i = 0; i < origCanvases.length; i++) {
+                    try {
+                        var targetCanvas = cloneCanvases[i];
+                        if (targetCanvas) {
+                            targetCanvas.width = origCanvases[i].width;
+                            targetCanvas.height = origCanvases[i].height;
+                            var ctx = targetCanvas.getContext('2d');
+                            if (ctx) ctx.drawImage(origCanvases[i], 0, 0);
+                        }
+                    } catch (e) {
+                        console.warn('Canvas clone warning:', e);
+                    }
+                }
+                return clone;
+            }
 
             document.getElementById('a4Cancel').onclick = function() {
                 cleanupA4();
@@ -1222,10 +1278,203 @@
                     }
 
                     var pageCount = pageCountForPrint;
+                    var isCombinedPdf = pageCount > 1 && (function() {
+                        var cb = document.getElementById('a4CombinePdf');
+                        return cb ? cb.checked : true;
+                    })();
 
                     if (pageCount === 1) {
                         window.print();
                         setTimeout(restore, 1500);
+                    } else if (isCombinedPdf) {
+                        // Multi-page COMBINED single PDF document export
+                        // 1. Show progress modal
+                        var progressOverlay = document.createElement('div');
+                        progressOverlay.id = 'a4PdfProgressOverlay';
+                        progressOverlay.style.cssText = [
+                            'position:fixed;top:0;left:0;right:0;bottom:0',
+                            'background:rgba(0,0,0,0.75);z-index:999999',
+                            'display:flex;flex-direction:column;justify-content:center;align-items:center',
+                            'color:#fff;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif'
+                        ].join(';');
+                        progressOverlay.innerHTML =
+                            '<div style="background:#222;padding:24px 32px;border-radius:10px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:280px;border:1px solid #444;">' +
+                                '<div style="font-size:28px;margin-bottom:12px;">📄</div>' +
+                                '<div id="a4PdfProgressText" style="font-size:15px;font-weight:600;margin-bottom:8px;">Preparing 1 Combined PDF...</div>' +
+                                '<div id="a4PdfProgressSub" style="font-size:12px;opacity:0.75;margin-bottom:12px;">Rendering Page 1 of ' + pageCount + '</div>' +
+                                '<div style="width:100%;background:#444;height:6px;border-radius:3px;overflow:hidden;">' +
+                                    '<div id="a4PdfProgressBar" style="width:0%;height:100%;background:#28a745;transition:width 0.3s ease;"></div>' +
+                                '</div>' +
+                            '</div>';
+                        document.body.appendChild(progressOverlay);
+
+                        // 2. Multi-page container holding each rendered sheet
+                        var printContainer = document.createElement('div');
+                        printContainer.id = 'printPagesContainer';
+                        printContainer.style.cssText = 'display:none;';
+                        document.body.appendChild(printContainer);
+
+                        // Extend restore to clean up multi-page container & progress overlay
+                        var origRestore = restore;
+                        restore = function() {
+                            var pCont = document.getElementById('printPagesContainer');
+                            if (pCont && pCont.parentNode) pCont.parentNode.removeChild(pCont);
+                            var pOvr = document.getElementById('a4PdfProgressOverlay');
+                            if (pOvr && pOvr.parentNode) pOvr.parentNode.removeChild(pOvr);
+                            origRestore();
+                        };
+
+                        var renderPageIndex = 0;
+                        function renderNextPageForPdf() {
+                            if (renderPageIndex >= pageCount) {
+                                // All pages rendered and captured!
+                                var pOvr = document.getElementById('a4PdfProgressOverlay');
+                                if (pOvr && pOvr.parentNode) pOvr.parentNode.removeChild(pOvr);
+
+                                // Replace single-page printStyle with multi-page print stylesheet
+                                var oldPs = document.getElementById('a4PrintStyle');
+                                if (oldPs && oldPs.parentNode) oldPs.parentNode.removeChild(oldPs);
+
+                                var multiPrintStyle = document.createElement('style');
+                                multiPrintStyle.id = 'a4PrintStyle';
+                                multiPrintStyle.textContent =
+                                    '@media print {' +
+                                    '  #showSidebarBtn, .sidebar, .zoom-indicator, #azmWarning, #mapWatermark { display:none !important; }' +
+                                    '  .container { display:none !important; }' +
+                                    '  #printPagesContainer { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; }' +
+                                    '  .print-page-sheet { display:block !important; position:relative !important; overflow:hidden !important;' +
+                                    '    page-break-after:always !important; break-after:page !important;' +
+                                    '    margin:0 !important; padding:0 !important; }' +
+                                    '  .print-page-sheet:last-child { page-break-after:auto !important; break-after:auto !important; }' +
+                                    '  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }' +
+                                    '  html, body { margin:0 !important; padding:0 !important; overflow:visible !important; }' +
+                                    '  @page { size:' + singleCssPageSize + '; margin:0; }' +
+                                    '}';
+                                document.head.appendChild(multiPrintStyle);
+
+                                setTimeout(function() {
+                                    window.onafterprint = function() {
+                                        window.onafterprint = null;
+                                        restore();
+                                    };
+                                    window.print();
+                                    // Fallback restore in case onafterprint doesn't fire
+                                    setTimeout(function() {
+                                        if (document.getElementById('printPagesContainer')) {
+                                            restore();
+                                        }
+                                    }, 4000);
+                                }, 600);
+                                return;
+                            }
+
+                            // Update progress indicator
+                            var pNum = renderPageIndex + 1;
+                            var pct = Math.round((renderPageIndex / pageCount) * 100);
+                            var pSub = document.getElementById('a4PdfProgressSub');
+                            if (pSub) pSub.textContent = 'Rendering Page ' + pNum + ' of ' + pageCount + '...';
+                            var pBar = document.getElementById('a4PdfProgressBar');
+                            if (pBar) pBar.style.width = pct + '%';
+
+                            var pgLand = renderPageIndex === 0 ? isLandscape :
+                                (pageOrientations[renderPageIndex] !== undefined ? pageOrientations[renderPageIndex] : isLandscape);
+                            var pgW = pgLand ? paperSpec.landW : paperSpec.portW;
+                            var pgH = pgLand ? paperSpec.landH : paperSpec.portH;
+                            var pgW_cover = (savedPrintRotation === 0) ? pgW : (Math.ceil(pgW * Math.abs(Math.cos(rad)) + pgH * Math.abs(Math.sin(rad))) + 8);
+                            var pgH_cover = (savedPrintRotation === 0) ? pgH : (Math.ceil(pgW * Math.abs(Math.sin(rad)) + pgH * Math.abs(Math.cos(rad))) + 8);
+                            var pageZoom = (selectedScale !== 'auto') ?
+                                computeScaleZoom(parseInt(selectedScale, 10), pageCenters[renderPageIndex].lat) :
+                                printZoom;
+
+                            if (containerDiv) {
+                                containerDiv.style.width  = pgW + 'px';
+                                containerDiv.style.height = pgH + 'px';
+                            }
+                            mapDiv.style.width  = pgW_cover + 'px';
+                            mapDiv.style.height = pgH_cover + 'px';
+                            mapDiv.style.transform = 'translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg)';
+
+                            appState.map.invalidateSize({ animate: false });
+                            appState.map.setView(pageCenters[renderPageIndex], pageZoom, { animate: false });
+
+                            // Wait for Leaflet tiles to load at this center/zoom
+                            setTimeout(function() {
+                                // Create page sheet wrapper
+                                var sheet = document.createElement('div');
+                                sheet.className = 'print-page-sheet';
+                                sheet.style.cssText =
+                                    'position:relative;width:' + pgW + 'px;height:' + pgH + 'px;' +
+                                    'overflow:hidden;page-break-after:always;break-after:page;';
+
+                                // Clone rendered map element
+                                var clonedMap = deepCloneWithCanvas(mapDiv);
+                                clonedMap.id = 'map_page_' + renderPageIndex;
+                                clonedMap.style.position = 'absolute';
+                                clonedMap.style.top = '50%';
+                                clonedMap.style.left = '50%';
+                                clonedMap.style.width = pgW_cover + 'px';
+                                clonedMap.style.height = pgH_cover + 'px';
+                                clonedMap.style.transform = 'translate(-50%, -50%) rotate(' + (-savedPrintRotation) + 'deg)';
+                                clonedMap.style.transformOrigin = 'center center';
+                                clonedMap.style.margin = '0';
+                                clonedMap.style.padding = '0';
+
+                                // Remove interactive leaflet control container in cloned sheet
+                                var controls = clonedMap.querySelectorAll('.leaflet-control-container');
+                                for (var ci = 0; ci < controls.length; ci++) {
+                                    controls[ci].parentNode.removeChild(controls[ci]);
+                                }
+                                sheet.appendChild(clonedMap);
+
+                                // Add Watermark with page number indicator
+                                var wmClone = document.createElement('div');
+                                var bestCornerStyle = (selectedScaleSide === 'right') ? 'bottom:8px;left:8px;' : 'bottom:8px;right:8px;';
+                                wmClone.style.cssText =
+                                    'position:absolute;z-index:99999;display:flex;align-items:center;gap:4px;' +
+                                    'background:rgba(255,255,255,0.75);border:1px solid rgba(0,102,204,0.4);' +
+                                    'border-radius:3px;padding:2px 6px;pointer-events:none;' + bestCornerStyle;
+                                wmClone.innerHTML =
+                                    '<span style="font-size:10px;">🛩️</span>' +
+                                    '<span style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif;' +
+                                    'font-size:8px;font-weight:600;color:#0066cc;letter-spacing:0.2px;opacity:0.8;">' +
+                                    'ISR Flight Planner · Page ' + pNum + ' of ' + pageCount + '</span>';
+                                sheet.appendChild(wmClone);
+
+                                // Add Scale Bar for this specific page
+                                if (selectedScaleSide !== 'none') {
+                                    var pgScaleBar = document.createElement('div');
+                                    var pgEffectiveScale = (selectedScale !== 'auto') ? parseInt(selectedScale, 10) :
+                                        Math.round(((40075016.686 * Math.cos((pageCenters[renderPageIndex].lat || 31.5) * Math.PI / 180.0)) / (256.0 * Math.pow(2, pageZoom))) / (0.0254 / 96.0));
+                                    pgScaleBar.innerHTML = buildScaleBarHtml(pgEffectiveScale, pageCenters[renderPageIndex].lat, savedPrintRotation);
+                                    var posStyle = 'bottom:8px;right:8px;transform-origin:bottom right;';
+                                    var tf = '';
+                                    if (selectedScaleSide === 'left') {
+                                        posStyle = 'bottom:8px;left:8px;transform-origin:bottom left;';
+                                    } else if (selectedScaleSide === 'center') {
+                                        posStyle = 'bottom:8px;left:50%;transform-origin:bottom center;';
+                                        tf = 'translateX(-50%)';
+                                    }
+                                    if (Math.abs(selectedScaleBarSize - 1.0) > 0.01) {
+                                        tf = (tf ? tf + ' ' : '') + 'scale(' + selectedScaleBarSize + ')';
+                                    }
+                                    if (tf) {
+                                        posStyle += 'transform:' + tf + ';';
+                                    }
+                                    pgScaleBar.style.cssText =
+                                        'position:absolute;z-index:99999;' + posStyle +
+                                        'background:rgba(255,255,255,0.85);border:1px solid rgba(0,0,0,0.5);' +
+                                        'border-radius:4px;padding:3px 10px 4px 10px;pointer-events:none;' +
+                                        'box-shadow:0 1px 4px rgba(0,0,0,0.15);';
+                                    sheet.appendChild(pgScaleBar);
+                                }
+
+                                printContainer.appendChild(sheet);
+                                renderPageIndex++;
+                                renderNextPageForPdf();
+                            }, 1100);
+                        }
+
+                        renderNextPageForPdf();
                     } else {
                         // Print each page one at a time; onafterprint triggers the next
                         var currentPage = 0;
