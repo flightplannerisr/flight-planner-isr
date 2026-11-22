@@ -197,7 +197,11 @@
             miniWpLabelOpacity:   0.70,
             driftColor:           '#cc6600',
             driftWidth:           2,
-            arrivalLabelFontSize: 16
+            arrivalLabelFontSize: 9,
+            waypointLabelFontSize:11,
+            lsaClipToCircles:     false,
+            highlightCircleRadius:0.5,
+            highlightCircleOpacity:0.25
         };
 
         function collectSettings() {
@@ -220,8 +224,62 @@
                 driftColor:           appState.driftColor,
                 driftWidth:           appState.driftWidth,
                 arrivalLabelFontSize: appState.arrivalLabelFontSize,
-                miniWaypoints: appState.miniWaypoints
+                waypointLabelFontSize:appState.waypointLabelFontSize,
+                lsaClipToCircles:     appState.lsaClipToCircles,
+                highlightCircleRadius:appState.highlightCircleRadius,
+                highlightCircleOpacity:appState.highlightCircleOpacity,
+                miniWaypoints:        appState.miniWaypoints
             };
+        }
+
+        function syncDisplaySettingsUI() {
+            function setVal(id, val) {
+                var el = document.getElementById(id);
+                if (el) el.value = val;
+            }
+            function setText(id, text) {
+                var el = document.getElementById(id);
+                if (el) el.textContent = text;
+            }
+            setVal('cruiseSpeed', appState.cruiseSpeed);
+            setVal('fuelFlow', appState.fuelFlow);
+            setVal('magVar', appState.magVar);
+            setVal('defaultAltitude', appState.defaultAltitude);
+            setVal('circleRadius', Math.round(appState.circleRadius * 10));
+            setText('radiusValue', appState.circleRadius.toFixed(1));
+            setVal('circleOpacity', Math.round(appState.circleOpacity * 100));
+            setText('circleOpacityValue', Math.round(appState.circleOpacity * 100));
+            setVal('highlightCircleRadius', Math.round((appState.highlightCircleRadius || 0.5) * 10));
+            setText('highlightRadiusValue', (appState.highlightCircleRadius || 0.5).toFixed(1));
+            setVal('highlightCircleOpacity', Math.round((appState.highlightCircleOpacity !== undefined ? appState.highlightCircleOpacity : 0.25) * 100));
+            setText('highlightOpacityValue', Math.round((appState.highlightCircleOpacity !== undefined ? appState.highlightCircleOpacity : 0.25) * 100));
+            setVal('lineWidth', appState.lineWidth);
+            setText('lineWidthValue', appState.lineWidth);
+            setVal('labelFontSize', appState.labelFontSize);
+            setText('fontSizeValue', appState.labelFontSize);
+            setVal('arrivalLabelFontSize', appState.arrivalLabelFontSize || 9);
+            setText('arrivalLabelFontSizeValue', appState.arrivalLabelFontSize || 9);
+            setVal('waypointLabelFontSize', appState.waypointLabelFontSize || 11);
+            setText('waypointLabelFontSizeValue', appState.waypointLabelFontSize || 11);
+            setVal('tickInterval', appState.tickInterval);
+            setText('tickIntervalValue', appState.tickInterval);
+            setVal('labelInterval', appState.labelInterval);
+            setText('labelIntervalValue', appState.labelInterval);
+            setVal('infoBoxSize', Math.round(appState.infoBoxSizeMultiplier * 100));
+            setText('infoBoxSizeValue', Math.round(appState.infoBoxSizeMultiplier * 100));
+            setVal('infoBoxFontSize', Math.round(appState.infoBoxFontMultiplier * 11));
+            setText('infoBoxFontSizeValue', Math.round(appState.infoBoxFontMultiplier * 11));
+            setVal('textBoxFontSize', appState.textBoxFontSize);
+            setText('textBoxFontSizeValue', appState.textBoxFontSize);
+            setVal('infoBoxOpacity', Math.round(appState.infoBoxOpacity * 100));
+            setText('opacityValue', Math.round(appState.infoBoxOpacity * 100));
+            setVal('miniWpLabelOpacity', Math.round(appState.miniWpLabelOpacity * 100));
+            setText('miniWpOpacityValue', Math.round(appState.miniWpLabelOpacity * 100));
+            var clipEl = document.getElementById('lsaClipToCircles');
+            if (clipEl) clipEl.checked = !!appState.lsaClipToCircles;
+            setVal('driftColor', appState.driftColor);
+            setVal('driftWidth', appState.driftWidth);
+            setText('driftWidthValue', appState.driftWidth);
         }
 
         function applySettings(s) {
@@ -236,54 +294,25 @@
             appState.tickInterval         = s.tickInterval         !== undefined ? s.tickInterval         : DEFAULT_SETTINGS.tickInterval;
             appState.labelInterval        = s.labelInterval        !== undefined ? s.labelInterval        : DEFAULT_SETTINGS.labelInterval;
             appState.infoBoxSizeMultiplier= s.infoBoxSizeMultiplier!== undefined ? s.infoBoxSizeMultiplier: DEFAULT_SETTINGS.infoBoxSizeMultiplier;
-            appState.infoBoxFontMultiplier= s.infoBoxFontMultiplier !== undefined
-                ? s.infoBoxFontMultiplier : DEFAULT_SETTINGS.infoBoxFontMultiplier;
+            appState.infoBoxFontMultiplier= s.infoBoxFontMultiplier !== undefined ? s.infoBoxFontMultiplier : DEFAULT_SETTINGS.infoBoxFontMultiplier;
             appState.textBoxFontSize      = s.textBoxFontSize      !== undefined ? s.textBoxFontSize      : DEFAULT_SETTINGS.textBoxFontSize;
             appState.infoBoxOpacity       = s.infoBoxOpacity       !== undefined ? s.infoBoxOpacity       : DEFAULT_SETTINGS.infoBoxOpacity;
             appState.miniWpLabelOpacity   = s.miniWpLabelOpacity   !== undefined ? s.miniWpLabelOpacity   : DEFAULT_SETTINGS.miniWpLabelOpacity;
             appState.driftColor           = s.driftColor           !== undefined ? s.driftColor           : DEFAULT_SETTINGS.driftColor;
             appState.driftWidth           = s.driftWidth           !== undefined ? s.driftWidth           : DEFAULT_SETTINGS.driftWidth;
             appState.arrivalLabelFontSize = s.arrivalLabelFontSize !== undefined ? s.arrivalLabelFontSize : DEFAULT_SETTINGS.arrivalLabelFontSize;
+            appState.waypointLabelFontSize= s.waypointLabelFontSize!== undefined ? s.waypointLabelFontSize: DEFAULT_SETTINGS.waypointLabelFontSize;
+            appState.lsaClipToCircles     = s.lsaClipToCircles     !== undefined ? !!s.lsaClipToCircles   : DEFAULT_SETTINGS.lsaClipToCircles;
+            appState.highlightCircleRadius= s.highlightCircleRadius!== undefined ? s.highlightCircleRadius: DEFAULT_SETTINGS.highlightCircleRadius;
+            appState.highlightCircleOpacity= s.highlightCircleOpacity!== undefined ? s.highlightCircleOpacity: DEFAULT_SETTINGS.highlightCircleOpacity;
 
             // Sync all UI controls
-            document.getElementById('cruiseSpeed').value             = appState.cruiseSpeed;
-            document.getElementById('fuelFlow').value                = appState.fuelFlow;
-            document.getElementById('magVar').value                  = appState.magVar;
-            document.getElementById('defaultAltitude').value         = appState.defaultAltitude;
-            document.getElementById('circleRadius').value            = Math.round(appState.circleRadius * 10);
-            document.getElementById('radiusValue').textContent       = appState.circleRadius.toFixed(1);
-            document.getElementById('circleOpacity').value           = Math.round(appState.circleOpacity * 100);
-            document.getElementById('circleOpacityValue').textContent= Math.round(appState.circleOpacity * 100);
-            document.getElementById('lineWidth').value               = appState.lineWidth;
-            document.getElementById('lineWidthValue').textContent    = appState.lineWidth;
-            document.getElementById('labelFontSize').value           = appState.labelFontSize;
-            document.getElementById('fontSizeValue').textContent     = appState.labelFontSize;
-            document.getElementById('arrivalLabelFontSize').value = appState.arrivalLabelFontSize || 9;
-            document.getElementById('arrivalLabelFontSizeValue').textContent = appState.arrivalLabelFontSize || 9;
-            document.getElementById('waypointLabelFontSize').value = appState.waypointLabelFontSize || 11;
-            document.getElementById('waypointLabelFontSizeValue').textContent = appState.waypointLabelFontSize || 11;
-            document.getElementById('tickInterval').value            = appState.tickInterval;
-            document.getElementById('tickIntervalValue').textContent = appState.tickInterval;
-            document.getElementById('labelInterval').value           = appState.labelInterval;
-            document.getElementById('labelIntervalValue').textContent= appState.labelInterval;
-            document.getElementById('arrivalLabelFontSize').value    = appState.arrivalLabelFontSize;
-            document.getElementById('arrivalLabelFontSizeValue').textContent = appState.arrivalLabelFontSize;
-            document.getElementById('infoBoxSize').value             = Math.round(appState.infoBoxSizeMultiplier * 100);
-            document.getElementById('infoBoxSizeValue').textContent  = Math.round(appState.infoBoxSizeMultiplier * 100);
-            document.getElementById('infoBoxFontSize').value         = Math.round(appState.infoBoxFontMultiplier * 11);
-            document.getElementById('infoBoxFontSizeValue').textContent = Math.round(appState.infoBoxFontMultiplier * 11);
-            document.getElementById('textBoxFontSize').value         = appState.textBoxFontSize;
-            document.getElementById('textBoxFontSizeValue').textContent = appState.textBoxFontSize;
-            document.getElementById('infoBoxOpacity').value          = Math.round(appState.infoBoxOpacity * 100);
-            document.getElementById('opacityValue').textContent      = Math.round(appState.infoBoxOpacity * 100);
-            document.getElementById('miniWpLabelOpacity').value      = Math.round(appState.miniWpLabelOpacity * 100);
-            document.getElementById('lsaClipToCircles').checked      = !!appState.lsaClipToCircles;
-            document.getElementById('miniWpOpacityValue').textContent = Math.round(appState.miniWpLabelOpacity * 100);
-            document.getElementById('driftColor').value              = appState.driftColor;
-            document.getElementById('driftWidth').value              = appState.driftWidth;
-            document.getElementById('driftWidthValue').textContent   = appState.driftWidth;
+            syncDisplaySettingsUI();
 
             updateAllCircles();
+            if (typeof updateAllHighlightCircles === 'function') {
+                updateAllHighlightCircles();
+            }
             updateRoute();
             updateStats();
         }
@@ -340,11 +369,37 @@
         function planToJson(planName) {
             var textBoxesData = appState.textBoxes.map(function(marker) {
                 var latlng = marker.getLatLng();
-                return { lat: latlng.lat, lng: latlng.lng,
-                    text: marker.textBoxData.text, textColor: marker.textBoxData.textColor,
-                    fillColor: marker.textBoxData.fillColor, rotation: marker.textBoxData.rotation,
-                    fontSize: marker.textBoxData.fontSize,
-                    realLat: marker.textBoxData._realLat, realLng: marker.textBoxData._realLng };
+                var realLL = (typeof calibrateDisplayToReal === 'function')
+                    ? calibrateDisplayToReal(latlng)
+                    : latlng;
+                var d = marker.textBoxData || {};
+                return {
+                    lat: latlng.lat,
+                    lng: latlng.lng,
+                    text: d.text,
+                    textColor: d.textColor,
+                    fillColor: d.fillColor,
+                    rotation: d.rotation || 0,
+                    fontSize: d.fontSize || appState.textBoxFontSize,
+                    realLat: (d._realLat !== undefined ? d._realLat : realLL.lat),
+                    realLng: (d._realLng !== undefined ? d._realLng : realLL.lng)
+                };
+            });
+            var highlightCirclesData = (appState.highlightCircles || []).map(function(c) {
+                var latlng = c.getLatLng();
+                var realLL = (typeof calibrateDisplayToReal === 'function')
+                    ? calibrateDisplayToReal(latlng)
+                    : latlng;
+                return {
+                    lat: latlng.lat,
+                    lng: latlng.lng,
+                    realLat: (c._realLat !== undefined ? c._realLat : realLL.lat),
+                    realLng: (c._realLng !== undefined ? c._realLng : realLL.lng),
+                    radius: c._radiusNm || appState.highlightCircleRadius || 0.5,
+                    label: c._label || '',
+                    color: c._color || '#dc3545',
+                    opacity: c._opacity !== undefined ? c._opacity : appState.highlightCircleOpacity
+                };
             });
             return {
                 name: planName,
@@ -353,24 +408,114 @@
                 mapName: appState.currentMapName,
                 waypoints: appState.waypoints,
                 textBoxes: textBoxesData,
+                highlightCircles: highlightCirclesData,
+                highlightCircleRadius: appState.highlightCircleRadius,
+                highlightCircleOpacity: appState.highlightCircleOpacity,
                 waypointLabelOffsets: appState.waypointLabelOffsets,
+                waypointLabelOffsetsReverse: appState.waypointLabelOffsetsReverse,
                 waypointLabelStyles: appState.waypointLabelStyles,
+                waypointLabelStylesReverse: appState.waypointLabelStylesReverse,
                 legLabelPositions: appState.legLabelDraggedPositions,
                 arrivalLabelPositions: appState.arrivalLabelPositions,
+                miniWaypoints: appState.miniWaypoints,
+                legAltitudes: appState.legAltitudes,
+
+                // Flight controls
                 cruiseSpeed: appState.cruiseSpeed,
                 fuelFlow: appState.fuelFlow,
                 magVar: appState.magVar,
-                circleRadius: appState.circleRadius,
-                legAltitudes: appState.legAltitudes,
                 defaultAltitude: appState.defaultAltitude,
+
+                // Display Settings: Lines, circles, ticks
+                lineWidth: appState.lineWidth,
+                circleRadius: appState.circleRadius,
+                circleOpacity: appState.circleOpacity,
+                labelFontSize: appState.labelFontSize,
                 tickInterval: appState.tickInterval,
                 labelInterval: appState.labelInterval,
                 driftColor: appState.driftColor,
                 driftWidth: appState.driftWidth,
+
+                // Display Settings: Boxes & font sizes
+                waypointLabelFontSize: appState.waypointLabelFontSize,
                 arrivalLabelFontSize: appState.arrivalLabelFontSize,
-                miniWaypoints: appState.miniWaypoints
+                infoBoxSizeMultiplier: appState.infoBoxSizeMultiplier,
+                infoBoxFontMultiplier: appState.infoBoxFontMultiplier,
+                infoBoxOpacity: appState.infoBoxOpacity,
+                textBoxFontSize: appState.textBoxFontSize,
+                miniWpLabelOpacity: appState.miniWpLabelOpacity,
+                lsaClipToCircles: !!appState.lsaClipToCircles,
+
+                // Display Settings: Layer visibility toggles
+                displaySettings: {
+                    airspaceVisible: !!appState.airspaceVisible,
+                    ctrsVisible: !!appState.ctrsVisible,
+                    lsaPointsVisible: appState.lsaPointsVisible !== undefined ? !!appState.lsaPointsVisible : true,
+                    cvfrPointsVisible: !!appState.cvfrPointsVisible,
+                    reportingPointsVisible: !!appState.reportingPointsVisible,
+                    frequenciesVisible: !!appState.frequenciesVisible,
+                    waypointLabelsVisible: appState.waypointLabelsVisible !== undefined ? !!appState.waypointLabelsVisible : true,
+                    driftLinesVisible: !!appState.driftLinesVisible,
+                    showLegDistance: !!appState.showLegDistance,
+                    airstripsVisible: appState.airstripsVisible !== undefined ? !!appState.airstripsVisible : true,
+                    legTimeVisible: appState.legTimeVisible !== undefined ? !!appState.legTimeVisible : true,
+                    reverseRouteVisible: appState.reverseRouteVisible !== undefined ? !!appState.reverseRouteVisible : true,
+                    coordDisplayMode: !!appState.coordDisplayMode
+                }
             };
         }
+
+        window.exportPlanFile = function() {
+            var planName = (document.getElementById('plan-name').value || '').trim() || appState.currentPlanName || 'flight-plan';
+            if (appState.waypoints.length === 0) {
+                alert('No waypoints to export!');
+                return;
+            }
+            var plan = planToJson(planName);
+            var jsonStr = JSON.stringify(plan, null, 2);
+            var blob = new Blob([jsonStr], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = planName.replace(/[^a-z0-9_\-\s]/gi, '_') + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        window.importPlanFile = function() {
+            var input = document.getElementById('importPlanFileInput');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        };
+
+        window.handleImportPlanFile = function(input) {
+            var file = input.files && input.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var plan = JSON.parse(e.target.result);
+                    if (!plan || !plan.waypoints) {
+                        alert('Invalid flight plan file: no waypoints found.');
+                        return;
+                    }
+                    applyPlan(plan);
+                    setTimeout(function() {
+                        if (plan.name) {
+                            appState.currentPlanName = plan.name;
+                            document.getElementById('plan-name').value = plan.name;
+                        }
+                    }, 100);
+                } catch(err) {
+                    alert('Error reading plan file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        };
 
         async function savePlan() {
             var planName = document.getElementById('plan-name').value.trim();
@@ -520,26 +665,62 @@
         }
 
         function _finishApplyPlan(plan, targetMap) {
-            if (appState.baseMaps && targetMap !== appState.currentMapName) {
+            if (appState.baseMaps && targetMap && appState.baseMaps[targetMap] && targetMap !== appState.currentMapName) {
                 Object.keys(appState.baseMaps).forEach(function(name) {
                     appState.map.removeLayer(appState.baseMaps[name]);
                 });
                 appState.baseMaps[targetMap].addTo(appState.map);
-                appState.map.fire('baselayerchange', { name: targetMap });
+                appState.map.fire('baselayerchange', { name: targetMap, layer: appState.baseMaps[targetMap] });
             }
 
-            appState.cruiseSpeed    = plan.cruiseSpeed    || 120;
-            appState.fuelFlow       = plan.fuelFlow       || 17;
-            appState.magVar         = plan.magVar !== undefined ? plan.magVar : -5;
-            appState.circleRadius   = plan.circleRadius   || 0.3;
-            appState.legAltitudes   = plan.legAltitudes   || {};
-            appState.defaultAltitude = plan.defaultAltitude !== undefined ? plan.defaultAltitude : 400;
-            appState.tickInterval   = plan.tickInterval   || 1;
-            appState.labelInterval  = plan.labelInterval  || 1;
-            appState.driftColor           = plan.driftColor           || '#cc6600';
-            appState.driftWidth           = plan.driftWidth           || 2;
-            appState.arrivalLabelFontSize = plan.arrivalLabelFontSize || 9;
-            appState.waypointLabelFontSize = plan.waypointLabelFontSize || 11;
+            appState.cruiseSpeed     = plan.cruiseSpeed    !== undefined ? plan.cruiseSpeed    : 90;
+            appState.fuelFlow        = plan.fuelFlow       !== undefined ? plan.fuelFlow       : 17;
+            appState.magVar          = plan.magVar         !== undefined ? plan.magVar         : -5;
+            appState.circleRadius    = plan.circleRadius   !== undefined ? plan.circleRadius   : 0.3;
+            appState.circleOpacity   = plan.circleOpacity  !== undefined ? plan.circleOpacity  : 0.2;
+            appState.lineWidth       = plan.lineWidth      !== undefined ? plan.lineWidth      : 4;
+            appState.labelFontSize   = plan.labelFontSize  !== undefined ? plan.labelFontSize  : 15;
+            appState.legAltitudes    = plan.legAltitudes   || {};
+            appState.defaultAltitude = plan.defaultAltitude!== undefined ? plan.defaultAltitude: 400;
+            appState.tickInterval    = plan.tickInterval   !== undefined ? plan.tickInterval   : 1;
+            appState.labelInterval   = plan.labelInterval  !== undefined ? plan.labelInterval  : 1;
+            appState.driftColor      = plan.driftColor     || '#cc6600';
+            appState.driftWidth      = plan.driftWidth     !== undefined ? plan.driftWidth     : 2;
+            appState.arrivalLabelFontSize = plan.arrivalLabelFontSize !== undefined ? plan.arrivalLabelFontSize : 9;
+            appState.waypointLabelFontSize = plan.waypointLabelFontSize !== undefined ? plan.waypointLabelFontSize : 11;
+            appState.infoBoxSizeMultiplier = plan.infoBoxSizeMultiplier !== undefined ? plan.infoBoxSizeMultiplier : 1.2;
+            appState.infoBoxFontMultiplier = plan.infoBoxFontMultiplier !== undefined ? plan.infoBoxFontMultiplier : 1.6364;
+            appState.infoBoxOpacity  = plan.infoBoxOpacity  !== undefined ? plan.infoBoxOpacity  : 0.70;
+            appState.textBoxFontSize = plan.textBoxFontSize !== undefined ? plan.textBoxFontSize : 14;
+            appState.miniWpLabelOpacity = plan.miniWpLabelOpacity !== undefined ? plan.miniWpLabelOpacity : 0.70;
+            appState.lsaClipToCircles = plan.lsaClipToCircles !== undefined ? !!plan.lsaClipToCircles : false;
+            if (plan.highlightCircleRadius !== undefined) appState.highlightCircleRadius = plan.highlightCircleRadius;
+            if (plan.highlightCircleOpacity !== undefined) appState.highlightCircleOpacity = plan.highlightCircleOpacity;
+
+            // Sync all sliders and input controls
+            syncDisplaySettingsUI();
+
+            // Apply layer toggles and display settings
+            var ds = plan.displaySettings || {};
+            function applyToggle(flagName, desired, toggleFn) {
+                if (desired !== undefined && typeof toggleFn === 'function' && appState[flagName] !== !!desired) {
+                    toggleFn();
+                }
+            }
+            applyToggle('airspaceVisible', ds.airspaceVisible !== undefined ? ds.airspaceVisible : plan.airspaceVisible, toggleAirspace);
+            applyToggle('ctrsVisible', ds.ctrsVisible !== undefined ? ds.ctrsVisible : plan.ctrsVisible, toggleCTRs);
+            applyToggle('lsaPointsVisible', ds.lsaPointsVisible !== undefined ? ds.lsaPointsVisible : plan.lsaPointsVisible, toggleLSAPoints);
+            applyToggle('cvfrPointsVisible', ds.cvfrPointsVisible !== undefined ? ds.cvfrPointsVisible : plan.cvfrPointsVisible, toggleCVFRPoints);
+            applyToggle('reportingPointsVisible', ds.reportingPointsVisible !== undefined ? ds.reportingPointsVisible : plan.reportingPointsVisible, toggleReportingPoints);
+            applyToggle('frequenciesVisible', ds.frequenciesVisible !== undefined ? ds.frequenciesVisible : plan.frequenciesVisible, toggleFrequencies);
+            applyToggle('waypointLabelsVisible', ds.waypointLabelsVisible !== undefined ? ds.waypointLabelsVisible : plan.waypointLabelsVisible, toggleWaypointLabels);
+            applyToggle('driftLinesVisible', ds.driftLinesVisible !== undefined ? ds.driftLinesVisible : plan.driftLinesVisible, toggleDriftLines);
+            applyToggle('showLegDistance', ds.showLegDistance !== undefined ? ds.showLegDistance : plan.showLegDistance, toggleLegDistance);
+            applyToggle('airstripsVisible', ds.airstripsVisible !== undefined ? ds.airstripsVisible : plan.airstripsVisible, toggleAirstrips);
+            applyToggle('legTimeVisible', ds.legTimeVisible !== undefined ? ds.legTimeVisible : plan.legTimeVisible, toggleLegTime);
+            applyToggle('reverseRouteVisible', ds.reverseRouteVisible !== undefined ? ds.reverseRouteVisible : plan.reverseRouteVisible, toggleDirectionVisibility);
+            applyToggle('coordDisplayMode', ds.coordDisplayMode !== undefined ? ds.coordDisplayMode : plan.coordDisplayMode, toggleCoordDisplayMode);
+
             // Restore label/box positions and styles BEFORE building route so they take effect immediately
             appState.waypointLabelOffsets = plan.waypointLabelOffsets || {};
             appState.waypointLabelOffsetsReverse = plan.waypointLabelOffsetsReverse || {};
@@ -551,9 +732,6 @@
             Object.keys(appState.waypointLabelStyles).forEach(function(k) {
                 var sty = appState.waypointLabelStyles[k];
                 if (sty && sty.rotation !== undefined && sty.rotationDelta === undefined) {
-                    // Old format: rotation is absolute. We don't know heading at load time,
-                    // so store as rotationDelta=0 and keep rotation for display compatibility.
-                    // The label will use rotationDelta=0 (aligned with leg heading).
                     sty.rotationDelta = 0;
                     delete sty.rotation;
                 }
@@ -566,38 +744,19 @@
                 (parseInt(planVer[0]) === 3 && parseInt(planVer[1]) === 5 && parseInt((planVer[2]||'0')) >= 3));
             Object.keys(plan.legLabelPositions || {}).forEach(function(k) {
                 var p = plan.legLabelPositions[k];
-                if (isNewFormat) {
+                if (isNewFormat || (p.realLat !== undefined)) {
                     // Already real coords
-                    appState.legLabelDraggedPositions[k] = { lat: p.lat, lng: p.lng };
+                    appState.legLabelDraggedPositions[k] = { lat: (p.realLat !== undefined ? p.realLat : p.lat), lng: (p.realLng !== undefined ? p.realLng : p.lng) };
                 } else {
                     // Old format: display coords — convert to real using calibration
-                    var real = calibrateDisplayToReal(L.latLng(p.lat, p.lng));
+                    var real = (typeof calibrateDisplayToReal === 'function') ? calibrateDisplayToReal(L.latLng(p.lat, p.lng)) : p;
                     appState.legLabelDraggedPositions[k] = { lat: real.lat, lng: real.lng };
                 }
             });
             appState.arrivalLabelPositions = plan.arrivalLabelPositions || {};
-            document.getElementById('cruiseSpeed').value    = appState.cruiseSpeed;
-            document.getElementById('fuelFlow').value       = appState.fuelFlow;
-            document.getElementById('magVar').value         = appState.magVar;
-            document.getElementById('defaultAltitude').value = appState.defaultAltitude;
-            document.getElementById('circleRadius').value   = Math.round(appState.circleRadius * 10);
-            document.getElementById('radiusValue').textContent = appState.circleRadius.toFixed(1);
-            document.getElementById('tickInterval').value   = appState.tickInterval;
-            document.getElementById('tickIntervalValue').textContent = appState.tickInterval;
-            document.getElementById('labelInterval').value  = appState.labelInterval;
-            document.getElementById('labelIntervalValue').textContent = appState.labelInterval;
-            document.getElementById('driftColor').value     = appState.driftColor;
-            document.getElementById('driftWidth').value     = appState.driftWidth;
-            document.getElementById('driftWidthValue').textContent = appState.driftWidth;
-            document.getElementById('arrivalLabelFontSize').value = appState.arrivalLabelFontSize;
-            document.getElementById('arrivalLabelFontSizeValue').textContent = appState.arrivalLabelFontSize;
+
             plan.waypoints.forEach(function(wp) {
-                addWaypoint(wp.lat, wp.lng);
-                if (wp.name) {
-                    var i = appState.waypoints.length - 1;
-                    appState.waypoints[i].name = wp.name;
-                    updateWaypointLabelMarker(i);
-                }
+                addWaypoint(wp.lat, wp.lng, wp.name);
             });
             // Build mapping from saved wp.num to loaded sequential wp.num
             // plan.waypoints[i].num -> appState.waypoints[i].num (which is i+1)
@@ -635,7 +794,33 @@
                 if (loadedNum) newMini[loadedNum] = appState.miniWaypoints[num];
             });
             appState.miniWaypoints = newMini;
+
+            // Remap waypoint label offsets & styles if needed
+            var remapOffsets = {}, remapOffsetsRev = {}, remapStyles = {}, remapStylesRev = {};
+            Object.keys(appState.waypointLabelOffsets).forEach(function(num) {
+                var lNum = savedNumToLoadedNum[parseInt(num)] || num;
+                remapOffsets[lNum] = appState.waypointLabelOffsets[num];
+            });
+            Object.keys(appState.waypointLabelOffsetsReverse).forEach(function(num) {
+                var lNum = savedNumToLoadedNum[parseInt(num)] || num;
+                remapOffsetsRev[lNum] = appState.waypointLabelOffsetsReverse[num];
+            });
+            Object.keys(appState.waypointLabelStyles).forEach(function(num) {
+                var lNum = savedNumToLoadedNum[parseInt(num)] || num;
+                remapStyles[lNum] = appState.waypointLabelStyles[num];
+            });
+            Object.keys(appState.waypointLabelStylesReverse).forEach(function(num) {
+                var lNum = savedNumToLoadedNum[parseInt(num)] || num;
+                remapStylesRev[lNum] = appState.waypointLabelStylesReverse[num];
+            });
+            appState.waypointLabelOffsets = remapOffsets;
+            appState.waypointLabelOffsetsReverse = remapOffsetsRev;
+            appState.waypointLabelStyles = remapStyles;
+            appState.waypointLabelStylesReverse = remapStylesRev;
+
+            updateAllCircles();
             updateRoute();
+            updateStats();
 
             if (plan.textBoxes && plan.textBoxes.length > 0) {
                 var tbsToLoad = plan.textBoxes.slice();
@@ -650,7 +835,26 @@
                             displayLL = L.latLng(tb.lat, tb.lng);
                         }
                         createTextBoxMarker(displayLL, tb.text,
-                            tb.textColor || 'black', tb.fillColor || 'orange', tb.rotation || 0, tb.fontSize);
+                            tb.textColor || 'black', tb.fillColor || 'orange', tb.rotation || 0, tb.fontSize || plan.textBoxFontSize || appState.textBoxFontSize);
+                    });
+                }, 100);
+            }
+
+            if (plan.highlightCircles && plan.highlightCircles.length > 0) {
+                var hcsToLoad = plan.highlightCircles.slice();
+                setTimeout(function() {
+                    hcsToLoad.forEach(function(hc) {
+                        var displayLL;
+                        if (hc.realLat !== undefined && typeof toDisplayLatLng === 'function') {
+                            displayLL = toDisplayLatLng(L.latLng(hc.realLat, hc.realLng));
+                        } else if (hc.realLat !== undefined) {
+                            displayLL = L.latLng(hc.realLat, hc.realLng);
+                        } else {
+                            displayLL = L.latLng(hc.lat, hc.lng);
+                        }
+                        if (typeof createHighlightCircle === 'function') {
+                            createHighlightCircle(displayLL, hc.radius, hc.label, hc.color, hc.opacity);
+                        }
                     });
                 }, 100);
             }

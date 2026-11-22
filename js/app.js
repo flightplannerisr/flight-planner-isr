@@ -64,6 +64,30 @@
                 document.getElementById('circleOpacityValue').textContent = e.target.value;
                 updateAllCircles();
             });
+
+            var hcRadiusInput = document.getElementById('highlightCircleRadius');
+            if (hcRadiusInput) {
+                hcRadiusInput.addEventListener('input', function(e) {
+                    var val = parseFloat(e.target.value) * 0.1;
+                    appState.highlightCircleRadius = val;
+                    document.getElementById('highlightRadiusValue').textContent = val.toFixed(1);
+                    if (typeof updateAllHighlightCircles === 'function') {
+                        updateAllHighlightCircles(val);
+                    }
+                });
+            }
+
+            var hcOpacityInput = document.getElementById('highlightCircleOpacity');
+            if (hcOpacityInput) {
+                hcOpacityInput.addEventListener('input', function(e) {
+                    var val = parseFloat(e.target.value) / 100;
+                    appState.highlightCircleOpacity = val;
+                    document.getElementById('highlightOpacityValue').textContent = e.target.value;
+                    if (typeof updateAllHighlightCircles === 'function') {
+                        updateAllHighlightCircles(undefined, val);
+                    }
+                });
+            }
             
             document.getElementById('cruiseSpeed').addEventListener('input', function(e) {
                 appState.cruiseSpeed = parseFloat(e.target.value);
@@ -119,16 +143,14 @@
             document.getElementById('textBoxFontSize').addEventListener('input', function(e) {
                 appState.textBoxFontSize = parseFloat(e.target.value);
                 document.getElementById('textBoxFontSizeValue').textContent = appState.textBoxFontSize;
-                // Update all existing text boxes
-                appState.textBoxes.forEach(function(marker) {
+                // Update all existing text boxes safely
+                var existingBoxes = appState.textBoxes.slice();
+                appState.textBoxes = [];
+                existingBoxes.forEach(function(marker) {
                     var latlng = marker.getLatLng();
                     var data = marker.textBoxData;
                     if (marker.remove) marker.remove(); else appState.map.removeLayer(marker);
-                    var index = appState.textBoxes.indexOf(marker);
-                    if (index > -1) {
-                        appState.textBoxes.splice(index, 1);
-                    }
-                    createTextBoxMarker(latlng, data.text, data.textColor, data.fillColor, data.rotation);
+                    createTextBoxMarker(latlng, data.text, data.textColor, data.fillColor, data.rotation, appState.textBoxFontSize);
                 });
             });
             
@@ -252,9 +274,8 @@
                         return;
                     }
 
-                    // Apply calibration correction if on a calibrated chart map
-                    var mapName = appState.currentMapName;
-                    if ((mapName === 'Air Nav Chart' || mapName === 'AZM Chart') && typeof calibrateLatLng === 'function') {
+                    // Apply calibration correction if on a calibrated chart map or aligned map
+                    if (typeof calibrateLatLng === 'function') {
                         calibrateLatLng({ latlng: clickLL, containerPoint: clickPt }).then(function(corrected) {
                             addWaypoint(corrected.lat, corrected.lng);
                         });
@@ -445,6 +466,9 @@
             for (var id in elements) {
                 var el = document.getElementById(id);
                 if (el) el.textContent = elements[id];
+            }
+            if (typeof updateAlignButtonUI === 'function') {
+                updateAlignButtonUI();
             }
             
             // Update input placeholder

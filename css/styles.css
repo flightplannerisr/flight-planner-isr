@@ -127,3 +127,22 @@
         .preview-line {
             pointer-events: none !important;
         }
+
+        /* Alignment mode */
+        body.align-mode-active #map {
+            cursor: crosshair !important;
+        }
+        body.align-mode-active .leaflet-marker-pane,
+        body.align-mode-active .leaflet-popup-pane,
+        body.align-mode-active .leaflet-overlay-pane,
+        body.align-mode-active .wl-div,
+        body.align-mode-active .leg-info-label,
+        body.align-mode-active .time-label {
+            pointer-events: none !important;
+        }
+
+        @keyframes rishonPulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.35); opacity: 1; }
+        }
+

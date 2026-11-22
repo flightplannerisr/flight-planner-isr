@@ -57,6 +57,11 @@
             showOriginalRoute: true,
             textBoxes: [],
             addingTextBox: false,
+            highlightCircles: [],
+            highlightCircleRadius: 0.5,
+            highlightCircleOpacity: 0.25,
+            highlightCircleColor: '#dc3545',
+            addingHighlightCircle: false,
             language: 'en', // 'en' or 'he' - UI language (CVFR points always show Hebrew)
             reportingPoints: [],
             reportingPointsVisible: false,

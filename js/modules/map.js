@@ -302,15 +302,16 @@
                 attribution: '© Google Maps'
             });
             
-            // Shared bounds for both chart overlays (North + South combined)
-            var chartBounds = [[29.5, 34.166667], [33.333333, 35.833333]];
+            // Exact Leaflet WGS84 bounds derived directly from QGIS EPSG:3857 world files
+            var airNavBounds = [[29.505837, 34.087530], [33.425343, 35.938721]];
+            var azmCombinedBounds = [[29.507471, 34.079555], [33.424702, 35.938279]];
 
             // Air Nav Chart layer (image overlay on blank base)
             var airNavChart = L.layerGroup();
             var blankTilesAirNav = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel AIP Air Navigation Chart'
             });
-            var airNavOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned.jpg', chartBounds, {
+            var airNavOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned.jpg', airNavBounds, {
                 opacity: 1.0,
                 interactive: false
             });
@@ -322,13 +323,29 @@
             var blankTilesAzm = L.tileLayer('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', {
                 attribution: 'Israel Civil Aviation Authority – AZM Low Level Chart'
             });
-            var azmOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned_AZM.jpg', chartBounds, {
+            var azmOverlay = L.imageOverlay('./images/layers/air_nav_combined_aligned_AZM.jpg', azmCombinedBounds, {
                 opacity: 1.0,
                 interactive: false
             });
             azmChart.addLayer(blankTilesAzm);
             azmChart.addLayer(azmOverlay);
             
+            appState.airNavBounds = airNavBounds;
+            appState.airNavMapOverlay = airNavOverlay;
+            appState.azmCombinedBounds = azmCombinedBounds;
+            appState.azmMapOverlay = azmOverlay;
+            appState.chartBaseBounds = airNavBounds;
+            appState.chartOverlays = {
+                'Air Nav Chart': airNavOverlay,
+                'AZM Chart': azmOverlay
+            };
+
+            // Apply any saved chart map shift
+            if (typeof applyChartMapShift === 'function') {
+                applyChartMapShift('Air Nav Chart');
+                applyChartMapShift('AZM Chart');
+            }
+
             // Start with OpenStreetMap as default
             osm.addTo(appState.map);
             appState.currentMapName = 'OpenStreetMap';
@@ -350,12 +367,22 @@
             appState.map.on('baselayerchange', function(e) {
                 // Track current map name for waypoint grouping
                 appState.currentMapName = e.name;
-                // Pre-load calibration transform for chart maps
                 if (e.name === 'Air Nav Chart' || e.name === 'AZM Chart') {
-                    getCalibTransform(e.name);
+                    if (typeof getCalibTransform === 'function') {
+                        getCalibTransform(e.name);
+                    }
+                    if (typeof applyChartMapShift === 'function') {
+                        applyChartMapShift(e.name);
+                    }
                 }
-                // Refresh overlay markers for new map projection
-                setTimeout(function() { if (typeof refreshOverlayMarkers === 'function') refreshOverlayMarkers(e.name); }, 200);
+                setTimeout(function() {
+                    if (typeof refreshOverlayMarkers === 'function') {
+                        refreshOverlayMarkers(e.name);
+                    }
+                }, 150);
+                if (typeof updateAlignButtonUI === 'function') {
+                    updateAlignButtonUI();
+                }
 
                 // Recompute displayLat/displayLng for all waypoints based on new map
                 appState.waypoints.forEach(function(wp) {
@@ -409,6 +436,15 @@
                         tb.setLatLng(dispLL);
                     }
                 });
+
+                // Reposition highlight circles
+                if (typeof repositionHighlightCircles === 'function') {
+                    repositionHighlightCircles();
+                }
+
+                if (typeof updateAlignButtonUI === 'function') {
+                    updateAlignButtonUI();
+                }
 
                 // Show AZM-specific warning (once per session)
                 var isChartLayer = (e.name === 'Air Nav Chart' || e.name === 'AZM Chart');
@@ -563,6 +599,10 @@
                 
                 showPreview(e.latlng);
             });
+
+            if (typeof updateAlignButtonUI === 'function') {
+                updateAlignButtonUI();
+            }
         }
 
         function initAirspaceZones() {

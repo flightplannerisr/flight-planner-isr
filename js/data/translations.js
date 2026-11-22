@@ -16,6 +16,9 @@
                 showOutbound: "Show Outbound",
                 hideReturn: "Hide Return",
                 addTextBox: "Add Text Box",
+                addHighlightCircle: "🔴 Add Red Circle",
+                highlightCircleRadius: "Highlight Circle Radius",
+                highlightCircleOpacity: "Highlight Circle Opacity",
                 airspaceToggle: "Show Airspace",
                 hideAirspace: "Hide Airspace",
                 showCTRs: "Show CTRs",
@@ -63,7 +66,11 @@
                 airNavChartMode: "Switch to Air Nav Chart",
                 exitAirNavMode: "Switch to Street Map",
                 showCoordinates: "Show Coords",
-                hideCoordinates: "Hide Coords"
+                hideCoordinates: "Hide Coords",
+                alignRishon: "🎯 Align Map (LLRS / BOVED / NSHRM)",
+                alignRishonActive: "🎯 Calibrating... (Click to Cancel)",
+                alignRishonAligned: "🎯 Re-align Map (✓)",
+                resetAlignment: "↩ Reset Alignment"
             },
             he: {
                 title: "🛩️ מתכנן טיסה ישראל",
@@ -82,6 +89,9 @@
                 showOutbound: "הצג יציאה",
                 hideReturn: "הסתר חזרה",
                 addTextBox: "הוסף תיבת טקסט",
+                addHighlightCircle: "🔴 הוסף מעגל אדום",
+                highlightCircleRadius: "רדיוס מעגל הדגשה",
+                highlightCircleOpacity: "שקיפות מעגל הדגשה",
                 airspaceToggle: "הצג מרחב אווירי",
                 hideAirspace: "הסתר מרחב אווירי",
                 showCTRs: "הצג אזורי פיקוח (CTR)",
@@ -129,6 +139,10 @@
                 airNavChartMode: "עבור למפת ניווט אווירית",
                 exitAirNavMode: "עבור למפת רחוב",
                 showCoordinates: "הצג קו׳",
-                hideCoordinates: "הסתר קו׳"
+                hideCoordinates: "הסתר קו׳",
+                alignRishon: "🎯 כיול מפה (ראשון / בית עובד / נשרים)",
+                alignRishonActive: "🎯 מבצע כיול... (לחץ לביטול)",
+                alignRishonAligned: "🎯 כיול מחדש (✓)",
+                resetAlignment: "↩ איפוס כיול"
             }
         };

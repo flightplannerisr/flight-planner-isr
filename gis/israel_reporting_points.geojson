@@ -1,0 +1,5668 @@
+{
+  "type": "FeatureCollection",
+  "name": "Israel_Aeronautical_Points",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9789,
+          31.8361
+        ]
+      },
+      "properties": {
+        "name": "LATRUN",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8886,
+          31.9044
+        ]
+      },
+      "properties": {
+        "name": "NESHARIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9333,
+          31.9167
+        ]
+      },
+      "properties": {
+        "name": "AYALON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9167,
+          32.0333
+        ]
+      },
+      "properties": {
+        "name": "OVED",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8294,
+          31.9261
+        ]
+      },
+      "properties": {
+        "name": "NETZER",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8333,
+          32.1167
+        ]
+      },
+      "properties": {
+        "name": "YARKON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9,
+          32.25
+        ]
+      },
+      "properties": {
+        "name": "ALEXANDER",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4167,
+          31.2833
+        ]
+      },
+      "properties": {
+        "name": "GVULOT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4167,
+          30.9167
+        ]
+      },
+      "properties": {
+        "name": "NITZANA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7,
+          31.0
+        ]
+      },
+      "properties": {
+        "name": "REVIVIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.75,
+          30.9167
+        ]
+      },
+      "properties": {
+        "name": "MIZPE REVIVIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8167,
+          31.0167
+        ]
+      },
+      "properties": {
+        "name": "RAMAT HOVAV",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9167,
+          31.0167
+        ]
+      },
+      "properties": {
+        "name": "MASHABEI SADEH",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6833,
+          31.3
+        ]
+      },
+      "properties": {
+        "name": "DVIRA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8167,
+          31.3667
+        ]
+      },
+      "properties": {
+        "name": "LEHAVIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.95,
+          31.3333
+        ]
+      },
+      "properties": {
+        "name": "MEITAR",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.75,
+          31.45
+        ]
+      },
+      "properties": {
+        "name": "SHANI",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6833,
+          31.3333
+        ]
+      },
+      "properties": {
+        "name": "GILAT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6333,
+          31.2833
+        ]
+      },
+      "properties": {
+        "name": "PATISH",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5,
+          31.35
+        ]
+      },
+      "properties": {
+        "name": "URIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.55,
+          31.35
+        ]
+      },
+      "properties": {
+        "name": "MEFALSIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5167,
+          31.4667
+        ]
+      },
+      "properties": {
+        "name": "ALUMIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.55,
+          31.4333
+        ]
+      },
+      "properties": {
+        "name": "GEVIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4833,
+          31.5
+        ]
+      },
+      "properties": {
+        "name": "YEVUL",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4667,
+          31.5167
+        ]
+      },
+      "properties": {
+        "name": "KFAR AZA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5167,
+          31.4833
+        ]
+      },
+      "properties": {
+        "name": "NAHAL OZ",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4667,
+          31.35
+        ]
+      },
+      "properties": {
+        "name": "SUFA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5,
+          31.3833
+        ]
+      },
+      "properties": {
+        "name": "EIN HASHLOSHA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4833,
+          31.4
+        ]
+      },
+      "properties": {
+        "name": "REIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4333,
+          31.3833
+        ]
+      },
+      "properties": {
+        "name": "NIRIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6333,
+          31.7333
+        ]
+      },
+      "properties": {
+        "name": "NITZANIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6667,
+          31.75
+        ]
+      },
+      "properties": {
+        "name": "NITZAN",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7833,
+          31.8167
+        ]
+      },
+      "properties": {
+        "name": "GEDERA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.85,
+          31.85
+        ]
+      },
+      "properties": {
+        "name": "MAZKERET BATYA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8219,
+          32.0028
+        ]
+      },
+      "properties": {
+        "name": "BET DAGAN",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.75,
+          31.8667
+        ]
+      },
+      "properties": {
+        "name": "YAVNE",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7,
+          31.7333
+        ]
+      },
+      "properties": {
+        "name": "ASERET",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7167,
+          31.7833
+        ]
+      },
+      "properties": {
+        "name": "GAN YAVNE",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8667,
+          32.0333
+        ]
+      },
+      "properties": {
+        "name": "KFAR HABAD",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8167,
+          32.0167
+        ]
+      },
+      "properties": {
+        "name": "AZOR",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.85,
+          32.075
+        ]
+      },
+      "properties": {
+        "name": "GIVAT SHMUEL",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8572,
+          32.0619
+        ]
+      },
+      "properties": {
+        "name": "KIRYAT ONO",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8586,
+          32.0294
+        ]
+      },
+      "properties": {
+        "name": "OR YEHUDA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1044,
+          33.0858
+        ]
+      },
+      "properties": {
+        "name": "ROSH HANIKRA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1,
+          33.05
+        ]
+      },
+      "properties": {
+        "name": "ACHZIV",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0944,
+          33.0072
+        ]
+      },
+      "properties": {
+        "name": "NAHARIYA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0833,
+          32.9278
+        ]
+      },
+      "properties": {
+        "name": "AKKO",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3,
+          32.9167
+        ]
+      },
+      "properties": {
+        "name": "KARMIEL",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4972,
+          32.9667
+        ]
+      },
+      "properties": {
+        "name": "SAFED",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5719,
+          32.9692
+        ]
+      },
+      "properties": {
+        "name": "ROSH PINA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5308,
+          32.7947
+        ]
+      },
+      "properties": {
+        "name": "TIBERIAS",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5833,
+          32.8333
+        ]
+      },
+      "properties": {
+        "name": "KINNERET",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5167,
+          32.8333
+        ]
+      },
+      "properties": {
+        "name": "MIGDAL",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5167,
+          32.85
+        ]
+      },
+      "properties": {
+        "name": "GINOSAR",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5,
+          32.5
+        ]
+      },
+      "properties": {
+        "name": "BEIT SHEAN",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2833,
+          32.6167
+        ]
+      },
+      "properties": {
+        "name": "AFULA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1083,
+          32.6583
+        ]
+      },
+      "properties": {
+        "name": "YOKNEAM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0,
+          32.8333
+        ]
+      },
+      "properties": {
+        "name": "HAIFA BAY",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9889,
+          32.8247
+        ]
+      },
+      "properties": {
+        "name": "HAIFA PORT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0667,
+          32.8167
+        ]
+      },
+      "properties": {
+        "name": "KISHON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9428,
+          32.6922
+        ]
+      },
+      "properties": {
+        "name": "ATLIT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8856,
+          32.4403
+        ]
+      },
+      "properties": {
+        "name": "HADERA POWER STATION",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9,
+          32.5
+        ]
+      },
+      "properties": {
+        "name": "CAESAREA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9167,
+          32.5167
+        ]
+      },
+      "properties": {
+        "name": "OR AKIVA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9667,
+          32.4667
+        ]
+      },
+      "properties": {
+        "name": "PARDES HANNA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9589,
+          32.52
+        ]
+      },
+      "properties": {
+        "name": "BINYAMINA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.95,
+          32.5667
+        ]
+      },
+      "properties": {
+        "name": "ZICHRON YAAKOV",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.85,
+          32.3333
+        ]
+      },
+      "properties": {
+        "name": "NETANYA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8167,
+          32.1667
+        ]
+      },
+      "properties": {
+        "name": "HERZLIYA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7667,
+          32.0833
+        ]
+      },
+      "properties": {
+        "name": "TEL AVIV MARINA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8597,
+          32.1889
+        ]
+      },
+      "properties": {
+        "name": "READING POWER STATION",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7514,
+          32.0528
+        ]
+      },
+      "properties": {
+        "name": "JAFFA PORT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.75,
+          32.0167
+        ]
+      },
+      "properties": {
+        "name": "BAT YAM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7833,
+          32.0167
+        ]
+      },
+      "properties": {
+        "name": "HOLON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8,
+          31.9667
+        ]
+      },
+      "properties": {
+        "name": "RISHON LEZION",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8667,
+          32.1833
+        ]
+      },
+      "properties": {
+        "name": "RAANANA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9167,
+          32.1833
+        ]
+      },
+      "properties": {
+        "name": "KFAR SABA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8833,
+          32.15
+        ]
+      },
+      "properties": {
+        "name": "HOD HASHARON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6972,
+          31.8889
+        ]
+      },
+      "properties": {
+        "name": "PALMACHIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6333,
+          31.8167
+        ]
+      },
+      "properties": {
+        "name": "ASHDOD PORT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5667,
+          31.6667
+        ]
+      },
+      "properties": {
+        "name": "ASHKELON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.55,
+          31.6833
+        ]
+      },
+      "properties": {
+        "name": "ASHKELON POWER STATION",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5167,
+          31.6333
+        ]
+      },
+      "properties": {
+        "name": "ZIKIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7,
+          31.85
+        ]
+      },
+      "properties": {
+        "name": "YAVNE YAM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8878,
+          32.0883
+        ]
+      },
+      "properties": {
+        "name": "PETAH TIKVA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9561,
+          32.0956
+        ]
+      },
+      "properties": {
+        "name": "ROSH HAAYIN",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0167,
+          31.9
+        ]
+      },
+      "properties": {
+        "name": "MODIIN",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8667,
+          31.9294
+        ]
+      },
+      "properties": {
+        "name": "RAMLA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8883,
+          31.95
+        ]
+      },
+      "properties": {
+        "name": "LOD",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8092,
+          31.8944
+        ]
+      },
+      "properties": {
+        "name": "REHOVOT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8,
+          31.9333
+        ]
+      },
+      "properties": {
+        "name": "NES ZIONA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2167,
+          31.7833
+        ]
+      },
+      "properties": {
+        "name": "JERUSALEM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1333,
+          31.8
+        ]
+      },
+      "properties": {
+        "name": "MEVASSERET ZION",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1083,
+          31.8083
+        ]
+      },
+      "properties": {
+        "name": "ABU GOSH",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.15,
+          31.8
+        ]
+      },
+      "properties": {
+        "name": "MOTZA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0833,
+          31.8167
+        ]
+      },
+      "properties": {
+        "name": "SHORESH",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9833,
+          31.75
+        ]
+      },
+      "properties": {
+        "name": "BEIT SHEMESH",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.45,
+          31.8667
+        ]
+      },
+      "properties": {
+        "name": "JERICHO",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4833,
+          31.55
+        ]
+      },
+      "properties": {
+        "name": "DEAD SEA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3886,
+          31.4617
+        ]
+      },
+      "properties": {
+        "name": "EIN GEDI",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3539,
+          31.3156
+        ]
+      },
+      "properties": {
+        "name": "MASADA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3667,
+          31.2
+        ]
+      },
+      "properties": {
+        "name": "EIN BOKEK",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7833,
+          31.25
+        ]
+      },
+      "properties": {
+        "name": "BEER SHEVA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2128,
+          31.2597
+        ]
+      },
+      "properties": {
+        "name": "ARAD",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0339,
+          31.0694
+        ]
+      },
+      "properties": {
+        "name": "DIMONA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9333,
+          30.9833
+        ]
+      },
+      "properties": {
+        "name": "YERUHAM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8014,
+          30.6097
+        ]
+      },
+      "properties": {
+        "name": "MITZPE RAMON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9514,
+          29.5567
+        ]
+      },
+      "properties": {
+        "name": "EILAT",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2289,
+          32.5972
+        ]
+      },
+      "properties": {
+        "name": "MEGIDDO",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8392,
+          32.1833
+        ]
+      },
+      "properties": {
+        "name": "HERZLIYA AIRFIELD",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0431,
+          32.8094
+        ]
+      },
+      "properties": {
+        "name": "HAIFA AIRFIELD",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8217,
+          31.8397
+        ]
+      },
+      "properties": {
+        "name": "TEL NOF",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7272,
+          31.7625
+        ]
+      },
+      "properties": {
+        "name": "HATZOR",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0119,
+          31.2083
+        ]
+      },
+      "properties": {
+        "name": "NEVATIM",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6669,
+          30.7761
+        ]
+      },
+      "properties": {
+        "name": "RAMON",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9358,
+          29.9403
+        ]
+      },
+      "properties": {
+        "name": "OVDA",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7822,
+          32.1147
+        ]
+      },
+      "properties": {
+        "name": "SDE DOV",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8867,
+          32.0114
+        ]
+      },
+      "properties": {
+        "name": "BEN GURION",
+        "type": "Reporting Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0963889,
+          32.9186111
+        ]
+      },
+      "properties": {
+        "name": "AAKKO - עכו",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1277778,
+          32.8402778
+        ]
+      },
+      "properties": {
+        "name": "AFEK - אפק",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2130556,
+          31.1430556
+        ]
+      },
+      "properties": {
+        "name": "AFFAE - אפעה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1811111,
+          32.9119444
+        ]
+      },
+      "properties": {
+        "name": "AHIUD - אחיהוד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3483333,
+          32.1136111
+        ]
+      },
+      "properties": {
+        "name": "AKRBA - עקרבה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3666667,
+          32.0413889
+        ]
+      },
+      "properties": {
+        "name": "ALLON - אלון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4563889,
+          31.7897222
+        ]
+      },
+      "properties": {
+        "name": "ALMOG - אלמוג",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4027778,
+          31.2566667
+        ]
+      },
+      "properties": {
+        "name": "AMIOZ - עמיעוז",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0311111,
+          32.1880556
+        ]
+      },
+      "properties": {
+        "name": "AMNSH - אלפי מנשה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3091667,
+          30.9894444
+        ]
+      },
+      "properties": {
+        "name": "ARAVA - צומת הערבה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5325,
+          32.1730556
+        ]
+      },
+      "properties": {
+        "name": "ARGMN - ארגמן",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0669444,
+          32.4994444
+        ]
+      },
+      "properties": {
+        "name": "ARRAA - ערה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2097222,
+          31.2544444
+        ]
+      },
+      "properties": {
+        "name": "ARRAD - צומת ערד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.7858333,
+          33.0877778
+        ]
+      },
+      "properties": {
+        "name": "AVITL - צומת אביטל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9436111,
+          31.8716667
+        ]
+      },
+      "properties": {
+        "name": "AYLON - איילון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.98,
+          32.2525
+        ]
+      },
+      "properties": {
+        "name": "AZRIL - עזריאל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.6380556,
+          33.1461111
+        ]
+      },
+      "properties": {
+        "name": "BASAN - להבות הבשן",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7655556,
+          31.4416667
+        ]
+      },
+      "properties": {
+        "name": "BKAMA - בית קמה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1341667,
+          30.3033333
+        ]
+      },
+      "properties": {
+        "name": "BMNUH - באר מנוחה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.7875,
+          33.1508333
+        ]
+      },
+      "properties": {
+        "name": "BNTAL - בנטל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7858333,
+          30.875
+        ]
+      },
+      "properties": {
+        "name": "BOKER - שדה בוקר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9708333,
+          32.7144444
+        ]
+      },
+      "properties": {
+        "name": "BOREN - בית אורן",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.77,
+          31.9202778
+        ]
+      },
+      "properties": {
+        "name": "BOVED - בית-עובד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1708333,
+          32.2388889
+        ]
+      },
+      "properties": {
+        "name": "BRAON - בראון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9972222,
+          29.7080556
+        ]
+      },
+      "properties": {
+        "name": "BRORA - באר אורה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9813889,
+          31.7547222
+        ]
+      },
+      "properties": {
+        "name": "BSEMS - בית שמש",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0038889,
+          32.5977778
+        ]
+      },
+      "properties": {
+        "name": "BTSLM - בת שלמה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0833333,
+          32.5969444
+        ]
+      },
+      "properties": {
+        "name": "DALIA - דליה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9433333,
+          32.7961111
+        ]
+      },
+      "properties": {
+        "name": "DAROM - מחלף דרום",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5325,
+          32.87
+        ]
+      },
+      "properties": {
+        "name": "DESHE - כרי דשא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0058333,
+          31.0677778
+        ]
+      },
+      "properties": {
+        "name": "DIMON - דימונה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9105556,
+          32.6077778
+        ]
+      },
+      "properties": {
+        "name": "DOORS - דור*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.06,
+          32.8525
+        ]
+      },
+      "properties": {
+        "name": "DUGIT - דוגית",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3247222,
+          31.8038889
+        ]
+      },
+      "properties": {
+        "name": "DUMIM - כפר אדומים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9588889,
+          29.5583333
+        ]
+      },
+      "properties": {
+        "name": "EILAT - אילת",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0244444,
+          32.4808333
+        ]
+      },
+      "properties": {
+        "name": "EIRON - עירון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9552778,
+          32.1922222
+        ]
+      },
+      "properties": {
+        "name": "ELYAU - ניר אליהו",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0641667,
+          32.6361111
+        ]
+      },
+      "properties": {
+        "name": "ELYKM - אליקים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3958333,
+          31.4663889
+        ]
+      },
+      "properties": {
+        "name": "ENGDI - עין גדי",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.64,
+          32.7827778
+        ]
+      },
+      "properties": {
+        "name": "ENGEV - עין גב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3822222,
+          32.5544444
+        ]
+      },
+      "properties": {
+        "name": "ENHRD - עין חרוד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0113889,
+          31.7794444
+        ]
+      },
+      "properties": {
+        "name": "ESTOL - אשתאול",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9930556,
+          31.09
+        ]
+      },
+      "properties": {
+        "name": "ETZEM - עצם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1513889,
+          32.8238889
+        ]
+      },
+      "properties": {
+        "name": "EVLYM - אבליים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4630556,
+          32.0480556
+        ]
+      },
+      "properties": {
+        "name": "FAZEL - צומת פצאל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9463889,
+          32.5919444
+        ]
+      },
+      "properties": {
+        "name": "FRDIS - צומת פורדיס",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9811111,
+          32.8411111
+        ]
+      },
+      "properties": {
+        "name": "GALIM - בת גלים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8702778,
+          31.7430556
+        ]
+      },
+      "properties": {
+        "name": "GEFFN - גפן",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1325,
+          32.8213889
+        ]
+      },
+      "properties": {
+        "name": "GILAM - גילעם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6530556,
+          31.3372222
+        ]
+      },
+      "properties": {
+        "name": "GILAT - גילת",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8097222,
+          32.1397222
+        ]
+      },
+      "properties": {
+        "name": "GLILE - גלילות מזרח",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5691667,
+          33.1691667
+        ]
+      },
+      "properties": {
+        "name": "GOMME - צומת גומא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8927778,
+          31.6061111
+        ]
+      },
+      "properties": {
+        "name": "GOVRN - בית גוברין",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9561111,
+          32.4475
+        ]
+      },
+      "properties": {
+        "name": "GSHML - גן שמואל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9122222,
+          32.4647222
+        ]
+      },
+      "properties": {
+        "name": "HADRA - חדרה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.6261111,
+          32.7277778
+        ]
+      },
+      "properties": {
+        "name": "HAONN - האון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8608333,
+          32.2269444
+        ]
+      },
+      "properties": {
+        "name": "HAROZ - חרוצים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0777778,
+          32.7466667
+        ]
+      },
+      "properties": {
+        "name": "HASID - כפר חסידים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2363889,
+          30.7733333
+        ]
+      },
+      "properties": {
+        "name": "HAZVA - חצבה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.6311111,
+          33.2236111
+        ]
+      },
+      "properties": {
+        "name": "HGSRM - הגושרים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2197222,
+          31.7311111
+        ]
+      },
+      "properties": {
+        "name": "HOMMA - הר חומה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0291667,
+          31.8502778
+        ]
+      },
+      "properties": {
+        "name": "HORON - מבוא חורון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9369444,
+          32.7538889
+        ]
+      },
+      "properties": {
+        "name": "HOTRM - החותרים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.805,
+          31.1355556
+        ]
+      },
+      "properties": {
+        "name": "HOVAV - רמת חובב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.95,
+          30.6227778
+        ]
+      },
+      "properties": {
+        "name": "HRGVS - הר גבס",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8322222,
+          31.2611111
+        ]
+      },
+      "properties": {
+        "name": "HTIVA - חטיבת הנגב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7702778,
+          31.9513889
+        ]
+      },
+      "properties": {
+        "name": "IKKEA - איקאה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2641667,
+          32.1666667
+        ]
+      },
+      "properties": {
+        "name": "IZHRE - יצהר מזרח",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1880556,
+          32.1941667
+        ]
+      },
+      "properties": {
+        "name": "IZHRW - יצהר מערב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.085,
+          32.2525
+        ]
+      },
+      "properties": {
+        "name": "KCUCH - כור",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1758333,
+          32.2163889
+        ]
+      },
+      "properties": {
+        "name": "KEDUM - צומת קדומים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1347222,
+          31.7497222
+        ]
+      },
+      "properties": {
+        "name": "KENED - יד קנדי",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4433333,
+          32.7194444
+        ]
+      },
+      "properties": {
+        "name": "KKAMA - כפר כמא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3455556,
+          32.7591667
+        ]
+      },
+      "properties": {
+        "name": "KKANA - כפר כנא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6502778,
+          31.2627778
+        ]
+      },
+      "properties": {
+        "name": "KKDEM - קדם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7752778,
+          30.7272222
+        ]
+      },
+      "properties": {
+        "name": "KNFHA - כלא נפחא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1133333,
+          32.1816667
+        ]
+      },
+      "properties": {
+        "name": "KSMRN - קרני שומרון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0763889,
+          29.9894444
+        ]
+      },
+      "properties": {
+        "name": "KTORA - צומת קטורה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7636111,
+          31.2586111
+        ]
+      },
+      "properties": {
+        "name": "KUVSH - כובשים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0269444,
+          31.9163889
+        ]
+      },
+      "properties": {
+        "name": "LAPID - לפיד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1897222,
+          31.2297222
+        ]
+      },
+      "properties": {
+        "name": "LLAR - ערד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8855556,
+          32.0094444
+        ]
+      },
+      "properties": {
+        "name": "LLBG - בן גוריון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9327778,
+          32.65
+        ]
+      },
+      "properties": {
+        "name": "LLBO - הבונים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7227778,
+          31.2869444
+        ]
+      },
+      "properties": {
+        "name": "LLBS - תימן",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8183333,
+          31.8366667
+        ]
+      },
+      "properties": {
+        "name": "LLEK - תל נוף",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0141667,
+          29.7272222
+        ]
+      },
+      "properties": {
+        "name": "LLER - אילן ואסף רמון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0033333,
+          32.4413889
+        ]
+      },
+      "properties": {
+        "name": "LLES - עין שמר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9516667,
+          32.265
+        ]
+      },
+      "properties": {
+        "name": "LLEV - עין ורד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2030556,
+          30.6216667
+        ]
+      },
+      "properties": {
+        "name": "LLEY - עין יהב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.7172222,
+          32.7852778
+        ]
+      },
+      "properties": {
+        "name": "LLFK - פיק",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4602778,
+          31.2277778
+        ]
+      },
+      "properties": {
+        "name": "LLGV - גבולות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0427778,
+          32.8083333
+        ]
+      },
+      "properties": {
+        "name": "LLHA - חיפה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.655,
+          31.2433333
+        ]
+      },
+      "properties": {
+        "name": "LLHB - חצרים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7230556,
+          31.7577778
+        ]
+      },
+      "properties": {
+        "name": "LLHS - חצור",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8344444,
+          32.1794444
+        ]
+      },
+      "properties": {
+        "name": "LLHZ - הרצליה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5708333,
+          32.9805556
+        ]
+      },
+      "properties": {
+        "name": "LLIB - ראש פינה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5963889,
+          33.2116667
+        ]
+      },
+      "properties": {
+        "name": "LLKS - קרית שמונה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4436111,
+          30.8588889
+        ]
+      },
+      "properties": {
+        "name": "LLKZ - קציעות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2347222,
+          32.5972222
+        ]
+      },
+      "properties": {
+        "name": "LLMG - מגידו",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3883333,
+          31.3291667
+        ]
+      },
+      "properties": {
+        "name": "LLMZ - מצדה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0183333,
+          31.2133333
+        ]
+      },
+      "properties": {
+        "name": "LLNV - נבטים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0383333,
+          31.195
+        ]
+      },
+      "properties": {
+        "name": "LLNV - נגב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9383333,
+          29.94
+        ]
+      },
+      "properties": {
+        "name": "LLOV - עובדה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.69,
+          31.8983333
+        ]
+      },
+      "properties": {
+        "name": "LLPL - פלמחים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1833333,
+          32.6666667
+        ]
+      },
+      "properties": {
+        "name": "LLRD - רמת דוד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6666667,
+          30.775
+        ]
+      },
+      "properties": {
+        "name": "LLRM - רמון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7536111,
+          31.9675
+        ]
+      },
+      "properties": {
+        "name": "LLRS - ראשון לציון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9866667,
+          31.8386111
+        ]
+      },
+      "properties": {
+        "name": "LTRUN - לטרון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7822222,
+          31.5116667
+        ]
+      },
+      "properties": {
+        "name": "MACHZ - מחלף מאחז",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4227778,
+          32.1469444
+        ]
+      },
+      "properties": {
+        "name": "MCORA - מכורה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0325,
+          31.9733333
+        ]
+      },
+      "properties": {
+        "name": "MCZVA - מחצבה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7641667,
+          31.9608333
+        ]
+      },
+      "properties": {
+        "name": "MEHOL - משולש חולות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9436111,
+          30.5016667
+        ]
+      },
+      "properties": {
+        "name": "MESAR - מעלה מישר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9627778,
+          32.2075
+        ]
+      },
+      "properties": {
+        "name": "MEYAL - מחלף אייל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5166667,
+          32.3666667
+        ]
+      },
+      "properties": {
+        "name": "MHOLA - מחולה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5094444,
+          32.8363889
+        ]
+      },
+      "properties": {
+        "name": "MIGDL - מגדל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7127778,
+          31.3688889
+        ]
+      },
+      "properties": {
+        "name": "MINGV - משמר הנגב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8122222,
+          31.5988889
+        ]
+      },
+      "properties": {
+        "name": "MKGAT - מחלף קרית גת",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8152778,
+          31.9388889
+        ]
+      },
+      "properties": {
+        "name": "MNSZN - מחלף נס ציונה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2333333,
+          32.7591667
+        ]
+      },
+      "properties": {
+        "name": "MOVIL - המוביל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3133333,
+          32.5969444
+        ]
+      },
+      "properties": {
+        "name": "MRHVA - מרחביה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3308333,
+          31.705
+        ]
+      },
+      "properties": {
+        "name": "MRSBA - מרסבא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9380556,
+          31.3147222
+        ]
+      },
+      "properties": {
+        "name": "MYTAR - מיתר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4625,
+          31.9086111
+        ]
+      },
+      "properties": {
+        "name": "NAAMA - נעמה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.7347222,
+          33.0572222
+        ]
+      },
+      "properties": {
+        "name": "NAFCH - נפח",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8222222,
+          31.7452778
+        ]
+      },
+      "properties": {
+        "name": "NAHEM - כפר מנחם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8091667,
+          31.6563889
+        ]
+      },
+      "properties": {
+        "name": "NAHLA - נחלה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6983333,
+          31.3302778
+        ]
+      },
+      "properties": {
+        "name": "NASIH - אשל הנשיא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.4930556,
+          31.2744444
+        ]
+      },
+      "properties": {
+        "name": "NBSOR - נחל בשור",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7913889,
+          31.2875
+        ]
+      },
+      "properties": {
+        "name": "NCITY - צפון העיר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9169444,
+          31.8155556
+        ]
+      },
+      "properties": {
+        "name": "NCSHN - צומת נחשון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8380556,
+          31.0661111
+        ]
+      },
+      "properties": {
+        "name": "NEGEV - צומת הנגב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2488889,
+          32.5661111
+        ]
+      },
+      "properties": {
+        "name": "NIRYA - ניר יפה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5705556,
+          31.7241667
+        ]
+      },
+      "properties": {
+        "name": "NITZA - ניצן*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6277778,
+          31.7138889
+        ]
+      },
+      "properties": {
+        "name": "NIZNM - ניצנים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6313889,
+          31.8152778
+        ]
+      },
+      "properties": {
+        "name": "NMADD - נמל אשדוד*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8916667,
+          31.9091667
+        ]
+      },
+      "properties": {
+        "name": "NSHRM - מ. נשרים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7808333,
+          31.9436111
+        ]
+      },
+      "properties": {
+        "name": "NTAIM - נטעים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6188889,
+          31.3222222
+        ]
+      },
+      "properties": {
+        "name": "OFKIM - אופקים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8047222,
+          31.1911111
+        ]
+      },
+      "properties": {
+        "name": "OHLIM - אוהלים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8658333,
+          32.4313889
+        ]
+      },
+      "properties": {
+        "name": "OLGAH - אולגה*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.93,
+          32.5080556
+        ]
+      },
+      "properties": {
+        "name": "ORAKV - אור עקיבא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7933333,
+          30.8027778
+        ]
+      },
+      "properties": {
+        "name": "OVDAT - חורבות עבדת",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8372222,
+          32.33
+        ]
+      },
+      "properties": {
+        "name": "PELEG - פלג*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9722222,
+          32.4744444
+        ]
+      },
+      "properties": {
+        "name": "PRHNA - פרדס חנה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8722222,
+          32.1563889
+        ]
+      },
+      "properties": {
+        "name": "RAMAT - רמתיים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0244444,
+          31.8783333
+        ]
+      },
+      "properties": {
+        "name": "REUTE - רעות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8019444,
+          31.9494444
+        ]
+      },
+      "properties": {
+        "name": "RSNIM - ראשונים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8088889,
+          30.66
+        ]
+      },
+      "properties": {
+        "name": "RUHOT - צומת הרוחות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0286111,
+          29.8313889
+        ]
+      },
+      "properties": {
+        "name": "SAMAR - סמר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.885,
+          32.4966667
+        ]
+      },
+      "properties": {
+        "name": "SDTYM - שדות ים*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9355556,
+          31.09
+        ]
+      },
+      "properties": {
+        "name": "SECHR - סכר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5711111,
+          33.0458333
+        ]
+      },
+      "properties": {
+        "name": "SELZR - שדה אליעזר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3369444,
+          31.9575
+        ]
+      },
+      "properties": {
+        "name": "SHAHR - כוכב השחר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4025,
+          31.5586111
+        ]
+      },
+      "properties": {
+        "name": "SHALM - מצפה שלם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0211111,
+          31.8197222
+        ]
+      },
+      "properties": {
+        "name": "SHARG - שער הגיא",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7061111,
+          31.94
+        ]
+      },
+      "properties": {
+        "name": "SHEFC - שפך",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8094444,
+          32.2183333
+        ]
+      },
+      "properties": {
+        "name": "SHFAM - שפיים*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8352778,
+          32.1852778
+        ]
+      },
+      "properties": {
+        "name": "SHIKI - שיקי",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9836111,
+          31.8733333
+        ]
+      },
+      "properties": {
+        "name": "SHLVM - שעלבים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.83,
+          31.9280556
+        ]
+      },
+      "properties": {
+        "name": "SIRNI - נצר סירני",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0144444,
+          30.1758333
+        ]
+      },
+      "properties": {
+        "name": "SITIM - שיטים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0144444,
+          30.0475
+        ]
+      },
+      "properties": {
+        "name": "SIZFN - שיזפון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.09,
+          32.9516667
+        ]
+      },
+      "properties": {
+        "name": "SMRAT - שמרת",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.6758333,
+          33.2383333
+        ]
+      },
+      "properties": {
+        "name": "SNNIR - שניר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9011111,
+          31.3075
+        ]
+      },
+      "properties": {
+        "name": "SOKET - צומת שוקת",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7519444,
+          31.9419444
+        ]
+      },
+      "properties": {
+        "name": "SOREK - שורק",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0761111,
+          31.7997222
+        ]
+      },
+      "properties": {
+        "name": "SORES - שורש",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9961111,
+          32.1063889
+        ]
+      },
+      "properties": {
+        "name": "SSOMR - שער שומרון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7416667,
+          31.9763889
+        ]
+      },
+      "properties": {
+        "name": "SUPER - סופרלנד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1608333,
+          32.9319444
+        ]
+      },
+      "properties": {
+        "name": "TAALL - צומת טל אל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2461111,
+          32.1255556
+        ]
+      },
+      "properties": {
+        "name": "TAPUH - תפוח",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1255556,
+          31.2775
+        ]
+      },
+      "properties": {
+        "name": "TARAD - תל ערד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.42,
+          32.6902778
+        ]
+      },
+      "properties": {
+        "name": "TAVOR - כפר תבור",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5266667,
+          32.4244444
+        ]
+      },
+      "properties": {
+        "name": "TIRAT - טירת צבי",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7622222,
+          30.9905556
+        ]
+      },
+      "properties": {
+        "name": "TLLIM - טללים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7272222,
+          32.0047222
+        ]
+      },
+      "properties": {
+        "name": "TYONA - תל יונה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5297222,
+          31.3077778
+        ]
+      },
+      "properties": {
+        "name": "TZHOT - צלחות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.2483333,
+          31.2188889
+        ]
+      },
+      "properties": {
+        "name": "TZHTR - צומת חתרורים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1205556,
+          31.7794444
+        ]
+      },
+      "properties": {
+        "name": "TZUBA - צובה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8169444,
+          32.2555556
+        ]
+      },
+      "properties": {
+        "name": "VINGT - וינגייט*",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1333333,
+          30.0822222
+        ]
+      },
+      "properties": {
+        "name": "YAHEL - יהל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9705556,
+          32.1502778
+        ]
+      },
+      "properties": {
+        "name": "YARHV - ירחיב",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1558333,
+          32.9125
+        ]
+      },
+      "properties": {
+        "name": "YASIF - צומת יאסיף",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.0672222,
+          29.9008333
+        ]
+      },
+      "properties": {
+        "name": "YOTVT - יטבתה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9108333,
+          30.9897222
+        ]
+      },
+      "properties": {
+        "name": "YRUHM - ירוחם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5097222,
+          32.1258333
+        ]
+      },
+      "properties": {
+        "name": "ZADAM - צומת אדם",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5422222,
+          32.9133333
+        ]
+      },
+      "properties": {
+        "name": "ZAMID - צומת עמיעד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7083333,
+          31.8261111
+        ]
+      },
+      "properties": {
+        "name": "ZASHD - צ.אשדוד",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8236111,
+          32.1752778
+        ]
+      },
+      "properties": {
+        "name": "ZAYAL - צומת איילון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.6061111,
+          31.6652778
+        ]
+      },
+      "properties": {
+        "name": "ZBRCH - צומת ברכיה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.6502778,
+          33.0111111
+        ]
+      },
+      "properties": {
+        "name": "ZBTMS - צומת בית המכס",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.6330556,
+          32.9038889
+        ]
+      },
+      "properties": {
+        "name": "ZBTZD - צומת בית צידה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.5119444,
+          31.2030556
+        ]
+      },
+      "properties": {
+        "name": "ZELIM - צאלים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.5858333,
+          32.7044444
+        ]
+      },
+      "properties": {
+        "name": "ZEMAH - צמח",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4827778,
+          32.9886111
+        ]
+      },
+      "properties": {
+        "name": "ZETIM - עין זיתים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4072222,
+          32.7747222
+        ]
+      },
+      "properties": {
+        "name": "ZGLNI - צומת גולני",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7877778,
+          31.3127778
+        ]
+      },
+      "properties": {
+        "name": "ZGOAL - גורל",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.945,
+          31.6997222
+        ]
+      },
+      "properties": {
+        "name": "ZHRYA - זכריה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4738889,
+          32.9094444
+        ]
+      },
+      "properties": {
+        "name": "ZKADR - צומת קדרים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7933333,
+          31.3725
+        ]
+      },
+      "properties": {
+        "name": "ZLHAV - צומת להבים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1911111,
+          32.5727778
+        ]
+      },
+      "properties": {
+        "name": "ZMGID - צומת מגידו",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.7516667,
+          33.2330556
+        ]
+      },
+      "properties": {
+        "name": "ZMSDA - צומת מסעדה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9586111,
+          32.1722222
+        ]
+      },
+      "properties": {
+        "name": "ZNYMN - צומת נווה ימין",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1866667,
+          30.5597222
+        ]
+      },
+      "properties": {
+        "name": "ZOFAR - צופר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.3725,
+          31.1508333
+        ]
+      },
+      "properties": {
+        "name": "ZOHAR - נווה זוהר",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.7566667,
+          31.6255556
+        ]
+      },
+      "properties": {
+        "name": "ZPLGT - צומת פלוגות",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.8277778,
+          31.225
+        ]
+      },
+      "properties": {
+        "name": "ZSARA - צומת שרה",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.4497222,
+          31.7161111
+        ]
+      },
+      "properties": {
+        "name": "ZUKIM - עיינות צוקים",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.9047222,
+          32.1225
+        ]
+      },
+      "properties": {
+        "name": "ZYARK - צומת ירקון",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.02,
+          30.2766667
+        ]
+      },
+      "properties": {
+        "name": "ZZHOR - צומת ציחור",
+        "type": "LSA Point"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.57585552117363,
+          31.77647407411163
+        ]
+      },
+      "properties": {
+        "name": "Airfield: Royal Aerosports Club of Jordan",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.47661037792464,
+          31.76529575332111
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אוג",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.726236,
+          31.746426
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אורות",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.537416,
+          31.269407
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אורים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.433929,
+          32.535478
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אליעז",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.610385,
+          31.655739
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אשקלון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.977646,
+          32.32025
+        ]
+      },
+      "properties": {
+        "name": "Airfield: בארותיים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.924253,
+          32.52264
+        ]
+      },
+      "properties": {
+        "name": "Airfield: בית חנניה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.79907,
+          33.131438
+        ]
+      },
+      "properties": {
+        "name": "Airfield: בנטל",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.124216,
+          33.071006
+        ]
+      },
+      "properties": {
+        "name": "Airfield: בצת",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.617239,
+          31.366912
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ברוש",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.462983,
+          31.22964
+        ]
+      },
+      "properties": {
+        "name": "Airfield: גבולות",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.010118,
+          31.060566
+        ]
+      },
+      "properties": {
+        "name": "Airfield: דימונה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.465209,
+          33.021322
+        ]
+      },
+      "properties": {
+        "name": "Airfield: דלתון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.932826,
+          32.648487
+        ]
+      },
+      "properties": {
+        "name": "Airfield: הבונים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.581318,
+          33.114422
+        ]
+      },
+      "properties": {
+        "name": "Airfield: החולה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.304441,
+          31.430264
+        ]
+      },
+      "properties": {
+        "name": "Airfield: חבר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.378083,
+          31.123666
+        ]
+      },
+      "properties": {
+        "name": "Airfield: חלוצה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.27504105137935,
+          30.75619191577076
+        ]
+      },
+      "properties": {
+        "name": "Airfield: חצבה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.900871,
+          31.789259
+        ]
+      },
+      "properties": {
+        "name": "Airfield: טל שחר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.74876934857473,
+          32.93415911938276
+        ]
+      },
+      "properties": {
+        "name": "Airfield: יונתן",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.065776,
+          29.897514
+        ]
+      },
+      "properties": {
+        "name": "Airfield: יטבתה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.136384,
+          30.304127
+        ]
+      },
+      "properties": {
+        "name": "Airfield: כושי 101",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.80421860857366,
+          31.49913147984888
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מאחז",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.950912,
+          32.7259
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מגדים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.23448381986979,
+          32.59705962772182
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מגידו",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.915461,
+          30.409838
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מיישר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.364645,
+          31.071234
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מישור עמיעז",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.157957,
+          32.938912
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מאכר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.388145,
+          31.325573
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מצדה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.42653324234762,
+          31.67650854370081
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מצפה נחליאל",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.806867,
+          30.655764
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מצפה רמון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.321802,
+          32.601787
+        ]
+      },
+      "properties": {
+        "name": "Airfield: מרחביה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.386729,
+          30.943711
+        ]
+      },
+      "properties": {
+        "name": "Airfield: נאות הככר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.836613,
+          30.027733
+        ]
+      },
+      "properties": {
+        "name": "Airfield: נחל צניפים עליון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.626324,
+          31.47627900000001
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ניר משה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.886591,
+          31.884102
+        ]
+      },
+      "properties": {
+        "name": "Airfield: נען",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.559426,
+          31.471282
+        ]
+      },
+      "properties": {
+        "name": "Airfield: סעד",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.784096,
+          31.676199
+        ]
+      },
+      "properties": {
+        "name": "Airfield: סגולה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.11845089274597,
+          33.02667125990044
+        ]
+      },
+      "properties": {
+        "name": "Airfield: סער",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.217105,
+          31.866676
+        ]
+      },
+      "properties": {
+        "name": "Airfield: עטרות",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.950853,
+          32.263532
+        ]
+      },
+      "properties": {
+        "name": "Airfield: עין ורד",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.202248,
+          30.617783
+        ]
+      },
+      "properties": {
+        "name": "Airfield: עין יהב",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.19165674485323,
+          31.23003615691965
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ערד",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.15776,
+          30.369416
+        ]
+      },
+      "properties": {
+        "name": "Airfield: פארן",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.719596,
+          32.788141
+        ]
+      },
+      "properties": {
+        "name": "Airfield: פיק",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.047179,
+          30.276459
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ציחור",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.18966068076461,
+          32.90597122545294
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ציקלון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.770433,
+          31.699146
+        ]
+      },
+      "properties": {
+        "name": "Airfield: קדמה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.800582,
+          31.820743
+        ]
+      },
+      "properties": {
+        "name": "Airfield: קידרון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.597254,
+          33.217413
+        ]
+      },
+      "properties": {
+        "name": "Airfield: קרית שמונה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.000778,
+          30.290641
+        ]
+      },
+      "properties": {
+        "name": "Airfield: קצאא",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.445088,
+          30.857356
+        ]
+      },
+      "properties": {
+        "name": "Airfield: קציעות",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.101022,
+          30.22123
+        ]
+      },
+      "properties": {
+        "name": "Airfield: חיון - קרנפים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.75361,
+          31.968024
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ראשון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.838439,
+          31.783797
+        ]
+      },
+      "properties": {
+        "name": "Airfield: רבדים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.88272529773278,
+          31.68384038886154
+        ]
+      },
+      "properties": {
+        "name": "Airfield: לוזית",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.720945,
+          31.462616
+        ]
+      },
+      "properties": {
+        "name": "Airfield: רוחמה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.849083,
+          32.226103
+        ]
+      },
+      "properties": {
+        "name": "Airfield: רונית",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.917841,
+          31.650987
+        ]
+      },
+      "properties": {
+        "name": "Airfield: רמת אבישור",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.65884,
+          30.935874
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שבטה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.858889,
+          29.963611
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שדה אברהם",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.802669,
+          30.857989
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שדה בוקר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.1040195063099,
+          32.94477259732884
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שומרת",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.99642151834998,
+          29.92307312412716
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שחרות",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.01933,
+          30.160423
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שיטים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.775413,
+          31.875846
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שילר",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.64506813564124,
+          31.52491878448257
+        ]
+      },
+      "properties": {
+        "name": "Airfield: שקמים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.722085,
+          31.28740000000001
+        ]
+      },
+      "properties": {
+        "name": "Airfield: תימן",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.304972,
+          32.661
+        ]
+      },
+      "properties": {
+        "name": "Airfield: תל עדשים",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.11888888888889,
+          32.95194444444445
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אסיף",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.01416666666667,
+          29.72722222222222
+        ]
+      },
+      "properties": {
+        "name": "Airfield: אילת-רמון",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          34.83275219450232,
+          32.18078254282661
+        ]
+      },
+      "properties": {
+        "name": "Airfield: הרצליה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.043003,
+          32.811995
+        ]
+      },
+      "properties": {
+        "name": "Airfield: חיפה",
+        "type": "Airfield"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          35.57200325278583,
+          32.98083613846288
+        ]
+      },
+      "properties": {
+        "name": "Airfield: ראש פינה",
+        "type": "Airfield"
+      }
+    }
+  ]
+}

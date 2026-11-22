@@ -222,6 +222,13 @@
                 _realLat: realLL.lat,
                 _realLng: realLL.lng
             };
+
+            textMarker.on('dragend', function(e) {
+                var newLL = textMarker.getLatLng();
+                var real = (typeof calibrateDisplayToReal === 'function') ? calibrateDisplayToReal(newLL) : newLL;
+                textMarker.textBoxData._realLat = real.lat;
+                textMarker.textBoxData._realLng = real.lng;
+            });
             
             // Single click = show selection box with rotation handle (like WP labels)
             var tbSelDiv = null;
@@ -274,7 +281,7 @@
                         appState.map.removeLayer(textMarker);
                         var idx = appState.textBoxes.indexOf(textMarker);
                         if (idx > -1) appState.textBoxes.splice(idx, 1);
-                        createTextBoxMarker(ll, d.text, d.textColor, d.fillColor, d.rotation);
+                        createTextBoxMarker(ll, d.text, d.textColor, d.fillColor, d.rotation, d.fontSize);
                     }
                     document.addEventListener('mousemove', mmR);
                     document.addEventListener('mouseup', muR);
